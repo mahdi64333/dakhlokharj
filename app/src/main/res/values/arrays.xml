@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="order_by_options_array">
+        <item>@string/time_desc</item>
+        <item>@string/time_asc</item>
+        <item>@string/price_desc</item>
+        <item>@string/price_asc</item>
+    </array>
+</resources>
