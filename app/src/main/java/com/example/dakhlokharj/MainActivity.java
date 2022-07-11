@@ -410,7 +410,7 @@ public class MainActivity extends AppCompatActivity {
                 selectedConsumersAdapter.notifyItemInserted(selectedConsumers.size() - 1);
                 availableConsumersAdapter.remove(availableConsumers.get(0));
             }
-            refreshBottomSheetHeight();
+            new Handler().postDelayed(this::refreshBottomSheetHeight, 500);
             return true;
         });
 
@@ -743,7 +743,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main_toolbar_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
