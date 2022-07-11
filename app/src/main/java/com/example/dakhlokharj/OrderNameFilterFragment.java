@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,7 +44,6 @@ public class OrderNameFilterFragment extends Fragment {
     TextView tvSum, tvNoOrdersFound;
     ArrayList<Order> orders;
     DatabaseHelper dbHelper;
-    Toolbar toolbar;
     Boolean showDeleteOption;
 
     @Override
@@ -63,8 +61,6 @@ public class OrderNameFilterFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        toolbar = view.findViewById(R.id.toolbarFilterActivity);
 
         tiEtOrderName = view.findViewById(R.id.textInputEditTextOrderNameFilter);
         tilOrderName = view.findViewById(R.id.textInputLayoutOrderNameFilter);
