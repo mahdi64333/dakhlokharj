@@ -26,28 +26,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:divider="?android:dividerHorizontal"
-        android:showDividers="middle"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:showDividers="middle">
 
-        <LinearLayout
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchNightMode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?android:attr/listPreferredItemHeight"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="@string/night_mode"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switchNightMode"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"/>
-        </LinearLayout>
+            android:padding="16dp"
+            android:text="@string/night_mode"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -65,9 +54,30 @@
 
             <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/spinnerDefaultOrderBy"
-                android:entries="@array/order_by_options_array"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:entries="@array/order_by_options_array" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/application_language"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/spinnerLanguage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/order_by_options_array" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
