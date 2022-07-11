@@ -36,7 +36,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.settings_shared_preferences), Context.MODE_PRIVATE);
         switchNightMode.setChecked(sharedPreferences.getBoolean(getString(R.string.settings_night_mode), false));
-        spinnerDefaultOrderMode.setSelection(sharedPreferences.getInt(getString(R.string.settings_default_order), DatabaseHelper.ORDER_MODE_TIME_DESC));
+        int startingOrderBySelection = sharedPreferences.getInt(getString(R.string.settings_default_order), DatabaseHelper.ORDER_MODE_TIME_DESC);
+        spinnerDefaultOrderMode.setSelection(startingOrderBySelection);
 
         switchNightMode.setOnCheckedChangeListener((compoundButton, b) -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -54,7 +55,11 @@ public class SettingsActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putInt(getString(R.string.settings_default_order), i);
-                setResult(1);
+                if (startingOrderBySelection == i) {
+                    setResult(4);
+                } else {
+                    setResult(0);
+                }
                 editor.apply();
             }
 
