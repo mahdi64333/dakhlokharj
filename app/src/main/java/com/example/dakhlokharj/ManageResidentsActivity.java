@@ -79,7 +79,7 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
 
         btnAddResident.setOnClickListener(view -> {
             if (Objects.requireNonNull(tiEtResidentName.getText()).toString().trim().isEmpty()) {
-                tilResidentName.setError(getString(R.string.please_enter_the_name));
+                tilResidentName.setError(getString(R.string.please_enter_a_name));
                 return;
             }
             String residentName = tiEtResidentName.getText().toString().trim();
