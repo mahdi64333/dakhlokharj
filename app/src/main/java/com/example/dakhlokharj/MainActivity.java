@@ -616,14 +616,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == 1) {
-                        refreshOrdersList();
-                    } else if (result.getResultCode() == 2) {
-                        refreshAdapters();
-                    } else if (result.getResultCode() == 3) {
-                        refreshAdapters();
-                        refreshOrdersList();
-                    } else if (result.getResultCode() == 4) {
+                    if ((result.getResultCode() & 4) > 0) {
                         switch (sharedPreferences.getInt(getString(R.string.settings_default_order), DatabaseHelper.ORDER_MODE_TIME_DESC)) {
                             case DatabaseHelper.ORDER_MODE_TIME_DESC:
                                 toolbar.setOverflowIcon(AppCompatResources.getDrawable(MainActivity.this, R.drawable.ic_order_time_desc));
@@ -642,6 +635,12 @@ public class MainActivity extends AppCompatActivity {
                                 dbHelper.setToOrderByPriceAsc();
                                 break;
                         }
+                    }
+                    if ((result.getResultCode() & 2) > 0) {
+                        refreshAdapters();
+                    }
+                    if ((result.getResultCode() & 1) > 0) {
+                        refreshOrdersList();
                     }
                 }
         );

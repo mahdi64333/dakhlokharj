@@ -18,6 +18,8 @@ public class SettingsActivity extends AppCompatActivity {
     Toolbar toolbar;
     SwitchCompat switchNightMode;
     AppCompatSpinner spinnerDefaultOrderMode;
+    SharedPreferences sharedPreferences;
+    int startingOrderBySelection, resultCode = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +36,9 @@ public class SettingsActivity extends AppCompatActivity {
         Objects.requireNonNull(toolbar.getOverflowIcon()).setTint(getResources().getColor(R.color.white));
         Objects.requireNonNull(toolbar.getNavigationIcon()).setTint(getResources().getColor(R.color.white));
 
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.settings_shared_preferences), Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(getString(R.string.settings_shared_preferences), Context.MODE_PRIVATE);
         switchNightMode.setChecked(sharedPreferences.getBoolean(getString(R.string.settings_night_mode), false));
-        int startingOrderBySelection = sharedPreferences.getInt(getString(R.string.settings_default_order), DatabaseHelper.ORDER_MODE_TIME_DESC);
+        startingOrderBySelection = sharedPreferences.getInt(getString(R.string.settings_default_order), DatabaseHelper.ORDER_MODE_TIME_DESC);
         spinnerDefaultOrderMode.setSelection(startingOrderBySelection);
 
         switchNightMode.setOnCheckedChangeListener((compoundButton, b) -> {
@@ -54,12 +56,13 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putInt(getString(R.string.settings_default_order), i);
-                if (startingOrderBySelection == i) {
-                    setResult(4);
+                editor.putInt(getString(R.string.settings_default_order), spinnerDefaultOrderMode.getSelectedItemPosition());
+                if (startingOrderBySelection != spinnerDefaultOrderMode.getSelectedItemPosition()) {
+                    resultCode = resultCode | 4 | 1;
                 } else {
-                    setResult(0);
+                    resultCode = resultCode & ~4 & ~1;
                 }
+                setResult(resultCode);
                 editor.apply();
             }
 

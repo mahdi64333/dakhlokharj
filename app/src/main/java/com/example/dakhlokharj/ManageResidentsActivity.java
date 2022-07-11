@@ -83,10 +83,8 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
                 return;
             }
             String residentName = tiEtResidentName.getText().toString().trim();
-            if (resultCode == 0) {
-                resultCode = 2;
-                setResult(2);
-            }
+            resultCode = resultCode | 2;
+            setResult(resultCode);
             String errorMsg = dbHelper.addResident(residentName);
             Resident newResident = new Resident(dbHelper.getResidentIdByName(residentName), residentName, true);
             addResidentToAdapter(newResident);
@@ -229,10 +227,8 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
     }
 
     private void snackBarDismissCallbackMethod() {
-        if (!undoFlag.get()) {
-            resultCode = 3;
-            setResult(1);
+            resultCode = resultCode | 1;
+            setResult(resultCode);
             dbHelper.deleteResidentById(residentBackup.getId());
-        }
     }
 }
