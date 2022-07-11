@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_manage_residents) {
                 Intent manageResidentsIntent = new Intent(MainActivity.this, ManageResidentsActivity.class);
-                startActivity(manageResidentsIntent);
+                startActivityForResult.launch(manageResidentsIntent);
             } else if (itemId == R.id.nav_summery) {
                 Intent summeryIntent = new Intent(MainActivity.this, SummeryActivity.class);
                 startActivity(summeryIntent);
@@ -619,6 +619,11 @@ public class MainActivity extends AppCompatActivity {
                     if (result.getResultCode() == 1) {
                         refreshOrdersList();
                     } else if (result.getResultCode() == 2) {
+                        refreshAdapters();
+                    } else if (result.getResultCode() == 3) {
+                        refreshAdapters();
+                        refreshOrdersList();
+                    } else if (result.getResultCode() == 4) {
                         switch (sharedPreferences.getInt(getString(R.string.settings_default_order), DatabaseHelper.ORDER_MODE_TIME_DESC)) {
                             case DatabaseHelper.ORDER_MODE_TIME_DESC:
                                 toolbar.setOverflowIcon(AppCompatResources.getDrawable(MainActivity.this, R.drawable.ic_order_time_desc));
@@ -637,17 +642,9 @@ public class MainActivity extends AppCompatActivity {
                                 dbHelper.setToOrderByPriceAsc();
                                 break;
                         }
-                        refreshOrdersList();
                     }
                 }
         );
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        refreshAdapters();
     }
 
     @Override
@@ -758,17 +755,20 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.menuOrderByTimeDesc) {
             dbHelper.setToOrderByTimeDesc();
             toolbar.setOverflowIcon(AppCompatResources.getDrawable(MainActivity.this, R.drawable.ic_order_time_desc));
+            refreshOrdersList();
         } else if (id == R.id.menuOrderByTimeAsc) {
             dbHelper.setToOrderByTimeAsc();
             toolbar.setOverflowIcon(AppCompatResources.getDrawable(MainActivity.this, R.drawable.ic_order_time_asc));
+            refreshOrdersList();
         } else if (id == R.id.menuOrderByPriceDesc) {
             dbHelper.setToOrderByPriceDesc();
             toolbar.setOverflowIcon(AppCompatResources.getDrawable(MainActivity.this, R.drawable.ic_order_price_desc));
+            refreshOrdersList();
         } else if (id == R.id.menuOrderByPriceAsc) {
             dbHelper.setToOrderByPriceAsc();
             toolbar.setOverflowIcon(AppCompatResources.getDrawable(MainActivity.this, R.drawable.ic_order_price_asc));
+            refreshOrdersList();
         }
-        refreshOrdersList();
         return super.onOptionsItemSelected(item);
     }
 }

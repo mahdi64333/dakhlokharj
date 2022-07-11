@@ -1,7 +1,6 @@
 package com.example.dakhlokharj;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -55,8 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putInt(getString(R.string.settings_default_order), i);
-                Intent intent = new Intent();
-                setResult(2, intent);
+                setResult(1);
                 editor.apply();
             }
 

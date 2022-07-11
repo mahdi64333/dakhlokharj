@@ -1,6 +1,5 @@
 package com.example.dakhlokharj;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -46,6 +45,9 @@ public class BuyerFilterFragment extends Fragment {
     ArrayList<Order> orders;
     DatabaseHelper dbHelper;
     Boolean showDeleteOption;
+    Snackbar snackbar;
+    AtomicBoolean undoFlag;
+    Snackbar.Callback snackbarBaseCallback;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -133,6 +135,13 @@ public class BuyerFilterFragment extends Fragment {
         });
 
         showDeleteOption = false;
+        snackbarBaseCallback = new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar transientBottomBar, int event) {
+                snackBarDismissCallbackMethod();
+                super.onDismissed(transientBottomBar, event);
+            }
+        };
     }
 
     @Override
@@ -148,34 +157,21 @@ public class BuyerFilterFragment extends Fragment {
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(requireContext());
             alertDialog.setMessage(R.string.are_you_sure_to_delete_all);
             alertDialog.setPositiveButton(R.string.yes, (dialogInterface, i) -> {
-                AtomicBoolean undoFlag = new AtomicBoolean(false);
+                undoFlag = new AtomicBoolean(false);
                 rvOrders.setAdapter(new OrdersAdapter(requireContext(), new ArrayList<>()));
                 CoordinatorLayout root = requireActivity().findViewById(R.id.rootCoordinatorLayoutFilterActivity);
-                Snackbar snackbar = Snackbar.make(root, getString(R.string.order_got_deleted), Snackbar.LENGTH_LONG);
+                snackbar = Snackbar.make(root, getString(R.string.order_got_deleted), Snackbar.LENGTH_LONG);
                 BaseTransientBottomBar.Behavior behavior = new BaseTransientBottomBar.Behavior();
                 behavior.setSwipeDirection(SwipeDismissBehavior.SWIPE_DIRECTION_ANY);
                 snackbar.setBehavior(behavior);
                 snackbar.setAction(R.string.cancel, view -> {
                     rvOrders.setAdapter(new OrdersAdapter(requireContext(), orders));
-
                     showDeleteOption = true;
                     requireActivity().invalidateOptionsMenu();
                     tvSum.setVisibility(View.VISIBLE);
                     undoFlag.set(true);
                 });
-                snackbar.addCallback(new Snackbar.Callback() {
-                    @Override
-                    public void onDismissed(Snackbar transientBottomBar, int event) {
-                        super.onDismissed(transientBottomBar, event);
-                        if (!undoFlag.get()) {
-                            for (int i = 0; i < orders.size(); i++) {
-                                dbHelper.deleteOrderById(orders.get(i).getId());
-                            }
-                            Intent intent = new Intent();
-                            requireActivity().setResult(1, intent);
-                        }
-                    }
-                });
+                snackbar.addCallback(snackbarBaseCallback);
                 snackbar.show();
 
                 showDeleteOption = false;
@@ -190,8 +186,27 @@ public class BuyerFilterFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        if (snackbar != null && snackbar.isShown() && !undoFlag.get()){
+            snackbar.removeCallback(snackbarBaseCallback);
+            snackBarDismissCallbackMethod();
+            snackbar.dismiss();
+        }
+        super.onPause();
+    }
+
+    @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(R.id.menuItemDeleteAll).setVisible(showDeleteOption);
+    }
+
+    private void snackBarDismissCallbackMethod() {
+        if (!undoFlag.get()) {
+            for (int i = 0; i < orders.size(); i++) {
+                requireActivity().setResult(1);
+                dbHelper.deleteOrderById(orders.get(i).getId());
+            }
+        }
     }
 }

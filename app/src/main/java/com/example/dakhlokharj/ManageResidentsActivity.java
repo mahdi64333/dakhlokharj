@@ -35,6 +35,11 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
     ArrayList<Resident> residents;
     ItemTouchHelper.SimpleCallback itemTouchHelperCallback;
     TextView tvNoResidentsFound;
+    int resultCode = 0;
+    AtomicBoolean undoFlag;
+    Snackbar snackbar;
+    Resident residentBackup;
+    Snackbar.Callback snackbarBaseCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +83,10 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
                 return;
             }
             String residentName = tiEtResidentName.getText().toString().trim();
+            if (resultCode == 0) {
+                resultCode = 2;
+                setResult(2);
+            }
             String errorMsg = dbHelper.addResident(residentName);
             Resident newResident = new Resident(dbHelper.getResidentIdByName(residentName), residentName, true);
             addResidentToAdapter(newResident);
@@ -108,6 +117,15 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
             }
         });
 
+
+        snackbarBaseCallback = new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar transientBottomBar, int event) {
+                super.onDismissed(transientBottomBar, event);
+                snackBarDismissCallbackMethod();
+            }
+        };
+
         itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -116,9 +134,9 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                AtomicBoolean undoFlag = new AtomicBoolean(false);
+                undoFlag = new AtomicBoolean(false);
                 int position = viewHolder.getAdapterPosition();
-                Resident residentBackup = residents.get(position);
+                residentBackup = residents.get(position);
                 residents.remove(viewHolder.getAdapterPosition());
                 residentsAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
                 for (int i = position; i < residents.size(); i++) {
@@ -131,7 +149,7 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
                 alertDialog.setMessage(R.string.are_you_sure_to_delete);
                 alertDialog.setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
                     CoordinatorLayout root = findViewById(R.id.coordinatorLayoutManageResidentsActivity);
-                    Snackbar snackbar = Snackbar.make(root, getString(R.string.resident_got_deleted), Snackbar.LENGTH_LONG);
+                    snackbar = Snackbar.make(root, getString(R.string.resident_got_deleted), Snackbar.LENGTH_LONG);
                     BaseTransientBottomBar.Behavior behavior = new BaseTransientBottomBar.Behavior();
                     behavior.setSwipeDirection(SwipeDismissBehavior.SWIPE_DIRECTION_ANY);
                     snackbar.setBehavior(behavior);
@@ -139,15 +157,7 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
                         addResidentToAdapter(residentBackup);
                         undoFlag.set(true);
                     });
-                    snackbar.addCallback(new Snackbar.Callback() {
-                        @Override
-                        public void onDismissed(Snackbar transientBottomBar, int event) {
-                            super.onDismissed(transientBottomBar, event);
-                            if (!undoFlag.get()) {
-                                dbHelper.deleteResidentById(residentBackup.getId());
-                            }
-                        }
-                    });
+                    snackbar.addCallback(snackbarBaseCallback);
                     snackbar.show();
                 });
                 alertDialog.setNegativeButton(R.string.no, (dialogInterface, i) -> addResidentToAdapter(residentBackup));
@@ -207,5 +217,22 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return super.onSupportNavigateUp();
+    }
+
+    @Override
+    protected void onPause() {
+        if (snackbar != null && snackbar.isShown() && !undoFlag.get()) {
+            snackbar.removeCallback(snackbarBaseCallback);
+            snackBarDismissCallbackMethod();
+        }
+        super.onPause();
+    }
+
+    private void snackBarDismissCallbackMethod() {
+        if (!undoFlag.get()) {
+            resultCode = 3;
+            setResult(1);
+            dbHelper.deleteResidentById(residentBackup.getId());
+        }
     }
 }
