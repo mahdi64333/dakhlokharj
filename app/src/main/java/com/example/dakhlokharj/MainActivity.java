@@ -86,6 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.settings_shared_preferences), Context.MODE_PRIVATE);
+        if (sharedPreferences.getBoolean(getString(R.string.settings_night_mode), false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -115,11 +120,6 @@ public class MainActivity extends AppCompatActivity {
         rvSelectedConsumers = bottomSheet.findViewById(R.id.recyclerViewConsumers);
         btnAddOrder = bottomSheet.findViewById(R.id.buttonAddOrder);
         dbHelper = new DatabaseHelper(MainActivity.this);
-
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.settings_shared_preferences), Context.MODE_PRIVATE);
-        if (sharedPreferences.getBoolean(getString(R.string.settings_night_mode), false)) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        }
 
         switch (sharedPreferences.getInt(getString(R.string.settings_default_order), DatabaseHelper.ORDER_MODE_TIME_DESC)) {
             case DatabaseHelper.ORDER_MODE_TIME_DESC:
