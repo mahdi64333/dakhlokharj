@@ -6,4 +6,9 @@
         <item>@string/price_desc</item>
         <item>@string/price_asc</item>
     </array>
+
+    <array name="languages">
+        <item>@string/english</item>
+        <item>@string/persian</item>
+    </array>
 </resources>

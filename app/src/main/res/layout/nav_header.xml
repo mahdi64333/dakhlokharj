@@ -4,7 +4,6 @@
     android:layout_height="176dp"
     android:background="@color/secondaryDarkColor"
     android:gravity="bottom"
-    android:layoutDirection="rtl"
     android:orientation="vertical"
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.DayNight">
@@ -12,6 +11,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/app_name"
         android:src="@mipmap/ic_launcher_round" />
 
     <TextView

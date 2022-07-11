@@ -37,9 +37,9 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.tvOrderName.setText(orders.get(position).getOrderName());
-        DecimalFormat format = (DecimalFormat) NumberFormat.getInstance(new Locale("fa", "IR"));
+        DecimalFormat format = (DecimalFormat) NumberFormat.getInstance(new Locale(context.getString(R.string.language)));
         format.applyPattern("#,###");
-        holder.tvOrderPrice.setText(format.format(orders.get(position).getPrice()).concat(" تومان"));
+        holder.tvOrderPrice.setText(format.format(orders.get(position).getPrice()).concat(context.getString(R.string.currency)));
         holder.tvOrderBuyer.setText(orders.get(position).getBuyer());
         String dateTime = "";
         dateTime += orders.get(position).getHour() + ":";

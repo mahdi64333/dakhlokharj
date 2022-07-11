@@ -17,10 +17,13 @@ import java.util.Locale;
 public class ResidentsSummeryAdapter extends RecyclerView.Adapter<ResidentsSummeryAdapter.ViewHolder> {
     private final Context context;
     private final ArrayList<ResidentSummery> residentSummaries;
+    DecimalFormat format;
 
     public ResidentsSummeryAdapter(Context context, ArrayList<ResidentSummery> residentSummaries) {
         this.context = context;
         this.residentSummaries = residentSummaries;
+        format = (DecimalFormat) NumberFormat.getInstance(new Locale(context.getString(R.string.language)));
+        format.applyPattern("#,###");
     }
 
     @NonNull
@@ -33,19 +36,14 @@ public class ResidentsSummeryAdapter extends RecyclerView.Adapter<ResidentsSumme
 
     @Override
     public void onBindViewHolder(@NonNull ResidentsSummeryAdapter.ViewHolder holder, int position) {
-        DecimalFormat format = (DecimalFormat) NumberFormat.getInstance(new Locale("fa", "IR"));
-        format.applyPattern("#,###");
         holder.tvResidentName.setText(residentSummaries.get(position).getName());
-        holder.tvResidentDebt.setText(format.format(residentSummaries.get(position).getDebt()).concat("- تومان"));
-        holder.tvResidentCredit.setText(format.format(residentSummaries.get(position).getCredit()).concat("+ تومان"));
+        holder.tvResidentDebt.setText(createSignedCostString(residentSummaries.get(position).getDebt()));
+        holder.tvResidentCredit.setText(createSignedCostString(residentSummaries.get(position).getCredit()));
+        holder.tvResidentBalance.setText(createSignedCostString(residentSummaries.get(position).getBalance()));
         if (residentSummaries.get(position).getBalance() > 0) {
-            holder.getTvResidentBalance.setText(format.format(residentSummaries.get(position).getBalance()).concat("+ تومان"));
-            holder.getTvResidentBalance.setTextColor(context.getResources().getColor(android.R.color.holo_green_dark));
+            holder.tvResidentBalance.setTextColor(context.getResources().getColor(android.R.color.holo_green_dark));
         } else if (residentSummaries.get(position).getBalance() < 0) {
-            holder.getTvResidentBalance.setText(format.format(residentSummaries.get(position).getBalance() * -1).concat("- تومان"));
-            holder.getTvResidentBalance.setTextColor(context.getResources().getColor(android.R.color.holo_red_dark));
-        } else {
-            holder.getTvResidentBalance.setText(format.format(residentSummaries.get(position).getBalance()).concat(" تومان"));
+            holder.tvResidentBalance.setTextColor(context.getResources().getColor(android.R.color.holo_red_dark));
         }
     }
 
@@ -58,14 +56,30 @@ public class ResidentsSummeryAdapter extends RecyclerView.Adapter<ResidentsSumme
         TextView tvResidentName;
         TextView tvResidentDebt;
         TextView tvResidentCredit;
-        TextView getTvResidentBalance;
+        TextView tvResidentBalance;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvResidentName = itemView.findViewById(R.id.textViewSummeryResidentName);
             tvResidentDebt = itemView.findViewById(R.id.textViewResidentDebt);
             tvResidentCredit = itemView.findViewById(R.id.textViewResidentCredit);
-            getTvResidentBalance = itemView.findViewById(R.id.textViewSummeryBalance);
+            tvResidentBalance = itemView.findViewById(R.id.textViewSummeryBalance);
+        }
+    }
+
+    private String createSignedCostString(int cost) {
+        String sign;
+        if (cost > 0) {
+            sign = "+";
+        } else if (cost < 0) {
+            sign = "-";
+        } else {
+            sign = "";
+        }
+        if (context.getString(R.string.currency).equals("fa")) {
+            return format.format(cost) + context.getString(R.string.currency) + sign;
+        } else {
+            return sign + context.getString(R.string.currency) + format.format(cost);
         }
     }
 }

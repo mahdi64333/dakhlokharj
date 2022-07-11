@@ -4,7 +4,6 @@
     android:id="@+id/resident_recyclerview_row"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:layoutDirection="rtl"
     android:padding="16dp">
 
     <TextView
@@ -12,6 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/app_name"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/checkBoxResidentRowActive"

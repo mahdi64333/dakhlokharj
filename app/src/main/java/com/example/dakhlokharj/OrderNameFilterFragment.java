@@ -100,10 +100,10 @@ public class OrderNameFilterFragment extends Fragment {
                 for (int i = 0; i < orders.size(); i++) {
                     sum += orders.get(i).getPrice();
                 }
-                DecimalFormat format = (DecimalFormat) NumberFormat.getInstance(new Locale("fa", "IR"));
+                DecimalFormat format = (DecimalFormat) NumberFormat.getInstance(new Locale(getString(R.string.language)));
                 format.applyPattern("#,###");
 
-                tvSum.setText(getString(R.string.orders_sum).concat(" " + format.format(sum) + " تومان"));
+                tvSum.setText(getString(R.string.orders_sum).concat(" " + format.format(sum) + getString(R.string.currency)));
             }
         });
 

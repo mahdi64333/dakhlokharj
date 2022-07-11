@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layoutDirection="rtl"
     tools:context=".DateFilterFragment">
 
     <TextView
@@ -37,7 +36,6 @@
             android:hint="@string/date_format"
             android:imeOptions="actionNext"
             android:inputType="date"
-            android:layoutDirection="ltr"
             android:nextFocusForward="@id/textInputEditTextToDateFilter"
             android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -72,7 +70,6 @@
             android:hint="@string/date_format"
             android:imeOptions="actionDone"
             android:inputType="date"
-            android:layoutDirection="ltr"
             android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 

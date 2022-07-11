@@ -82,4 +82,6 @@
     <string name="persian">Persian</string>
     <string name="english">English</string>
     <string name="direction">ltr</string>
+    <string name="currency">$</string>
+    <string name="language">en</string>
 </resources>

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <array name="languages">
-        <item>@string/english</item>
-        <item>@string/persian</item>
-    </array>
-</resources>

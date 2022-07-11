@@ -82,4 +82,6 @@
     <string name="persian">فارسی</string>
     <string name="english">انگلیسی</string>
     <string name="direction">rtl</string>
+    <string name="currency">\ تومان</string>
+    <string name="language">fa</string>
 </resources>
