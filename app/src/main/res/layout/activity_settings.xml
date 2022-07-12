@@ -54,7 +54,7 @@
             <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/spinnerDefaultOrderBy"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:entries="@array/order_by_options_array" />
         </LinearLayout>
 
@@ -75,8 +75,8 @@
             <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/spinnerLanguage"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/order_by_options_array" />
+                android:layout_height="match_parent"
+                android:entries="@array/languages" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
