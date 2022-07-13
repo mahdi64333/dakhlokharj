@@ -6,20 +6,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primaryColor"
+    android:padding="16dp"
     tools:context=".onboarding.screens.Help2Fragment">
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/imageViewActiveHelp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
         android:contentDescription="@string/help_page"
-        android:scaleType="fitCenter"
-        android:src="@drawable/help2" />
+        android:src="@drawable/help_rename"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.4" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/help_active"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="@id/imageViewActiveHelp"
+        app:layout_constraintStart_toStartOf="@id/imageViewActiveHelp"
+        app:layout_constraintTop_toBottomOf="@id/imageViewActiveHelp" />
 
     <Button
         android:id="@+id/buttonHelp2Next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="24dp"
         android:background="?android:selectableItemBackgroundBorderless"
         android:clickable="true"
         android:focusable="true"

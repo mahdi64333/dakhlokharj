@@ -3,6 +3,7 @@ package com.example.dakhlokharj;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -18,13 +19,16 @@ public class SettingsActivity extends AppCompatActivity {
     Toolbar toolbar;
     SwitchCompat switchNightMode;
     AppCompatSpinner spinnerDefaultOrderMode;
+    AppCompatSpinner spinnerApplicationLanguage;
     SharedPreferences sharedPreferences;
     int startingOrderBySelection, resultCode = 0;
+    String selectedLanguage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        Log.i("code", String.valueOf(resultCode));
 
         toolbar = findViewById(R.id.toolbarSettings);
         switchNightMode = findViewById(R.id.switchNightMode);
@@ -40,6 +44,14 @@ public class SettingsActivity extends AppCompatActivity {
         switchNightMode.setChecked(sharedPreferences.getBoolean(getString(R.string.settings_night_mode), false));
         startingOrderBySelection = sharedPreferences.getInt(getString(R.string.settings_default_order), DatabaseHelper.ORDER_MODE_TIME_DESC);
         spinnerDefaultOrderMode.setSelection(startingOrderBySelection);
+
+        spinnerApplicationLanguage = findViewById(R.id.spinnerLanguage);
+        selectedLanguage = sharedPreferences.getString(getString(R.string.locale), "en");
+        if (selectedLanguage.equals("en")) {
+            spinnerApplicationLanguage.setSelection(0);
+        } else {
+            spinnerApplicationLanguage.setSelection(1);
+        }
 
         switchNightMode.setOnCheckedChangeListener((compoundButton, b) -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -64,6 +76,35 @@ public class SettingsActivity extends AppCompatActivity {
                 }
                 setResult(resultCode);
                 editor.apply();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        spinnerApplicationLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                if (i == 0 && !selectedLanguage.equals("en")) {
+                    LocaleHelper.setLocale(SettingsActivity.this, "en");
+                    editor.putString(getString(R.string.locale), "en");
+                    selectedLanguage = "en";
+                    editor.apply();
+                    resultCode = resultCode | 8;
+                    setResult(resultCode);
+                    finish();
+                } else if (i == 1 && !selectedLanguage.equals("fa")) {
+                    LocaleHelper.setLocale(SettingsActivity.this, "fa");
+                    editor.putString(getString(R.string.locale), "fa");
+                    selectedLanguage = "fa";
+                    editor.apply();
+                    resultCode = resultCode | 8;
+                    setResult(resultCode);
+                    finish();
+                }
             }
 
             @Override

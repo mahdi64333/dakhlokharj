@@ -616,6 +616,10 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    if ((result.getResultCode() & 8) > 0) {
+                        LocaleHelper.setLocale(MainActivity.this, sharedPreferences.getString(getString(R.string.locale), "en"));
+                        recreate();
+                    }
                     if ((result.getResultCode() & 4) > 0) {
                         switch (sharedPreferences.getInt(getString(R.string.settings_default_order), DatabaseHelper.ORDER_MODE_TIME_DESC)) {
                             case DatabaseHelper.ORDER_MODE_TIME_DESC:

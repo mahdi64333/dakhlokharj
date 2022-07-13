@@ -78,10 +78,16 @@
     <string name="help_page">helpPage</string>
     <string name="finish">Finish</string>
     <string name="onboarding_finished">onboardingFinished</string>
+    <string name="languageSelected">languageSelected</string>
     <string name="application_language">Language</string>
     <string name="persian">Persian</string>
     <string name="english">English</string>
     <string name="direction">ltr</string>
     <string name="currency">$</string>
     <string name="language">en</string>
+    <string name="locale">locale</string>
+    <string name="help_rename">Touch and hold to rename a resident.</string>
+    <string name="help_delete">Touch and swipe away to remove a resident.\nAny data associated with that resident will be removed too!</string>
+    <string name="help_active">Inactive residents are not included in expenses summery calculations.</string>
+    <string name="farsi">فارسی</string>
 </resources>

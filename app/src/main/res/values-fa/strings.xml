@@ -78,10 +78,16 @@
     <string name="help_page">helpPage</string>
     <string name="finish">پایان</string>
     <string name="onboarding_finished">onboardingFinished</string>
+    <string name="languageSelected">languageSelected</string>
     <string name="application_language">زبان برنامه</string>
     <string name="persian">فارسی</string>
-    <string name="english">انگلیسی</string>
+    <string name="english">English</string>
     <string name="direction">rtl</string>
     <string name="currency">\ تومان</string>
     <string name="language">fa</string>
+    <string name="locale">locale</string>
+    <string name="help_rename">برای تغییر نام یک ساکن روی آن را لمس کنید و نگه دارید.</string>
+    <string name="help_delete">برای حذف یک ساکن روی آن را لمس کنید و آن را کنار بکشید.\nتوچه کنید که تمامی اطلاعات مربوط به آن ساکن نیز حذف می‌شوند!</string>
+    <string name="help_active">ساکنین غیرفعال در حساب و کتاب‌های جمع‌بندی شرکت داده نمی‌شوند.</string>
+    <string name="farsi">فارسی</string>
 </resources>
