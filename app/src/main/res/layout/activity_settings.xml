@@ -78,5 +78,29 @@
                 android:layout_height="match_parent"
                 android:entries="@array/languages" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/buttonImport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:padding="16dp"
+            android:text="@string/import_database"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+        <TextView
+            android:id="@+id/buttonExport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:padding="16dp"
+            android:text="@string/export_database"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
     </LinearLayout>
 </LinearLayout>

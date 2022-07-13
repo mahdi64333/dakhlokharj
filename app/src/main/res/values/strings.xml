@@ -91,4 +91,6 @@
     <string name="help_delete">Touch and swipe away to remove a resident.\nAny data associated with that resident will be removed too!</string>
     <string name="help_active">Inactive residents are not included in expenses summery calculations.</string>
     <string name="farsi">فارسی</string>
+    <string name="import_database">Import database</string>
+    <string name="export_database">Export database</string>
 </resources>

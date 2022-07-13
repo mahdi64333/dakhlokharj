@@ -91,4 +91,6 @@
     <string name="help_delete">برای حذف یک ساکن روی آن را لمس کنید و آن را کنار بکشید.\nتوچه کنید که تمامی اطلاعات مربوط به آن ساکن نیز حذف می‌شوند!</string>
     <string name="help_active">ساکنین غیرفعال در حساب و کتاب‌های جمع‌بندی شرکت داده نمی‌شوند.</string>
     <string name="farsi">فارسی</string>
+    <string name="import_database">بازنشانی اطلاعات</string>
+    <string name="export_database">پشتیبان‌گیری از اطلاعات</string>
 </resources>
