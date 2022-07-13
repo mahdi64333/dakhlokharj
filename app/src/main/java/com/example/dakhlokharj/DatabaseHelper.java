@@ -7,8 +7,15 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -794,5 +801,109 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         boolean b = cursor.getCount() > 0;
         cursor.close();
         return b;
+    }
+
+    public static boolean importDB(Context context, String importPath) {
+        final String inFileName = Environment.getExternalStorageDirectory() + "/database_copy.db";
+        File dbFile = new File(inFileName);
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(dbFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        String outFileName = context.getDatabasePath(DB_NAME).getPath();
+
+        OutputStream output = null;
+        try {
+            output = new FileOutputStream(outFileName);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            byte[] buffer = new byte[1024];
+            int length;
+            while (true) {
+                assert fis != null;
+                if (!((length = fis.read(buffer)) > 0)) break;
+
+                assert output != null;
+                output.write(buffer, 0, length);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            assert output != null;
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            output.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    public static boolean exportDB(Context context, String exportPath) {
+        final String inFileName = context.getDatabasePath(DB_NAME).getPath();
+        File dbFile = new File(inFileName);
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(dbFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        String outFileName = Environment.getExternalStorageDirectory() + "/database_copy.db";
+
+        OutputStream output = null;
+        try {
+            output = new FileOutputStream(outFileName);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            byte[] buffer = new byte[1024];
+            int length;
+            while (true) {
+                assert fis != null;
+                if (!((length = fis.read(buffer)) > 0)) break;
+
+                assert output != null;
+                output.write(buffer, 0, length);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            assert output != null;
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            output.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 }

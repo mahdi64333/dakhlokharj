@@ -2,10 +2,17 @@ package com.example.dakhlokharj;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.AppCompatSpinner;
@@ -22,6 +29,8 @@ public class SettingsActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     int startingOrderBySelection, resultCode = 0;
     String selectedLanguage;
+    ActivityResultLauncher<String> startActivityForResult;
+    TextView buttonImport, buttonExport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +40,8 @@ public class SettingsActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbarSettings);
         switchNightMode = findViewById(R.id.switchNightMode);
         spinnerDefaultOrderMode = findViewById(R.id.spinnerDefaultOrderBy);
+        buttonImport = findViewById(R.id.buttonImport);
+        buttonExport = findViewById(R.id.buttonExport);
 
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -107,7 +118,36 @@ public class SettingsActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
 
+        startActivityForResult = registerForActivityResult(new ActivityResultContracts.GetContent(),
+                uri -> {
+                    Cursor returnCursor =
+                            getContentResolver().query(uri, null, null, null, null);
+                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    returnCursor.moveToFirst();
+                    Log.i("path", returnCursor.getString(nameIndex));
+                    returnCursor.close();
+                });
+
+        buttonImport.setOnClickListener(view -> {
+            String importPath = "";
+            if (DatabaseHelper.importDB(SettingsActivity.this, importPath)) {
+                resultCode = resultCode | 1;
+                setResult(resultCode);
+                Toast.makeText(SettingsActivity.this, getString(R.string.operation_successful), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(SettingsActivity.this, getString(R.string.an_error_has_occurred), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        buttonExport.setOnClickListener(view -> {
+            String ExportPath = "";
+            if (DatabaseHelper.exportDB(SettingsActivity.this, ExportPath)) {
+                Toast.makeText(SettingsActivity.this, getString(R.string.operation_successful), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(SettingsActivity.this, getString(R.string.an_error_has_occurred), Toast.LENGTH_SHORT).show();
             }
         });
     }
