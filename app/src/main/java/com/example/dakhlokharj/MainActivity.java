@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnAddOrder.setOnClickListener(view -> {
             AtomicBoolean errorFlag = new AtomicBoolean(false);
-            int orderPrice = 1000;
+            int orderPrice = 1;
             String orderName = Objects.requireNonNull(tiEtOrderName.getText()).toString().trim();
             String orderPriceText = Objects.requireNonNull(tiEtOrderPrice.getText()).toString().trim();
             String buyerName = acTvBuyer.getText().toString().trim();
@@ -250,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
                 tilBuyer.setError(getString(R.string.its_empty));
                 errorFlag.set(true);
             } else if (!residentNames.contains(buyerName)) {
+                errorFlag.set(true);
                 AlertDialog.Builder saveNewResidentDialog = new AlertDialog.Builder(MainActivity.this);
                 saveNewResidentDialog.setMessage(R.string.buyer_not_found_do_you_want_to_save_new);
                 saveNewResidentDialog.setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
@@ -258,19 +259,13 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show();
                         addResidentToList(residentNames, buyerName);
                         refreshAdapters();
+                        tilBuyer.setErrorEnabled(false);
                     } else {
                         Toast.makeText(MainActivity.this, getString(R.string.an_error_occurred_during_save), Toast.LENGTH_SHORT).show();
-                        errorFlag.set(false);
                     }
                 });
-                saveNewResidentDialog.setNegativeButton(getString(R.string.no), (dialogInterface, i) -> {
-                    tilBuyer.setError(getString(R.string.not_found_in_residents));
-                    errorFlag.set(false);
-                });
-                saveNewResidentDialog.setOnCancelListener(dialogInterface -> {
-                    tilBuyer.setError(getString(R.string.not_found_in_residents));
-                    errorFlag.set(false);
-                });
+                saveNewResidentDialog.setNegativeButton(getString(R.string.no), (dialogInterface, i) -> tilBuyer.setError(getString(R.string.not_found_in_residents)));
+                saveNewResidentDialog.setOnCancelListener(dialogInterface -> tilBuyer.setError(getString(R.string.not_found_in_residents)));
                 saveNewResidentDialog.show();
             }
             if (consumerName.isEmpty() && selectedConsumers.isEmpty()) {
@@ -280,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (!consumerName.isEmpty()) {
                 if (!residentNames.contains(consumerName)) {
+                    errorFlag.set(true);
                     AlertDialog.Builder saveNewResidentDialog = new AlertDialog.Builder(MainActivity.this);
                     saveNewResidentDialog.setMessage(R.string.consumer_not_found_do_you_want_to_save_new);
                     saveNewResidentDialog.setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
@@ -289,19 +285,13 @@ public class MainActivity extends AppCompatActivity {
                             addResidentToList(residentNames, consumerName);
                             addResidentToList(selectedConsumers, consumerName);
                             refreshAdapters();
+                            tilConsumer.setErrorEnabled(false);
                         } else {
                             Toast.makeText(MainActivity.this, getString(R.string.an_error_occurred_during_save), Toast.LENGTH_SHORT).show();
-                            errorFlag.set(false);
                         }
                     });
-                    saveNewResidentDialog.setNegativeButton(getString(R.string.no), (dialogInterface, i) -> {
-                        tilConsumer.setError(getString(R.string.not_found_in_residents));
-                        errorFlag.set(false);
-                    });
-                    saveNewResidentDialog.setOnCancelListener(dialogInterface -> {
-                        tilConsumer.setError(getString(R.string.not_found_in_residents));
-                        errorFlag.set(false);
-                    });
+                    saveNewResidentDialog.setNegativeButton(getString(R.string.no), (dialogInterface, i) -> tilConsumer.setError(getString(R.string.not_found_in_residents)));
+                    saveNewResidentDialog.setOnCancelListener(dialogInterface -> tilConsumer.setError(getString(R.string.not_found_in_residents)));
                     saveNewResidentDialog.show();
                 } else {
                     addResidentToList(selectedConsumers, consumerName);
