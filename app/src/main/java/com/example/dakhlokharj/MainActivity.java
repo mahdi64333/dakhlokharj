@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -256,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
                 saveNewResidentDialog.setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
                     String errorMsg = dbHelper.addResident(buyerName);
                     if (errorMsg == null) {
-                        Toast.makeText(MainActivity.this, getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, getString(R.string.new_resident_saved_successfully), Toast.LENGTH_SHORT).show();
                         addResidentToList(residentNames, buyerName);
                         refreshAdapters();
                         tilBuyer.setErrorEnabled(false);
@@ -281,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                     saveNewResidentDialog.setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
                         String errorMsg = dbHelper.addResident(consumerName);
                         if (errorMsg == null) {
-                            Toast.makeText(MainActivity.this, getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, getString(R.string.new_resident_saved_successfully), Toast.LENGTH_SHORT).show();
                             addResidentToList(residentNames, consumerName);
                             addResidentToList(selectedConsumers, consumerName);
                             refreshAdapters();
@@ -310,7 +309,6 @@ public class MainActivity extends AppCompatActivity {
                 int newOrderId;
                 try {
                     newOrderId = Integer.parseInt(errorMsg);
-                    Toast.makeText(MainActivity.this, getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show();
                     newOrder.setId(newOrderId);
                     if (orders != null) {
                         orders.add(0, newOrder);
@@ -355,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
                     saveNewResidentDialog.setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
                         String errorMsg = dbHelper.addResident(name);
                         if (errorMsg == null) {
-                            Toast.makeText(MainActivity.this, getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, getString(R.string.new_resident_saved_successfully), Toast.LENGTH_SHORT).show();
                             addResidentToList(residentNames, name);
                             selectedConsumers.add(name);
                             selectedConsumersAdapter.notifyItemInserted(selectedConsumers.size() - 1);
@@ -486,7 +484,7 @@ public class MainActivity extends AppCompatActivity {
                     saveNewResidentDialog.setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
                         String errorMsg = dbHelper.addResident(name);
                         if (errorMsg == null) {
-                            Toast.makeText(MainActivity.this, getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, getString(R.string.new_resident_saved_successfully), Toast.LENGTH_SHORT).show();
                             addResidentToList(residentNames, name);
                             refreshAdapters();
                         } else {
@@ -515,7 +513,7 @@ public class MainActivity extends AppCompatActivity {
                     saveNewResidentDialog.setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
                         String errorMsg = dbHelper.addResident(name);
                         if (errorMsg == null) {
-                            Toast.makeText(MainActivity.this, getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, getString(R.string.new_resident_saved_successfully), Toast.LENGTH_SHORT).show();
                             addResidentToList(residentNames, name);
                             selectedConsumers.add(name);
                             selectedConsumersAdapter.notifyItemInserted(selectedConsumers.size());
@@ -607,7 +605,6 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    Log.i("code", String.valueOf(result.getResultCode()));
                     if ((result.getResultCode() & 8) > 0) {
                         LocaleHelper.setLocale(MainActivity.this, sharedPreferences.getString(getString(R.string.locale), "en"));
                         recreate();

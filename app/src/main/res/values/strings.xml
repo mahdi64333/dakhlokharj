@@ -13,6 +13,7 @@
     <string name="add_a_new_resident">Add a new resident</string>
     <string name="active">Active</string>
     <string name="saved_successfully">Saved Successfully</string>
+    <string name="new_resident_saved_successfully">Saved Successfully</string>
     <string name="an_error_occurred_during_save">An error occurred during saving</string>
     <string name="this_name_was_entered">This name has been entered</string>
     <string name="please_enter_a_name">Please enter a name</string>

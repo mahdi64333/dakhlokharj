@@ -13,6 +13,7 @@
     <string name="add_a_new_resident">Add a new resident</string>
     <string name="active">فعال</string>
     <string name="saved_successfully">با موفقیت ذخیره شد</string>
+    <string name="new_resident_saved_successfully">ساکن جدید با موفقیت ذخیره شد</string>
     <string name="an_error_occurred_during_save">خطایی در ذخیره‌سازی رخ داد</string>
     <string name="this_name_was_entered">این نام قبلا وارد شده</string>
     <string name="please_enter_a_name">لطفا نامی را وارد کنید</string>
