@@ -3,6 +3,7 @@ package com.example.dakhlokharj;
 import android.os.Bundle;
 import android.view.Menu;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager2.widget.ViewPager2;
@@ -11,11 +12,13 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FilterOrdersActivity extends AppCompatActivity {
     Toolbar toolbar;
     TabLayout tabLayout;
     ViewPager2 viewPager;
+    AtomicBoolean deletedSomething;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +32,9 @@ public class FilterOrdersActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        deletedSomething = new AtomicBoolean(false);
 
-        FilterViewPagerAdapter filterViewPagerAdapter = new FilterViewPagerAdapter(FilterOrdersActivity.this);
+        FilterViewPagerAdapter filterViewPagerAdapter = new FilterViewPagerAdapter(FilterOrdersActivity.this, deletedSomething);
         viewPager.setAdapter(filterViewPagerAdapter);
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> {
@@ -61,7 +65,7 @@ public class FilterOrdersActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.activity_filter_toolbar_menu, menu);
         Objects.requireNonNull(toolbar.getOverflowIcon()).setTint(getResources().getColor(R.color.white));
         Objects.requireNonNull(toolbar.getNavigationIcon()).setTint(getResources().getColor(R.color.white));

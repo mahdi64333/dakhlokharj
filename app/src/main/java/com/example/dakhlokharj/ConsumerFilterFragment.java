@@ -46,8 +46,12 @@ public class ConsumerFilterFragment extends Fragment {
     DatabaseHelper dbHelper;
     Boolean showDeleteOption;
     Snackbar snackbar;
-    AtomicBoolean undoFlag;
+    AtomicBoolean undoFlag, deletedSomething;
     Snackbar.Callback snackbarBaseCallback;
+
+    public ConsumerFilterFragment(AtomicBoolean deletedSomething) {
+        this.deletedSomething = deletedSomething;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -159,6 +163,7 @@ public class ConsumerFilterFragment extends Fragment {
             alertDialog.setMessage(R.string.are_you_sure_to_delete_all);
             alertDialog.setPositiveButton(R.string.yes, (dialogInterface, i) -> {
                 undoFlag = new AtomicBoolean(false);
+                requireActivity().setResult(1);
                 rvOrders.setAdapter(new OrdersAdapter(requireContext(), new ArrayList<>()));
                 CoordinatorLayout root = requireActivity().findViewById(R.id.rootCoordinatorLayoutFilterActivity);
                 snackbar = Snackbar.make(root, getString(R.string.order_got_deleted), Snackbar.LENGTH_LONG);
@@ -171,6 +176,9 @@ public class ConsumerFilterFragment extends Fragment {
                     requireActivity().invalidateOptionsMenu();
                     tvSum.setVisibility(View.VISIBLE);
                     undoFlag.set(true);
+                    if (!deletedSomething.get()) {
+                        requireActivity().setResult(0);
+                    }
                 });
                 snackbar.addCallback(snackbarBaseCallback);
                 snackbar.show();
@@ -188,7 +196,7 @@ public class ConsumerFilterFragment extends Fragment {
 
     @Override
     public void onPause() {
-        if (snackbar != null && snackbar.isShown() && !undoFlag.get()){
+        if (snackbar != null && snackbar.isShown() && !undoFlag.get()) {
             snackbar.removeCallback(snackbarBaseCallback);
             snackBarDismissCallbackMethod();
             snackbar.dismiss();
@@ -205,9 +213,9 @@ public class ConsumerFilterFragment extends Fragment {
     private void snackBarDismissCallbackMethod() {
         if (!undoFlag.get()) {
             for (int i = 0; i < orders.size(); i++) {
-                requireActivity().setResult(1);
                 dbHelper.deleteOrderById(orders.get(i).getId());
             }
+            deletedSomething.set(true);
         }
     }
 }

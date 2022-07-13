@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -616,6 +617,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    Log.i("code", String.valueOf(result.getResultCode()));
                     if ((result.getResultCode() & 8) > 0) {
                         LocaleHelper.setLocale(MainActivity.this, sharedPreferences.getString(getString(R.string.locale), "en"));
                         recreate();

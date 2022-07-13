@@ -36,7 +36,7 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
     ItemTouchHelper.SimpleCallback itemTouchHelperCallback;
     TextView tvNoResidentsFound;
     int resultCode = 0;
-    AtomicBoolean undoFlag;
+    AtomicBoolean undoFlag, deletedSomething;
     Snackbar snackbar;
     Resident residentBackup;
     Snackbar.Callback snackbarBaseCallback;
@@ -52,7 +52,7 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         Objects.requireNonNull(toolbar.getOverflowIcon()).setTint(getResources().getColor(R.color.white));
         Objects.requireNonNull(toolbar.getNavigationIcon()).setTint(getResources().getColor(R.color.white));
-
+        deletedSomething = new AtomicBoolean(false);
 
         rvResidents = findViewById(R.id.recyclerViewResidents);
         ImageButton btnAddResident = findViewById(R.id.imageButtonAddResident);
@@ -115,7 +115,6 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
             }
         });
 
-
         snackbarBaseCallback = new Snackbar.Callback() {
             @Override
             public void onDismissed(Snackbar transientBottomBar, int event) {
@@ -133,6 +132,7 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 undoFlag = new AtomicBoolean(false);
+                setResult(1);
                 int position = viewHolder.getAdapterPosition();
                 residentBackup = residents.get(position);
                 residents.remove(viewHolder.getAdapterPosition());
@@ -154,6 +154,9 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
                     snackbar.setAction(R.string.cancel, view -> {
                         addResidentToAdapter(residentBackup);
                         undoFlag.set(true);
+                        if (!deletedSomething.get()) {
+                            setResult(0);
+                        }
                     });
                     snackbar.addCallback(snackbarBaseCallback);
                     snackbar.show();
@@ -222,13 +225,15 @@ public class ManageResidentsActivity extends AppCompatActivity implements Rename
         if (snackbar != null && snackbar.isShown() && !undoFlag.get()) {
             snackbar.removeCallback(snackbarBaseCallback);
             snackBarDismissCallbackMethod();
+            snackbar.dismiss();
         }
         super.onPause();
     }
 
     private void snackBarDismissCallbackMethod() {
-            resultCode = resultCode | 1;
-            setResult(resultCode);
+        if (!undoFlag.get()) {
             dbHelper.deleteResidentById(residentBackup.getId());
+            deletedSomething.set(true);
+        }
     }
 }
