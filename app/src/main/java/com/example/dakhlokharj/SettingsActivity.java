@@ -232,8 +232,8 @@ public class SettingsActivity extends AppCompatActivity {
             if (grantResults.length == 2 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                     grantResults[1] == PackageManager.PERMISSION_GRANTED &&
-                    android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R &&
-                    Environment.isExternalStorageManager()) {
+                    (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.R ||
+                    Environment.isExternalStorageManager())) {
                 if (userRequestImportExport.equals(IMPORT_REQUEST)) {
                     importDbCallback();
                 } else if (userRequestImportExport.equals(EXPORT_REQUEST)) {
