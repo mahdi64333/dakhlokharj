@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.os.Environment;
 import android.widget.Toast;
 
@@ -112,6 +113,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 setToOrderByPriceAsc();
                 break;
         }
+    }
+
+    public DatabaseHelper(Context context, String TEST_DB_NAME) {
+        super(context, TEST_DB_NAME, null, VERSION);
+        this.context = context;
     }
 
     @Override
@@ -803,106 +809,107 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return b;
     }
 
-    public static boolean importDB(Context context, String importPath) {
-        final String inFileName = Environment.getExternalStorageDirectory() + "/database_copy.db";
-        File dbFile = new File(inFileName);
-        FileInputStream fis = null;
+    public static boolean importDB(Context context, Uri importUri) {
+        FileInputStream fis;
         try {
-            fis = new FileInputStream(dbFile);
+            fis = (FileInputStream) context.getContentResolver().openInputStream(importUri);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return false;
         }
 
         String outFileName = context.getDatabasePath(DB_NAME).getPath();
 
-        OutputStream output = null;
+        OutputStream output;
         try {
             output = new FileOutputStream(outFileName);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return false;
         }
 
         try {
             byte[] buffer = new byte[1024];
             int length;
-            while (true) {
-                assert fis != null;
-                if (!((length = fis.read(buffer)) > 0)) break;
-
-                assert output != null;
+            while ((length = fis.read(buffer)) > 0) {
                 output.write(buffer, 0, length);
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
 
         try {
-            assert output != null;
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
         try {
             output.close();
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
         try {
             fis.close();
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
         return true;
     }
 
-    public static boolean exportDB(Context context, String exportPath) {
+    public static boolean exportDB(Context context) {
         final String inFileName = context.getDatabasePath(DB_NAME).getPath();
         File dbFile = new File(inFileName);
-        FileInputStream fis = null;
+        FileInputStream fis;
         try {
             fis = new FileInputStream(dbFile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return false;
         }
 
-        String outFileName = Environment.getExternalStorageDirectory() + "/database_copy.db";
+        String outFileName = Environment.getExternalStorageDirectory() + "/dakhlokharj.db";
 
-        OutputStream output = null;
+        OutputStream output;
         try {
             output = new FileOutputStream(outFileName);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return false;
         }
 
         try {
             byte[] buffer = new byte[1024];
             int length;
-            while (true) {
-                assert fis != null;
-                if (!((length = fis.read(buffer)) > 0)) break;
+            while ((length = fis.read(buffer)) > 0) {
 
-                assert output != null;
                 output.write(buffer, 0, length);
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
 
         try {
-            assert output != null;
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
         try {
             output.close();
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
         try {
             fis.close();
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
         return true;
     }

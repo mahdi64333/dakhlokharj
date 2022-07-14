@@ -2,9 +2,8 @@ package com.example.dakhlokharj;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.OpenableColumns;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -29,7 +28,7 @@ public class SettingsActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     int startingOrderBySelection, resultCode = 0;
     String selectedLanguage;
-    ActivityResultLauncher<String> startActivityForResult;
+    ActivityResultLauncher<String> startActivityForResultImport;
     TextView buttonImport, buttonExport;
 
     @Override
@@ -121,33 +120,33 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        startActivityForResult = registerForActivityResult(new ActivityResultContracts.GetContent(),
+        startActivityForResultImport = registerForActivityResult(new ActivityResultContracts.GetContent(),
                 uri -> {
-                    Cursor returnCursor =
-                            getContentResolver().query(uri, null, null, null, null);
-                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    returnCursor.moveToFirst();
-                    Log.i("path", returnCursor.getString(nameIndex));
-                    returnCursor.close();
+                    if (uri != null) {
+                        Log.i("path", uri.getPath());
+                        resultCode = resultCode | 1;
+                        setResult(resultCode);
+                        if (DatabaseHelper.importDB(SettingsActivity.this, uri)) {
+                            Toast.makeText(SettingsActivity.this, R.string.operation_successful, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(SettingsActivity.this, R.string.operation_failed, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(SettingsActivity.this, R.string.operation_failed, Toast.LENGTH_SHORT).show();
+                    }
                 });
 
-        buttonImport.setOnClickListener(view -> {
-            String importPath = "";
-            if (DatabaseHelper.importDB(SettingsActivity.this, importPath)) {
-                resultCode = resultCode | 1;
-                setResult(resultCode);
-                Toast.makeText(SettingsActivity.this, getString(R.string.operation_successful), Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(SettingsActivity.this, getString(R.string.an_error_has_occurred), Toast.LENGTH_SHORT).show();
-            }
-        });
+        buttonImport.setOnClickListener(view -> startActivityForResultImport.launch("*/*"));
 
         buttonExport.setOnClickListener(view -> {
-            String ExportPath = "";
-            if (DatabaseHelper.exportDB(SettingsActivity.this, ExportPath)) {
-                Toast.makeText(SettingsActivity.this, getString(R.string.operation_successful), Toast.LENGTH_SHORT).show();
+            if (DatabaseHelper.exportDB(SettingsActivity.this)) {
+                Toast.makeText(SettingsActivity.this,
+                        getString(R.string.file_location) +
+                                Environment.getExternalStorageDirectory() +
+                                "/dakhlokharj.db",
+                        Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(SettingsActivity.this, getString(R.string.an_error_has_occurred), Toast.LENGTH_SHORT).show();
+                Toast.makeText(SettingsActivity.this, R.string.operation_failed, Toast.LENGTH_SHORT).show();
             }
         });
     }

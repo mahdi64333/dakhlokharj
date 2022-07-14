@@ -94,4 +94,6 @@
     <string name="import_database">Import database</string>
     <string name="export_database">Export database</string>
     <string name="operation_successful">Operation successful</string>
+    <string name="operation_failed">Operation Failed</string>
+    <string name="file_location">File location:\n</string>
 </resources>

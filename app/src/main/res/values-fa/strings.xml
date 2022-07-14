@@ -94,4 +94,6 @@
     <string name="import_database">بازنشانی اطلاعات</string>
     <string name="export_database">پشتیبان‌گیری از اطلاعات</string>
     <string name="operation_successful">عملیات با موفقیت انجام شد</string>
+    <string name="operation_failed">عملیات با مشکل بر خورد</string>
+    <string name="file_location">محل ذخیره‌سازی:\n</string>
 </resources>
