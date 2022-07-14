@@ -661,6 +661,8 @@ public class MainActivity extends AppCompatActivity {
             rvOrders.setAdapter(ordersAdapter);
             if (orders.isEmpty()) {
                 tvNoOrdersFound.setVisibility(View.VISIBLE);
+            } else {
+                tvNoOrdersFound.setVisibility(View.GONE);
             }
         }
     }
