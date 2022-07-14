@@ -83,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
     View sheetView;
     TextView tvNoOrdersFound;
     ActivityResultLauncher<Intent> startActivityForResult;
+    AtomicBoolean undoFlag;
+    Snackbar snackbar;
+    Snackbar.Callback snackbarBaseCallback;
+    Order orderBackup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -553,6 +557,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        snackbarBaseCallback = new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar transientBottomBar, int event) {
+                super.onDismissed(transientBottomBar, event);
+                snackBarDismissCallbackMethod();
+            }
+        };
+
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -561,9 +573,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                AtomicBoolean undoFlag = new AtomicBoolean(false);
+                undoFlag = new AtomicBoolean(false);
                 int position = viewHolder.getAdapterPosition();
-                Order orderBackup = orders.get(position);
+                orderBackup = orders.get(position);
                 orders.remove(position);
                 ordersAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
                 for (int i = position; i < orders.size(); i++) {
@@ -576,7 +588,7 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setMessage(R.string.are_you_sure_to_delete);
                 alertDialog.setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
                     CoordinatorLayout root = findViewById(R.id.rootCoordinatorLayout);
-                    Snackbar snackbar = Snackbar.make(root, getString(R.string.order_got_deleted), Snackbar.LENGTH_LONG);
+                    snackbar = Snackbar.make(root, getString(R.string.order_got_deleted), Snackbar.LENGTH_LONG);
                     BaseTransientBottomBar.Behavior behavior = new BaseTransientBottomBar.Behavior();
                     behavior.setSwipeDirection(SwipeDismissBehavior.SWIPE_DIRECTION_ANY);
                     snackbar.setBehavior(behavior);
@@ -584,15 +596,7 @@ public class MainActivity extends AppCompatActivity {
                         addOrderToAdapter(orderBackup);
                         undoFlag.set(true);
                     });
-                    snackbar.addCallback(new Snackbar.Callback() {
-                        @Override
-                        public void onDismissed(Snackbar transientBottomBar, int event) {
-                            super.onDismissed(transientBottomBar, event);
-                            if (!undoFlag.get()) {
-                                dbHelper.deleteOrderById(orderBackup.getId());
-                            }
-                        }
-                    });
+                    snackbar.addCallback(snackbarBaseCallback);
                     snackbar.show();
                 });
                 alertDialog.setNegativeButton(R.string.no, (dialogInterface, i) -> addOrderToAdapter(orderBackup));
@@ -731,6 +735,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void snackBarDismissCallbackMethod() {
+        if (!undoFlag.get()) {
+            dbHelper.deleteOrderById(orderBackup.getId());
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (snackbar != null && snackbar.isShown() && !undoFlag.get()) {
+            snackbar.removeCallback(snackbarBaseCallback);
+            snackBarDismissCallbackMethod();
+            snackbar.dismiss();
+        }
+        super.onPause();
     }
 
     @Override
