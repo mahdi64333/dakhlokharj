@@ -138,7 +138,7 @@ public class SettingsActivity extends AppCompatActivity {
                     if (uri != null) {
                         if (DatabaseHelper.importDB(SettingsActivity.this, uri)) {
                             Toast.makeText(SettingsActivity.this, R.string.operation_successful, Toast.LENGTH_SHORT).show();
-                            resultCode = resultCode | 1;
+                            resultCode = resultCode | 1 | 2 | 16;
                             setResult(resultCode);
                         } else {
                             Toast.makeText(SettingsActivity.this, R.string.operation_failed, Toast.LENGTH_SHORT).show();

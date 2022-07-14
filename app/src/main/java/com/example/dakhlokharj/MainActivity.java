@@ -609,6 +609,10 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    if ((result.getResultCode() & 16) > 0) {
+                        dbHelper = new DatabaseHelper(MainActivity.this);
+                        selectedConsumers = new ArrayList<>();
+                    }
                     if ((result.getResultCode() & 8) > 0) {
                         LocaleHelper.setLocale(MainActivity.this, sharedPreferences.getString(getString(R.string.locale), "en"));
                         recreate();
