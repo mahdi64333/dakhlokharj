@@ -1,10 +1,15 @@
 package com.example.dakhlokharj;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
@@ -12,11 +17,13 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 
 import java.util.Objects;
 
@@ -29,7 +36,13 @@ public class SettingsActivity extends AppCompatActivity {
     int startingOrderBySelection, resultCode = 0;
     String selectedLanguage;
     ActivityResultLauncher<String> startActivityForResultImport;
+    ActivityResultLauncher<Intent> getFullAccessPermission;
     TextView buttonImport, buttonExport;
+    final int PERMISSION_REQUEST_CODE = 1;
+    final String IMPORT_REQUEST = "import";
+    final String EXPORT_REQUEST = "export";
+    String userRequestImportExport;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,11 +136,10 @@ public class SettingsActivity extends AppCompatActivity {
         startActivityForResultImport = registerForActivityResult(new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
-                        Log.i("path", uri.getPath());
-                        resultCode = resultCode | 1;
-                        setResult(resultCode);
                         if (DatabaseHelper.importDB(SettingsActivity.this, uri)) {
                             Toast.makeText(SettingsActivity.this, R.string.operation_successful, Toast.LENGTH_SHORT).show();
+                            resultCode = resultCode | 1;
+                            setResult(resultCode);
                         } else {
                             Toast.makeText(SettingsActivity.this, R.string.operation_failed, Toast.LENGTH_SHORT).show();
                         }
@@ -136,18 +148,31 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                 });
 
-        buttonImport.setOnClickListener(view -> startActivityForResultImport.launch("*/*"));
+        getFullAccessPermission = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()) {
+                        if (askForStoragePermission()) {
+                            if (userRequestImportExport.equals(IMPORT_REQUEST)) {
+                                importDbCallback();
+                            } else if (userRequestImportExport.equals(EXPORT_REQUEST)) {
+                                exportDbCallback();
+                            }
+                        }
+                    }
+                });
+
+        buttonImport.setOnClickListener(view -> {
+            if (!checkStoragePermission(IMPORT_REQUEST)) {
+                return;
+            }
+            importDbCallback();
+        });
 
         buttonExport.setOnClickListener(view -> {
-            if (DatabaseHelper.exportDB(SettingsActivity.this)) {
-                Toast.makeText(SettingsActivity.this,
-                        getString(R.string.file_location) +
-                                Environment.getExternalStorageDirectory() +
-                                "/dakhlokharj.db",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(SettingsActivity.this, R.string.operation_failed, Toast.LENGTH_SHORT).show();
+            if (!checkStoragePermission(EXPORT_REQUEST)) {
+                return;
             }
+            exportDbCallback();
         });
     }
 
@@ -155,5 +180,68 @@ public class SettingsActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return super.onSupportNavigateUp();
+    }
+
+    public void importDbCallback() {
+        startActivityForResultImport.launch("*/*");
+    }
+
+    public void exportDbCallback() {
+        if (DatabaseHelper.exportDB(SettingsActivity.this)) {
+            Toast.makeText(SettingsActivity.this,
+                    getString(R.string.file_location) +
+                            Environment.getExternalStorageDirectory() +
+                            "/dakhlokharj.db",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(SettingsActivity.this, R.string.operation_failed, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean checkStoragePermission(String requestMode) {
+        userRequestImportExport = requestMode;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R &&
+                    !Environment.isExternalStorageManager()) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                intent.setData(uri);
+                getFullAccessPermission.launch(intent);
+                return false;
+            }
+        }
+        return askForStoragePermission();
+    }
+
+    private boolean askForStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                (getApplicationContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                        getApplicationContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+            String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            ActivityCompat.requestPermissions(SettingsActivity.this, permissions, PERMISSION_REQUEST_CODE);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length == 2 &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED &&
+                    android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R &&
+                    Environment.isExternalStorageManager()) {
+                if (userRequestImportExport.equals(IMPORT_REQUEST)) {
+                    importDbCallback();
+                } else if (userRequestImportExport.equals(EXPORT_REQUEST)) {
+                    exportDbCallback();
+                }
+            } else {
+                Toast.makeText(SettingsActivity.this, R.string.no_storage_access, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

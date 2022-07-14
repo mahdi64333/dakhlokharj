@@ -97,4 +97,5 @@
     <string name="operation_failed">عملیات با مشکل بر خورد</string>
     <string name="file_location">محل ذخیره‌سازی:\n</string>
     <string name="select_correct_file_type">لطفا فایلی از نوغ صحیح انتخاب کنید</string>
+    <string name="no_storage_access">دسترسی به حافظه‌ی دستگاه وجود ندارد</string>
 </resources>
