@@ -96,4 +96,5 @@
     <string name="operation_successful">عملیات با موفقیت انجام شد</string>
     <string name="operation_failed">عملیات با مشکل بر خورد</string>
     <string name="file_location">محل ذخیره‌سازی:\n</string>
+    <string name="select_correct_file_type">لطفا فایلی از نوغ صحیح انتخاب کنید</string>
 </resources>

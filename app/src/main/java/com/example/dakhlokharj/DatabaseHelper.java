@@ -25,6 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final int ORDER_MODE_PRICE_DESC = 2;
     public static final int ORDER_MODE_PRICE_ASC = 3;
     private static final String DB_NAME = "dakhlokharj.db";
+    private static final String TEST_DB_NAME = "test.db";
     private static final int VERSION = 1;
     private static final String RESIDENTS_TABLE_NAME = "residents";
     private static final String RESIDENTS_COLUMN_RESIDENT_ID = "resident_id";
@@ -35,7 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "'" + RESIDENTS_COLUMN_NAME + "'TEXT UNIQUE,\n" +
             "'" + RESIDENTS_COLUMN_ACTIVE + "'INTEGER DEFAULT 1,\n" +
             "PRIMARY KEY('" + RESIDENTS_COLUMN_RESIDENT_ID + "')\n" +
-            ");";
+            ")";
     private static final String ORDERS_TABLE_NAME = "orders";
     private static final String ORDERS_COLUMN_ORDER_ID = "order_id";
     private static final String ORDERS_COLUMN_PRODUCT = "product";
@@ -61,7 +62,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "FOREIGN KEY('" + ORDERS_COLUMN_BUYER_ID + "') REFERENCES '" + RESIDENTS_TABLE_NAME +
             "'('" + RESIDENTS_COLUMN_RESIDENT_ID + "') ON DELETE CASCADE ON UPDATE CASCADE,\n" +
             "PRIMARY KEY('" + ORDERS_COLUMN_ORDER_ID + "')\n" +
-            ");";
+            ")";
     private static final String CONSUMERS_TABLE_NAME = "consumers";
     private static final String CONSUMERS_COLUMN_ORDER_ID = "for_order_id";
     private static final String CONSUMERS_COLUMN_CONSUMER_ID = "consumer_id";
@@ -73,7 +74,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "FOREIGN KEY('" + CONSUMERS_COLUMN_CONSUMER_ID + "') REFERENCES '" +
             RESIDENTS_TABLE_NAME + "'('" + RESIDENTS_COLUMN_RESIDENT_ID + "') ON DELETE CASCADE ON UPDATE CASCADE,\n" +
             "PRIMARY KEY('" + CONSUMERS_COLUMN_ORDER_ID + "','" + CONSUMERS_COLUMN_CONSUMER_ID + "')\n" +
-            ");";
+            ")";
     private static final String orderByTimeDesc = " ORDER BY " +
             ORDERS_COLUMN_YEAR + " DESC, " +
             ORDERS_COLUMN_MONTH + " DESC, " +
@@ -818,7 +819,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return false;
         }
 
-        String outFileName = context.getDatabasePath(DB_NAME).getPath();
+        String outFileName = context.getDatabasePath(TEST_DB_NAME).getPath();
 
         OutputStream output;
         try {
@@ -829,8 +830,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         try {
-            byte[] buffer = new byte[1024];
             int length;
+            byte[] charBuffer = new byte[16];
+            length = fis.read(charBuffer, 0, 16);
+            if (length <= 0) {
+                return false;
+            }
+            StringBuilder header = new StringBuilder();
+            for (int i = 0; i < 16; i++) {
+                header.append((char) charBuffer[i]);
+            }
+            if (!header.toString().contains("SQLite format 3")) {
+                Toast.makeText(context, R.string.select_correct_file_type, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            output.write(charBuffer, 0, length);
+
+
+            byte[] buffer = new byte[1024];
             while ((length = fis.read(buffer)) > 0) {
                 output.write(buffer, 0, length);
             }
@@ -857,7 +874,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             e.printStackTrace();
             return false;
         }
-        return true;
+
+        try {
+            DatabaseHelper testDbHelper = new DatabaseHelper(context, TEST_DB_NAME);
+            SQLiteDatabase testDb = testDbHelper.getReadableDatabase();
+            Cursor cursor = testDb.rawQuery("SELECT sql FROM sqlite_master" +
+                            " WHERE name='" + CONSUMERS_TABLE_NAME +
+                            "' OR name='" + ORDERS_TABLE_NAME + "' OR name='"
+                            + RESIDENTS_TABLE_NAME + "'" +
+                            "ORDER BY name",
+                    null);
+            if (cursor.getCount() != 3) {
+                return false;
+            }
+            cursor.moveToFirst();
+            if (!cursor.getString(0).equals(CONSUMERS_CREATE_QUERY)) {
+                return false;
+            }
+            cursor.moveToNext();
+            if (!cursor.getString(0).equals(ORDERS_CREATE_QUERY)) {
+                return false;
+            }
+            cursor.moveToNext();
+            if (!cursor.getString(0).equals(RESIDENTS_CREATE_QUERY)) {
+                return false;
+            }
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        File testFile = new File(context.getDatabasePath(TEST_DB_NAME).getPath());
+        File dbFile = new File(context.getDatabasePath(DB_NAME).getPath());
+
+        return testFile.renameTo(dbFile);
     }
 
     public static boolean exportDB(Context context) {

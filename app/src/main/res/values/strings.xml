@@ -96,4 +96,5 @@
     <string name="operation_successful">Operation successful</string>
     <string name="operation_failed">Operation Failed</string>
     <string name="file_location">File location:\n</string>
+    <string name="select_correct_file_type">Please select a file from correct type</string>
 </resources>
