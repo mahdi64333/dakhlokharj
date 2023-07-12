@@ -41,7 +41,7 @@ abstract class DataRepository : RoomDatabase() {
         const val purchaseId = "purchaseId"
         const val purchaseProduct = "product"
         const val purchasePrice = "price"
-        const val purchasePayerId = "PayerId"
+        const val purchaseBuyerId = "PayerId"
         const val purchaseTime = "purchaseTime"
 
         // Consumers table keys
