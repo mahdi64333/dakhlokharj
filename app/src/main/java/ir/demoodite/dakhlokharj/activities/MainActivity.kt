@@ -1,7 +1,7 @@
 package ir.demoodite.dakhlokharj.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import ir.demoodite.dakhlokharj.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
