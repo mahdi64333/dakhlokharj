@@ -22,11 +22,10 @@ class ResidentsViewModel @Inject constructor(
         SharingStarted.Lazily,
         listOf()
     )
-    lateinit var editingResident: Resident
 
-    fun insertEditingResident(status: MutableSharedFlow<AsyncOperationStatus>) {
+    fun insertResident(status: MutableSharedFlow<AsyncOperationStatus>, resident: Resident) {
         viewModelScope.launch(Dispatchers.IO) {
-            val id = dataRepository.residentDao.insert(editingResident)
+            val id = dataRepository.residentDao.insert(resident)
             status.emit(
                 AsyncOperationStatus(
                     id >= 0
@@ -35,9 +34,9 @@ class ResidentsViewModel @Inject constructor(
         }
     }
 
-    fun updateEditingResident(status: MutableSharedFlow<AsyncOperationStatus>) {
+    fun updateResident(status: MutableSharedFlow<AsyncOperationStatus>, resident: Resident) {
         viewModelScope.launch(Dispatchers.IO) {
-            val rowsAffected = dataRepository.residentDao.update(editingResident)
+            val rowsAffected = dataRepository.residentDao.update(resident)
             status.emit(
                 AsyncOperationStatus(
                     rowsAffected > 0

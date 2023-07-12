@@ -37,7 +37,8 @@ class ResidentsFragment : Fragment() {
     private var _binding: FragmentResidentsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ResidentsViewModel by viewModels()
-    private var snackbar: Snackbar? = null
+    private var snackBar: Snackbar? = null
+    private lateinit var editingResident: Resident
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -83,19 +84,19 @@ class ResidentsFragment : Fragment() {
                 true
             }
         }
-        viewModel.insertEditingResident(insertionStatus)
+        viewModel.insertResident(insertionStatus, editingResident)
     }
 
     private fun validateAndSetEditingResident(): Boolean {
         var errorFlag = false
-        viewModel.editingResident = Resident(0, "", true)
+        editingResident = Resident(0, "", true)
         val name = binding.textInputEditTextResidentName.text.toString().trim()
         if (name.isEmpty()) {
             binding.textInputLayoutResidentName.error = getString(R.string.its_empty)
             UiUtil.removeErrorOnType(binding.textInputEditTextResidentName)
             errorFlag = true
         } else {
-            viewModel.editingResident.name = name
+            editingResident.name = name
         }
 
         return !errorFlag
@@ -105,7 +106,6 @@ class ResidentsFragment : Fragment() {
         binding.rvResidents.adapter = ResidentsListAdapter().apply {
             onActivationChangedListener = { resident, active ->
                 resident.active = active
-                viewModel.editingResident = resident
                 val updateStatus = MutableSharedFlow<AsyncOperationStatus>()
                 lifecycleScope.launch {
                     updateStatus.first {
@@ -119,11 +119,10 @@ class ResidentsFragment : Fragment() {
                         true
                     }
                 }
-                viewModel.updateEditingResident(updateStatus)
+                viewModel.updateResident(updateStatus, resident)
             }
             onNameChangedListener = { resident, newName, editText, viewHolder ->
                 resident.name = newName
-                viewModel.editingResident = resident
                 val updateStatus = MutableSharedFlow<AsyncOperationStatus>()
                 lifecycleScope.launch {
                     updateStatus.first {
@@ -138,7 +137,7 @@ class ResidentsFragment : Fragment() {
                         true
                     }
                 }
-                viewModel.updateEditingResident(updateStatus)
+                viewModel.updateResident(updateStatus, resident)
             }
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -176,8 +175,8 @@ class ResidentsFragment : Fragment() {
                 val resident = residents[residentPosition]
                 residents.removeAt(residentPosition)
                 residentsAdapter.submitList(residents)
-                snackbar?.dismiss()
-                snackbar =
+                snackBar?.dismiss()
+                snackBar =
                     Snackbar.make(binding.root, R.string.resident_got_deleted, Snackbar.LENGTH_LONG)
                 val snackBarCallback = object : Snackbar.Callback() {
                     override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
@@ -186,7 +185,7 @@ class ResidentsFragment : Fragment() {
                         viewModel.deleteResident(resident)
                     }
                 }
-                snackbar?.apply {
+                snackBar?.apply {
                     setAction(R.string.undo) {
                         residents.add(residentPosition, resident)
                         residentsAdapter.submitList(residents)
