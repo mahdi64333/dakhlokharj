@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_padding">18dp</dimen>
+    <dimen name="xxxs">1dp</dimen>
+    <dimen name="xxs">2dp</dimen>
+    <dimen name="xs">4dp</dimen>
+    <dimen name="s">8dp</dimen>
+    <dimen name="m">14dp</dimen>
+    <dimen name="l">22dp</dimen>
+    <dimen name="xl">32dp</dimen>
+    <dimen name="xxl">44dp</dimen>
+    <dimen name="xxxl">58dp</dimen>
+</resources>

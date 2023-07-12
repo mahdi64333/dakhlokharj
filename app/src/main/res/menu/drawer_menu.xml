@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/manageResidentsFragment"
+            android:icon="@drawable/ic_people"
+            android:title="@string/manage_residents" />
+        <item
+            android:id="@+id/summeryFragment"
+            android:icon="@drawable/ic_equalizer"
+            android:title="@string/summery" />
+        <item
+            android:id="@+id/settingsFragment"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/settings" />
+        <item
+            android:id="@+id/aboutUsFragment"
+            android:icon="@drawable/ic_info"
+            android:title="@string/about_us" />
+    </group>
+</menu>
