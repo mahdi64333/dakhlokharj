@@ -16,6 +16,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/resident_name_hint"
+        android:visibility="invisible"
         app:boxBackgroundColor="@android:color/transparent"
         app:endIconDrawable="@drawable/round_check_24"
         app:endIconMode="custom"

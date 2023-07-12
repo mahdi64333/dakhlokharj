@@ -1,5 +1,6 @@
 package ir.demoodite.dakhlokharj.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.EditText
@@ -40,18 +41,18 @@ class ResidentsListAdapter :
                 editingViewHolder?.setEditing(false)
             }
             holder.setEditing(true)
-            holder.setOnActivationChangedListener {
-                onActivationChangedListener(getItem(position), it)
-            }
-            holder.setOnNameChangedListener { newName, editText ->
-                onNameChangedListener(getItem(position), newName, editText, holder)
-                editing = false
-            }
             editingViewHolder = holder
             holder.requestFocus()
             editingIndex = holder.adapterPosition
             editing = true
             true
+        }
+        holder.setOnActivationChangedListener {
+            onActivationChangedListener(getItem(position), it)
+        }
+        holder.setOnNameChangedListener { newName, editText ->
+            onNameChangedListener(getItem(position), newName, editText, holder)
+            editing = false
         }
     }
 
@@ -69,8 +70,9 @@ class ResidentsListAdapter :
         }
 
         fun setOnActivationChangedListener(listener: (active: Boolean) -> Unit) {
-            binding.checkBoxActive.setOnClickListener {
-                listener(binding.checkBoxActive.isChecked)
+            binding.checkBoxActive.setOnCheckedChangeListener { _, isChecked ->
+                Log.i("residents", "resident.toString()")
+                listener(isChecked)
             }
         }
 
