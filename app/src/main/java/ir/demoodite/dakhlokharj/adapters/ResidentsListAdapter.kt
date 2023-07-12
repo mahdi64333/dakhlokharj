@@ -35,7 +35,7 @@ class ResidentsListAdapter :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position), editingName)
-        holder.setEditing(holder.adapterPosition == editingIndex)
+        holder.setEditing(editing && position == editingIndex)
         holder.itemView.setOnLongClickListener {
             if (editing) {
                 editingViewHolder?.setEditing(false)
@@ -54,6 +54,11 @@ class ResidentsListAdapter :
             onNameChangedListener(getItem(position), newName, editText, holder)
             editing = false
         }
+    }
+
+    fun endEditing() {
+        editing = false
+        editingViewHolder?.setEditing(false)
     }
 
     class ViewHolder(private var binding: ItemResidentBinding) :

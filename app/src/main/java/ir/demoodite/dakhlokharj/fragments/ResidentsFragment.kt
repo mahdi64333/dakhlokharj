@@ -73,6 +73,7 @@ class ResidentsFragment : Fragment() {
     }
 
     private fun insertEditingResident() {
+        (binding.rvResidents.adapter as ResidentsListAdapter).endEditing()
         val insertionStatus = MutableSharedFlow<AsyncOperationStatus>()
         lifecycleScope.launch {
             insertionStatus.first {
@@ -175,6 +176,7 @@ class ResidentsFragment : Fragment() {
                 val residents = LinkedList(residentsAdapter.currentList)
                 val residentPosition = viewHolder.adapterPosition
                 val resident = residents[residentPosition]
+                residentsAdapter.endEditing()
                 residents.removeAt(residentPosition)
                 residentsAdapter.submitList(residents)
                 snackBar?.dismiss()
