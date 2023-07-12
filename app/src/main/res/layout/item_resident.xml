@@ -16,8 +16,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/resident_name_hint"
-        android:visibility="invisible"
-        app:boxBackgroundColor="?attr/backgroundColor"
+        app:boxBackgroundColor="@android:color/transparent"
         app:endIconDrawable="@drawable/round_check_24"
         app:endIconMode="custom"
         app:endIconTint="@color/green_add"
@@ -32,6 +31,8 @@
             android:id="@+id/textInputEditText_resident_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
+            android:paddingBottom="@dimen/l"
             tools:text="John" />
     </com.google.android.material.textfield.TextInputLayout>
 

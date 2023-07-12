@@ -14,7 +14,7 @@ import ir.demoodite.dakhlokharj.models.database.Resident
         Purchase::class,
         Consumer::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class DataRepository : RoomDatabase() {

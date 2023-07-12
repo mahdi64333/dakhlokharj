@@ -100,4 +100,5 @@
     <string name="select_correct_file_type">لطفا فایلی از نوغ صحیح انتخاب کنید</string>
     <string name="no_storage_access">دسترسی به حافظه‌ی دستگاه وجود ندارد</string>
     <string name="no_residents_found">هیچ ساکنی ثبت نشده</string>
+    <string name="duplicate">تکراری است</string>
 </resources>

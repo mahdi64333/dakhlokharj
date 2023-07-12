@@ -2,8 +2,9 @@ package ir.demoodite.dakhlokharj.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,14 +13,14 @@ import ir.demoodite.dakhlokharj.databinding.ItemResidentBinding
 import ir.demoodite.dakhlokharj.models.database.Resident
 import ir.demoodite.dakhlokharj.utils.UiUtil
 
-class ResidentsListAdapter() :
+class ResidentsListAdapter :
     ListAdapter<Resident, ResidentsListAdapter.ViewHolder>(diffCallback) {
     private var editing = false
     private var editingIndex = -1
     private var editingName: String? = null
     private var editingViewHolder: ViewHolder? = null
     lateinit var onActivationChangedListener: (resident: Resident, active: Boolean) -> Unit
-    lateinit var onNameChangedListener: (resident: Resident, newName: String) -> Unit
+    lateinit var onNameChangedListener: (resident: Resident, newName: String, editText: EditText) -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -42,12 +43,13 @@ class ResidentsListAdapter() :
             holder.setOnActivationChangedListener {
                 onActivationChangedListener(getItem(position), it)
             }
-            holder.setOnNameChangedListener {
-                onNameChangedListener(getItem(position), it)
+            holder.setOnNameChangedListener { newName, editText ->
+                onNameChangedListener(getItem(position), newName, editText)
                 holder.setEditing(false)
                 editing = false
             }
             editingViewHolder = holder
+            holder.requestFocus()
             editingIndex = holder.adapterPosition
             editing = true
             true
@@ -64,7 +66,7 @@ class ResidentsListAdapter() :
 
         fun setEditing(editing: Boolean) {
             binding.tvResidentName.isGone = editing
-            binding.textInputLayoutResidentName.isVisible = editing
+            binding.textInputLayoutResidentName.isInvisible = !editing
         }
 
         fun setOnActivationChangedListener(listener: (active: Boolean) -> Unit) {
@@ -73,7 +75,7 @@ class ResidentsListAdapter() :
             }
         }
 
-        fun setOnNameChangedListener(listener: (newName: String) -> Unit) {
+        fun setOnNameChangedListener(listener: (newName: String, editText: EditText) -> Unit) {
             binding.textInputLayoutResidentName.setEndIconOnClickListener {
                 val name = binding.textInputEditTextResidentName.text.toString()
                 if (name.isEmpty()) {
@@ -81,8 +83,16 @@ class ResidentsListAdapter() :
                         binding.root.context.getString(R.string.its_empty)
                     UiUtil.removeErrorOnType(binding.textInputEditTextResidentName)
                 } else {
-                    listener(name)
+                    binding.tvResidentName.text = name
+                    listener(name, binding.textInputEditTextResidentName)
                 }
+            }
+        }
+
+        fun requestFocus() {
+            binding.textInputEditTextResidentName.apply {
+                requestFocus()
+                setSelection(text.toString().length)
             }
         }
     }
