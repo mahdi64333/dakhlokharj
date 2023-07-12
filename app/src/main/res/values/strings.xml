@@ -10,7 +10,7 @@
     <string name="about_us">About us</string>
     <string name="about_us_text">Developer: Mahdi Jafari\n39813161035</string>
     <string name="ok">OK</string>
-    <string name="enter_new_resident_name">Resident name</string>
+    <string name="resident_name_hint">Resident name</string>
     <string name="add_a_new_resident">Add a new resident</string>
     <string name="active">Active</string>
     <string name="saved_successfully">Saved Successfully</string>
@@ -99,4 +99,5 @@
     <string name="file_location">File location:\n</string>
     <string name="select_correct_file_type">Please select a file from correct type</string>
     <string name="no_storage_access">No access to phone storage</string>
+    <string name="no_residents_found">No residents found</string>
 </resources>

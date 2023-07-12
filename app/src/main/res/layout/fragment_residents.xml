@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.ResidentsFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/TextInputLayout_resident_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/screen_padding"
+            android:inputType="textPersonName"
+            app:endIconDrawable="@drawable/baseline_add_circle_24"
+            app:endIconMode="custom"
+            app:endIconTint="@color/green_add"
+            app:errorEnabled="true"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/TextInputEditText_resident_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:autofillHints="name"
+                android:hint="@string/resident_name_hint"
+                android:imeOptions="actionDone"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_residents"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/TextInputLayout_resident_name"
+            tools:itemCount="4"
+            tools:listitem="@layout/item_resident" />
+
+        <TextView
+            android:id="@+id/rv_no_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/xs"
+            android:gravity="center"
+            android:text="@string/no_residents_found"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@id/rv_residents" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

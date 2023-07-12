@@ -61,4 +61,5 @@
     <color name="md_theme_dark_surfaceTint">#FFB0CC</color>
     <color name="md_theme_dark_outlineVariant">#514347</color>
     <color name="md_theme_dark_scrim">#000000</color>
+    <color name="green_add">@android:color/holo_green_dark</color>
 </resources>

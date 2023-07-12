@@ -5,7 +5,7 @@
     <dimen name="xxs">2dp</dimen>
     <dimen name="xs">4dp</dimen>
     <dimen name="s">8dp</dimen>
-    <dimen name="m">14dp</dimen>
+    <dimen name="m">16dp</dimen>
     <dimen name="l">22dp</dimen>
     <dimen name="xl">32dp</dimen>
     <dimen name="xxl">44dp</dimen>
