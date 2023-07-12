@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'androidx.navigation.safeargs'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -55,6 +56,15 @@ dependencies {
     def navVersion = "2.6.0"
     implementation "androidx.navigation:navigation-fragment-ktx:$navVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navVersion"
+
+    //Dagger - Hilt
+    implementation 'com.google.dagger:hilt-android:2.44'
+    kapt 'com.google.dagger:hilt-compiler:2.46.1'
+
+    // Lifecycle-aware components
+    def lifecycleAwareComponentsVersion = "2.6.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleAwareComponentsVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleAwareComponentsVersion"
 
     // Tests
     testImplementation 'junit:junit:4.13.2'
