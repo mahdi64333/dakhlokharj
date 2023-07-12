@@ -15,7 +15,7 @@ import com.google.android.material.textfield.TextInputLayout
 
 
 object UiUtil {
-    const val DIALOG_BUTTONS_MARGIN = 22
+    private const val DIALOG_BUTTONS_MARGIN = 22
 
     /**
      * Removes error of TextInputLayout.

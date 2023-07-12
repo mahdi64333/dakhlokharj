@@ -12,10 +12,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
@@ -152,10 +152,12 @@ class ResidentsFragment : Fragment() {
 
         binding.rvResidents.layoutManager = LinearLayoutManager(requireContext())
         binding.rvResidents.addItemDecoration(
-            DividerItemDecoration(
+            MaterialDividerItemDecoration(
                 requireContext(),
-                DividerItemDecoration.HORIZONTAL
-            )
+                MaterialDividerItemDecoration.VERTICAL
+            ).apply {
+                isLastItemDecorated = false
+            }
         )
 
         ItemTouchHelper(object :
