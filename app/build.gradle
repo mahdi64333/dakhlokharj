@@ -68,6 +68,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleAwareComponentsVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleAwareComponentsVersion"
 
+    // Sweet Alert Dialog
+    implementation 'com.github.f0ris.sweetalert:library:1.6.2'
+
     // Tests
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

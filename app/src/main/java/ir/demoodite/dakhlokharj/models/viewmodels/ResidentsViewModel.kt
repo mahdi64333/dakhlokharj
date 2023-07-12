@@ -40,9 +40,15 @@ class ResidentsViewModel @Inject constructor(
             val rowsAffected = dataRepository.residentDao.update(editingResident)
             status.emit(
                 AsyncOperationStatus(
-                    rowsAffected >= 0
+                    rowsAffected > 0
                 )
             )
+        }
+    }
+
+    fun deleteResident(resident: Resident) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataRepository.residentDao.delete(resident)
         }
     }
 }

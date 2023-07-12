@@ -13,7 +13,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
@@ -27,12 +30,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.*
 
 @AndroidEntryPoint
 class ResidentsFragment : Fragment() {
     private var _binding: FragmentResidentsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ResidentsViewModel by viewModels()
+    private var snackbar: Snackbar? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -116,14 +121,17 @@ class ResidentsFragment : Fragment() {
                 }
                 viewModel.updateEditingResident(updateStatus)
             }
-            onNameChangedListener = { resident, newName, editText ->
+            onNameChangedListener = { resident, newName, editText, viewHolder ->
                 resident.name = newName
                 viewModel.editingResident = resident
                 val updateStatus = MutableSharedFlow<AsyncOperationStatus>()
                 lifecycleScope.launch {
                     updateStatus.first {
-                        if (!it.isSuccessful) {
-                            val textInputLayout = editText.parent as TextInputLayout
+                        if (it.isSuccessful) {
+                            UiUtil.hideKeyboard(editText)
+                            viewHolder.setEditing(false)
+                        } else {
+                            val textInputLayout = editText.parent.parent as TextInputLayout
                             textInputLayout.error = getString(R.string.duplicate)
                             UiUtil.removeErrorOnType(editText)
                         }
@@ -142,6 +150,7 @@ class ResidentsFragment : Fragment() {
                 }
             }
         }
+
         binding.rvResidents.layoutManager = LinearLayoutManager(requireContext())
         binding.rvResidents.addItemDecoration(
             DividerItemDecoration(
@@ -149,5 +158,46 @@ class ResidentsFragment : Fragment() {
                 DividerItemDecoration.HORIZONTAL
             )
         )
+
+        ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val residentsAdapter = binding.rvResidents.adapter!! as ResidentsListAdapter
+                val residents = LinkedList(residentsAdapter.currentList)
+                val residentPosition = viewHolder.adapterPosition
+                val resident = residents[residentPosition]
+                residents.removeAt(residentPosition)
+                residentsAdapter.submitList(residents)
+                snackbar?.dismiss()
+                snackbar =
+                    Snackbar.make(binding.root, R.string.resident_got_deleted, Snackbar.LENGTH_LONG)
+                val snackBarCallback = object : Snackbar.Callback() {
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        super.onDismissed(transientBottomBar, event)
+
+                        viewModel.deleteResident(resident)
+                    }
+                }
+                snackbar?.apply {
+                    setAction(R.string.undo) {
+                        residents.add(residentPosition, resident)
+                        residentsAdapter.submitList(residents)
+                        binding.rvResidents.adapter = residentsAdapter
+                        removeCallback(snackBarCallback)
+                        dismiss()
+                    }
+                    addCallback(snackBarCallback)
+                    show()
+                }
+            }
+        }).attachToRecyclerView(binding.rvResidents)
     }
 }

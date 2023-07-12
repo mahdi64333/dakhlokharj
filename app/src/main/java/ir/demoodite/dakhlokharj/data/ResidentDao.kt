@@ -17,4 +17,7 @@ interface ResidentDao {
 
     @Update(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(resident: Resident): Int
+
+    @Delete
+    suspend fun delete(resident: Resident)
 }

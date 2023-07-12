@@ -20,7 +20,7 @@ class ResidentsListAdapter :
     private var editingName: String? = null
     private var editingViewHolder: ViewHolder? = null
     lateinit var onActivationChangedListener: (resident: Resident, active: Boolean) -> Unit
-    lateinit var onNameChangedListener: (resident: Resident, newName: String, editText: EditText) -> Unit
+    lateinit var onNameChangedListener: (resident: Resident, newName: String, editText: EditText, viewHolder: ViewHolder) -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -44,8 +44,7 @@ class ResidentsListAdapter :
                 onActivationChangedListener(getItem(position), it)
             }
             holder.setOnNameChangedListener { newName, editText ->
-                onNameChangedListener(getItem(position), newName, editText)
-                holder.setEditing(false)
+                onNameChangedListener(getItem(position), newName, editText, holder)
                 editing = false
             }
             editingViewHolder = holder

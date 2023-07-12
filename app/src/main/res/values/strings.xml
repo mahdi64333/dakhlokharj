@@ -101,4 +101,5 @@
     <string name="no_storage_access">No access to phone storage</string>
     <string name="no_residents_found">No residents found</string>
     <string name="duplicate">Duplicate entry</string>
+    <string name="undo">Undo</string>
 </resources>
