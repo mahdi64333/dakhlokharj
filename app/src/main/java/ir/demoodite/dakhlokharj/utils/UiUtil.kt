@@ -11,6 +11,7 @@ import android.widget.EditText
 import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.textfield.TextInputLayout
 
 
@@ -36,10 +37,14 @@ object UiUtil {
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    fun isNightModeOn(resources: Resources): Boolean {
+    private fun isNightModeOn(resources: Resources): Boolean {
         val nightModeFlags = resources.configuration.uiMode and
                 Configuration.UI_MODE_NIGHT_MASK
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+    }
+
+    fun setSweetAlertDialogNightMode(resources: Resources) {
+        SweetAlertDialog.DARK_STYLE = isNightModeOn(resources)
     }
 
     fun fixSweetAlertDialogButtons(button: Button) {
