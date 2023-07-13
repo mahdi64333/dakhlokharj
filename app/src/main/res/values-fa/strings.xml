@@ -30,8 +30,8 @@
     <string name="yes">بله</string>
     <string name="no">خیر</string>
     <string name="are_you_sure_to_delete">مایل به حذف؟</string>
-    <string name="order_name">نام کالا</string>
-    <string name="order_price">قیمت کالا (تومان)</string>
+    <string name="product_name">نام کالا</string>
+    <string name="product_price">قیمت کالا (تومان)</string>
     <string name="buyer_name">خریدار</string>
     <string name="add_consumer">افزودن مصرف‌کننده</string>
     <string name="consumers">مصرف‌کنندگان:</string>

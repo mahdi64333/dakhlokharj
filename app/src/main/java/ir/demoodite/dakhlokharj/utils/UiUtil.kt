@@ -23,10 +23,11 @@ object UiUtil {
      *
      * @param input the TextInputEditText
      */
-    fun removeErrorOnType(input: EditText) {
+    fun removeErrorOnType(input: EditText, errorEnabled: Boolean = true) {
         val layout = input.parent.parent as TextInputLayout
         input.addTextChangedListener {
             layout.error = null
+            layout.isErrorEnabled = errorEnabled
         }
     }
 

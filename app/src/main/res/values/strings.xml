@@ -30,8 +30,8 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="are_you_sure_to_delete">Are you sure to delete?</string>
-    <string name="order_name">Product name</string>
-    <string name="order_price">Product Price</string>
+    <string name="product_name">Product name</string>
+    <string name="product_price">Product Price</string>
     <string name="buyer_name">Buyer</string>
     <string name="add_consumer">Add consumer</string>
     <string name="consumers">Consumers:</string>

@@ -74,6 +74,9 @@ dependencies {
     // Sweet Alert Dialog
     implementation 'com.github.f0ris.sweetalert:library:1.6.2'
 
+    // EditText Mask
+    implementation 'com.github.umeriqbal97:CommaSeparatedEditText:1.0.5'
+
     // Tests
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
