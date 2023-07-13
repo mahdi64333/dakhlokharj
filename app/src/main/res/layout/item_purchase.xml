@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:padding="@dimen/s">
+
+    <TextView
+        android:id="@+id/tv_purchase_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        app:layout_constraintBaseline_toBaselineOf="@id/tv_purchase_buyer"
+        app:layout_constraintEnd_toStartOf="@id/tv_purchase_buyer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Chocolate" />
+
+    <TextView
+        android:id="@+id/tv_purchase_buyer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Jamshid" />
+
+    <TextView
+        android:id="@+id/tv_purchase_price"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        app:layout_constraintBottom_toTopOf="@id/tv_purchase_datetime"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_purchase_buyer"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="12.40$" />
+
+    <TextView
+        android:id="@+id/tv_purchase_datetime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_purchase_buyer"
+        app:layout_constraintTop_toBottomOf="@id/tv_purchase_price"
+        tools:text="7/13/23 3:30" />
+</androidx.constraintlayout.widget.ConstraintLayout>

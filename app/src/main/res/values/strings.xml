@@ -3,7 +3,7 @@
     <string name="app_subtitle">Student dormitory spendings calculation</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="add_an_order">Add an order</string>
+    <string name="add_a_purchase">Add an order</string>
     <string name="manage_residents">Manage residents</string>
     <string name="summery">Expenses summery</string>
     <string name="settings">Settings</string>
@@ -102,4 +102,5 @@
     <string name="no_residents_found">No residents found</string>
     <string name="duplicate">Duplicate entry</string>
     <string name="undo">Undo</string>
+    <string name="no_purchase_found">no purchase found</string>
 </resources>

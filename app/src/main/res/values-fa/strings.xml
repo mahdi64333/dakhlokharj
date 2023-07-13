@@ -3,7 +3,7 @@
     <string name="app_subtitle">نرم‌افزار محاسبه‌ی مخارج خوابگاه دانشجویی</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="add_an_order">Add an order</string>
+    <string name="add_a_purchase">افزودن خرید</string>
     <string name="manage_residents">مدیریت ساکنین</string>
     <string name="summery">جمع‌بندی مخارج</string>
     <string name="settings">تنظیمات</string>
@@ -102,4 +102,5 @@
     <string name="no_residents_found">هیچ ساکنی ثبت نشده</string>
     <string name="duplicate">تکراری است</string>
     <string name="undo">بازگردادن</string>
+    <string name="no_purchase_found">هیچ خریدی ثبت نشده</string>
 </resources>
