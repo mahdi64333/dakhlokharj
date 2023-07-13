@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="@dimen/s">
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_name"
+        style="@style/Widget.Material3.Chip.Input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkable="false"
+        android:textIsSelectable="false"
+        tools:text="Jack" />
+</FrameLayout>

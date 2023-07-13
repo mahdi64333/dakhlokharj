@@ -22,12 +22,13 @@ object UiUtil {
      * Removes error of TextInputLayout.
      *
      * @param input the TextInputEditText
+     * @param preserveErrorTextSpace preserve error label space after removing the error label
      */
-    fun removeErrorOnType(input: EditText, errorEnabled: Boolean = true) {
+    fun removeErrorOnType(input: EditText, preserveErrorTextSpace: Boolean = true) {
         val layout = input.parent.parent as TextInputLayout
         input.addTextChangedListener {
             layout.error = null
-            layout.isErrorEnabled = errorEnabled
+            layout.isErrorEnabled = preserveErrorTextSpace
         }
     }
 

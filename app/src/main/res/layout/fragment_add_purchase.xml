@@ -63,6 +63,7 @@
                     android:id="@+id/autoCompleteTextView_product_buyer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:completionThreshold="0"
                     android:hint="@string/buyer_name"
                     android:imeOptions="actionNext"
                     android:singleLine="true" />
@@ -82,17 +83,17 @@
                 app:layout_constraintTop_toBottomOf="@id/textInputLayout_product_buyer">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/textInputEditText_consumer_name"
+                    android:id="@+id/autoCompleteTextView_consumer_name"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:autofillHints="name"
+                    android:completionThreshold="1"
                     android:hint="@string/resident_name_hint"
                     android:imeOptions="actionDone"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
-                android:id="@+id/rv_label_chips"
+                android:id="@+id/tv_label_chips"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/xs"
@@ -102,13 +103,13 @@
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/textInputLayout_consumer_name" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroup_consumers"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_consumers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/rv_label_chips">
+                app:layout_constraintTop_toBottomOf="@id/tv_label_chips">
 
-            </com.google.android.material.chip.ChipGroup>
+            </androidx.recyclerview.widget.RecyclerView>
 
             <Button
                 style="@style/Widget.Material3.Button"
@@ -118,7 +119,7 @@
                 android:paddingVertical="@dimen/m"
                 android:text="@string/add"
                 android:textSize="18sp"
-                app:layout_constraintTop_toBottomOf="@id/chipGroup_consumers" />
+                app:layout_constraintTop_toBottomOf="@id/rv_consumers" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </FrameLayout>
