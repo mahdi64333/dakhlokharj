@@ -8,7 +8,7 @@
     android:clickable="true"
     android:focusable="true"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:padding="@dimen/s">
+    android:padding="@dimen/l">
 
     <TextView
         android:id="@+id/tv_purchase_name"
@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:gravity="start"
         android:textAppearance="?attr/textAppearanceTitleMedium"
-        app:layout_constraintBaseline_toBaselineOf="@id/tv_purchase_buyer"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tv_purchase_buyer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -50,6 +50,7 @@
         android:id="@+id/tv_purchase_datetime"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/s"
         android:gravity="end"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
