@@ -16,9 +16,7 @@ class HomeViewModel @Inject constructor(
     private val dataRepository: DataRepository
 ) : ViewModel() {
     val purchasesStateFlow = dataRepository.purchaseDao.getAllDetailedPurchases().stateIn(
-        viewModelScope,
-        SharingStarted.Lazily,
-        listOf()
+        viewModelScope, SharingStarted.Lazily, listOf()
     )
 
     fun deletePurchase(purchase: Purchase) {
