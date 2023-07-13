@@ -38,7 +38,6 @@ class ResidentsFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: ResidentsViewModel by viewModels()
     private var snackBar: Snackbar? = null
-    private lateinit var editingResident: Resident
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,44 +64,45 @@ class ResidentsFragment : Fragment() {
     private fun setupResidentSaveUi() {
         binding.textInputLayoutResidentName.setEndIconOnClickListener {
             binding.textInputLayoutResidentName.setEndIconActivated(false)
-            if (validateAndSetEditingResident()) {
-                insertEditingResident()
-                binding.textInputEditTextResidentName.setText("")
-                UiUtil.hideKeyboard(binding.textInputEditTextResidentName)
+            validateFormsAndGetResident()?.let {
+                insertEditingResident(it)
             }
             binding.textInputLayoutResidentName.setEndIconActivated(true)
         }
     }
 
-    private fun insertEditingResident() {
+    private fun insertEditingResident(resident: Resident) {
         (binding.rvResidents.adapter as ResidentsListAdapter).endEditing()
         val insertionStatus = MutableSharedFlow<AsyncOperationStatus>()
         lifecycleScope.launch {
             insertionStatus.first {
-                if (!it.isSuccessful) {
+                if (it.isSuccessful) {
+                    binding.textInputEditTextResidentName.setText("")
+                    UiUtil.hideKeyboard(binding.textInputEditTextResidentName)
+                } else {
                     binding.textInputLayoutResidentName.error =
                         getString(R.string.duplicate)
-                    UiUtil.removeErrorOnType(binding.textInputEditTextResidentName)
                 }
                 true
             }
         }
-        viewModel.insertResident(insertionStatus, editingResident)
+        viewModel.insertResident(insertionStatus, resident)
     }
 
-    private fun validateAndSetEditingResident(): Boolean {
+    private fun validateFormsAndGetResident(): Resident? {
         var errorFlag = false
-        editingResident = Resident(0, "", true)
+        val resident = Resident(0, "", true)
         val name = binding.textInputEditTextResidentName.text.toString().trim()
+
         if (name.isEmpty()) {
             binding.textInputLayoutResidentName.error = getString(R.string.its_empty)
             UiUtil.removeErrorOnType(binding.textInputEditTextResidentName)
             errorFlag = true
         } else {
-            editingResident.name = name
+            resident.name = name
         }
 
-        return !errorFlag
+        return if (errorFlag) null else resident
     }
 
     private fun setupResidentsRecyclerView() {
