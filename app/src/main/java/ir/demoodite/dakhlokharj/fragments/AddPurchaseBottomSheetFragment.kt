@@ -22,7 +22,6 @@ import ir.demoodite.dakhlokharj.models.database.Purchase
 import ir.demoodite.dakhlokharj.models.database.Resident
 import ir.demoodite.dakhlokharj.models.viewmodels.AddPurchaseViewModel
 import ir.demoodite.dakhlokharj.utils.UiUtil
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -42,21 +41,21 @@ class AddPurchaseBottomSheetFragment :
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            launch(Dispatchers.IO) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.residentsStateFlow.collectLatest {
                     repeatOnLifecycle(Lifecycle.State.STARTED) {
                         residents = it
                     }
                 }
             }
+        }
 
-            launch(Dispatchers.IO) {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.activeResidentsStateFlow.collectLatest {
-                    repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        activeResidents = it
-                        withStarted {
-                            setupBuyerAutocompleteTextViewAdapter()
-                        }
+                    activeResidents = it
+                    withStarted {
+                        setupBuyerAutocompleteTextViewAdapter()
                     }
                 }
             }
@@ -187,9 +186,9 @@ class AddPurchaseBottomSheetFragment :
             )
         binding.rvConsumers.adapter = adapter
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.selectedResidentsStateFlow.collectLatest {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.selectedResidentsStateFlow.collectLatest {
                     val residents = viewModel.selectedResidentsStateFlow.first()
                     selectedResidents = it.filter {
                         residents.contains(it)
@@ -204,6 +203,7 @@ class AddPurchaseBottomSheetFragment :
                         setupConsumerAutocompleteTextViewAdapter(unselectedResidentNames)
                         adapter.submitList(selectedResidents)
                     }
+
                 }
             }
         }

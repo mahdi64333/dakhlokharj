@@ -28,7 +28,6 @@ import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
 import ir.demoodite.dakhlokharj.models.database.Purchase
 import ir.demoodite.dakhlokharj.models.viewmodels.HomeViewModel
 import ir.demoodite.dakhlokharj.utils.UiUtil
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -97,11 +96,11 @@ class HomeFragment : Fragment() {
         ).apply {
             isLastItemDecorated = false
         })
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.purchasesStateFlow.collectLatest {
-                    adapter.submitList(it)
                     withStarted {
+                        adapter.submitList(it)
                         binding.tvNoData.isVisible = it.isEmpty()
                     }
                 }

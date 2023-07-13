@@ -6,7 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import ir.demoodite.dakhlokharj.data.DataRepository
 import ir.demoodite.dakhlokharj.models.AsyncOperationStatus
 import ir.demoodite.dakhlokharj.models.database.Resident
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -15,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ResidentsViewModel @Inject constructor(
-    private val dataRepository: DataRepository
+    private val dataRepository: DataRepository,
 ) : ViewModel() {
     val residentsStateFlow = dataRepository.residentDao.getAll().stateIn(
         viewModelScope,
@@ -24,7 +23,7 @@ class ResidentsViewModel @Inject constructor(
     )
 
     fun insertResident(status: MutableSharedFlow<AsyncOperationStatus>, resident: Resident) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val id = dataRepository.residentDao.insert(resident)
             status.emit(
                 AsyncOperationStatus(
@@ -35,7 +34,7 @@ class ResidentsViewModel @Inject constructor(
     }
 
     fun updateResident(status: MutableSharedFlow<AsyncOperationStatus>, resident: Resident) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val rowsAffected = dataRepository.residentDao.update(resident)
             status.emit(
                 AsyncOperationStatus(
@@ -46,7 +45,7 @@ class ResidentsViewModel @Inject constructor(
     }
 
     fun deleteResident(resident: Resident) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             dataRepository.residentDao.delete(resident)
         }
     }

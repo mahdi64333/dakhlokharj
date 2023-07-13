@@ -7,7 +7,6 @@ import ir.demoodite.dakhlokharj.data.DataRepository
 import ir.demoodite.dakhlokharj.models.database.Consumer
 import ir.demoodite.dakhlokharj.models.database.Purchase
 import ir.demoodite.dakhlokharj.models.database.Resident
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -63,7 +62,7 @@ class AddPurchaseViewModel @Inject constructor(
     }
 
     fun savePurchaseRecord(purchase: Purchase, consumerResidents: List<Resident>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val purchaseId = dataRepository.purchaseDao.insert(purchase)
             val consumers = consumerResidents.map {
                 Consumer(purchaseId, it.id)
