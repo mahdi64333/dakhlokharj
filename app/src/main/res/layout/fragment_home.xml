@@ -16,10 +16,10 @@
         android:id="@+id/tv_no_data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/xs"
+        android:layout_marginTop="@dimen/l"
         android:gravity="center"
         android:text="@string/no_purchase_found"
-        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textAppearance="?attr/textAppearanceLabelMedium"
         android:visibility="gone" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
