@@ -64,9 +64,9 @@ class AddPurchaseViewModel @Inject constructor(
 
     fun savePurchaseRecord(purchase: Purchase, consumerResidents: List<Resident>) {
         viewModelScope.launch(Dispatchers.IO) {
-            dataRepository.purchaseDao.insert(purchase)
+            val purchaseId = dataRepository.purchaseDao.insert(purchase)
             val consumers = consumerResidents.map {
-                Consumer(purchase.id, it.id)
+                Consumer(purchaseId, it.id)
             }
             dataRepository.consumerDao.insert(consumers)
         }
