@@ -42,7 +42,7 @@ class ResidentsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentResidentsBinding.inflate(layoutInflater, container, false)
         return binding.root
@@ -53,6 +53,12 @@ class ResidentsFragment : Fragment() {
 
         setupResidentSaveUi()
         setupResidentsRecyclerView()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        snackBar?.dismiss()
     }
 
     override fun onDestroyView() {
@@ -168,7 +174,7 @@ class ResidentsFragment : Fragment() {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
+                target: RecyclerView.ViewHolder,
             ): Boolean {
                 return false
             }
