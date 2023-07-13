@@ -61,7 +61,7 @@ class ResidentsListAdapter :
         editingViewHolder?.setEditing(false)
     }
 
-    class ViewHolder(private var binding: ItemResidentBinding) :
+    class ViewHolder(private val binding: ItemResidentBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(resident: Resident, editingName: String?) {
             binding.tvResidentName.text = resident.name

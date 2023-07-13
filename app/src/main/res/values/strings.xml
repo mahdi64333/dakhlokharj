@@ -103,4 +103,5 @@
     <string name="duplicate">Duplicate entry</string>
     <string name="undo">Undo</string>
     <string name="no_purchase_found">no purchase found</string>
+    <string name="price_template">%1$s$</string>
 </resources>

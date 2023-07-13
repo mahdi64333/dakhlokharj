@@ -68,6 +68,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleAwareComponentsVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleAwareComponentsVersion"
 
+    // PersianDate
+    implementation 'com.github.samanzamani:PersianDate:1.5.4'
+
     // Sweet Alert Dialog
     implementation 'com.github.f0ris.sweetalert:library:1.6.2'
 

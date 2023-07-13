@@ -103,4 +103,5 @@
     <string name="duplicate">تکراری است</string>
     <string name="undo">بازگردادن</string>
     <string name="no_purchase_found">هیچ خریدی ثبت نشده</string>
+    <string name="price_template">%1$s تومان</string>
 </resources>
