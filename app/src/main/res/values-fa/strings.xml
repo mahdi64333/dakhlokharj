@@ -42,7 +42,7 @@
     <string name="buyer_not_found_do_you_want_to_save_new">خریدار وارد شده در لیست ساکنین وجود ندارد.\nآیا می‌خواهید او را به عنوان ساکن جدید ذخیره کنید؟</string>
     <string name="consumer_not_found_do_you_want_to_save_new">مصرف‌کننده‌ی وارد شده در لیست ساکنین وجود ندارد.\nآیا می‌خواهید او را به عنوان ساکن جدید ذخیره کنید؟</string>
     <string name="not_found_in_residents">در لیست ساکنین یافت نشد</string>
-    <string name="order_got_deleted">خرید حذف شد</string>
+    <string name="purchase_got_deleted">خرید حذف شد</string>
     <string name="filter">فیلتر کردن</string>
     <string name="delete_all">حذف همه</string>
     <string name="price">قیمت</string>

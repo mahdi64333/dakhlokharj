@@ -7,25 +7,30 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.divider.MaterialDividerItemDecoration
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.adapters.DetailedPurchasesListAdapter
 import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
+import ir.demoodite.dakhlokharj.models.database.Purchase
 import ir.demoodite.dakhlokharj.models.viewmodels.HomeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.text.NumberFormat
-import java.util.Locale
+import java.util.*
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
+    private var snackBar: Snackbar? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,7 +72,60 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.purchasesStateFlow.collectLatest {
                 adapter.submitList(it)
+                binding.tvNoData.isVisible = it.isEmpty()
             }
         }
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val purchasesListAdapter =
+                    binding.rvPurchases.adapter as DetailedPurchasesListAdapter
+                val detailedPurchases = LinkedList(purchasesListAdapter.currentList)
+                val detailedPurchasePosition = viewHolder.adapterPosition
+                val detailedPurchase = detailedPurchases[detailedPurchasePosition]
+                detailedPurchases.removeAt(detailedPurchasePosition)
+                purchasesListAdapter.submitList(detailedPurchases)
+                snackBar?.dismiss()
+                snackBar = Snackbar.make(
+                    binding.root,
+                    getString(R.string.purchase_got_deleted),
+                    Snackbar.LENGTH_LONG
+                )
+                val snackBarCallBack = object : Snackbar.Callback() {
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        super.onDismissed(transientBottomBar, event)
+
+                        val purchase = detailedPurchase.let {
+                            Purchase(
+                                it.purchaseId,
+                                it.purchaseProduct,
+                                it.purchasePrice,
+                                it.purchaseBuyerId,
+                                it.purchaseTime
+                            )
+                        }
+                        viewModel.deletePurchase(purchase)
+                    }
+                }
+                snackBar?.apply {
+                    setAction(R.string.undo) {
+                        detailedPurchases.add(detailedPurchasePosition, detailedPurchase)
+                        purchasesListAdapter.submitList(detailedPurchases)
+                        binding.rvPurchases.adapter = purchasesListAdapter
+                        removeCallback(snackBarCallBack)
+                        dismiss()
+                    }
+                    addCallback(snackBarCallBack)
+                    show()
+                }
+            }
+        })
     }
 }
