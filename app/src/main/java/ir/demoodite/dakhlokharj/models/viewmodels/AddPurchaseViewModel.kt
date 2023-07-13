@@ -61,6 +61,12 @@ class AddPurchaseViewModel @Inject constructor(
         }
     }
 
+    fun clearSelectedResident() {
+        _selectedResidentsStateFlow.update {
+            setOf()
+        }
+    }
+
     fun savePurchaseRecord(purchase: Purchase, consumerResidents: List<Resident>) {
         viewModelScope.launch {
             val purchaseId = dataRepository.purchaseDao.insert(purchase)

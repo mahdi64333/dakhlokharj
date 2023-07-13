@@ -87,6 +87,7 @@ class AddPurchaseBottomSheetFragment :
             it.isEnabled = false
             validateInputsAndGetPurchase()?.let { purchase ->
                 viewModel.savePurchaseRecord(purchase, selectedResidents)
+                cleanupAndDismiss()
             }
             it.isEnabled = true
         }
@@ -264,6 +265,17 @@ class AddPurchaseBottomSheetFragment :
                 PersianDate().time
             )
         }
+    }
+
+    private fun cleanupAndDismiss() {
+        viewModel.clearSelectedResident()
+        binding.apply {
+            textInputEditTextProductName.setText("")
+            textInputEditTextProductPrice.setText("")
+            autoCompleteTextViewProductBuyer.setText("")
+            autoCompleteTextViewConsumerName.setText("")
+        }
+        dismiss()
     }
 
     companion object {
