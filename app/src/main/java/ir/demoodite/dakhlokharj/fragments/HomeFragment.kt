@@ -74,7 +74,7 @@ class HomeFragment : Fragment() {
                         DataRepository.getDatabase(requireContext()).consumerDao.getConsumerNamesOfPurchase(
                             it.purchaseId
                         ).first()
-                    val arrayAdapter = ArrayAdapter<String>(
+                    val arrayAdapter = ArrayAdapter(
                         requireContext(),
                         android.R.layout.simple_list_item_1,
                         consumers

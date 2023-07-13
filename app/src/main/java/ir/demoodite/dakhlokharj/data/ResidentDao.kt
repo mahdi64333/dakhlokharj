@@ -1,6 +1,7 @@
 package ir.demoodite.dakhlokharj.data
 
 import androidx.room.*
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentActive
 import ir.demoodite.dakhlokharj.models.database.Resident
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentsTableName
 import kotlinx.coroutines.flow.Flow
@@ -11,6 +12,12 @@ interface ResidentDao {
         "SELECT * FROM $residentsTableName"
     )
     fun getAll(): Flow<List<Resident>>
+
+    @Query(
+        "SELECT * FROM $residentsTableName " +
+                "WHERE $residentActive = 1"
+    )
+    fun getAllActive(): Flow<List<Resident>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(resident: Resident): Long

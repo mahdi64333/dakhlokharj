@@ -1,6 +1,5 @@
 package ir.demoodite.dakhlokharj.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.EditText
@@ -76,7 +75,6 @@ class ResidentsListAdapter :
 
         fun setOnActivationChangedListener(listener: (active: Boolean) -> Unit) {
             binding.checkBoxActive.setOnCheckedChangeListener { _, isChecked ->
-                Log.i("residents", "resident.toString()")
                 listener(isChecked)
             }
         }
