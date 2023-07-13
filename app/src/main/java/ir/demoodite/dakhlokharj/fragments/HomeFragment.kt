@@ -154,7 +154,11 @@ class HomeFragment : Fragment() {
 
     private fun setupFab() {
         binding.fabAddPurchase.setOnClickListener {
-
+            val addPurchaseBottomSheetFragment = AddPurchaseBottomSheetFragment()
+            addPurchaseBottomSheetFragment.show(
+                requireActivity().supportFragmentManager,
+                AddPurchaseBottomSheetFragment.TAG
+            )
         }
     }
 }
