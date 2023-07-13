@@ -56,6 +56,12 @@ class HomeFragment : Fragment() {
         setupFab()
     }
 
+    override fun onStop() {
+        super.onStop()
+
+        snackBar?.dismiss()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
 
@@ -155,7 +161,7 @@ class HomeFragment : Fragment() {
                     show()
                 }
             }
-        })
+        }).attachToRecyclerView(binding.rvPurchases)
     }
 
     private fun setupFab() {
