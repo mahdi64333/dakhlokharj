@@ -67,6 +67,8 @@ class ResidentsFragment : Fragment() {
             binding.textInputLayoutResidentName.setEndIconActivated(false)
             if (validateAndSetEditingResident()) {
                 insertEditingResident()
+                binding.textInputEditTextResidentName.setText("")
+                UiUtil.hideKeyboard(binding.textInputEditTextResidentName)
             }
             binding.textInputLayoutResidentName.setEndIconActivated(true)
         }
