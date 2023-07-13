@@ -43,13 +43,13 @@ class DetailedPurchasesListAdapter(
             persianDateFormat: PersianDateFormat,
             decimalFormat: DecimalFormat
         ) {
-            binding.tvPurchaseName.text = detailedPurchase.product
+            binding.tvPurchaseName.text = detailedPurchase.purchaseProduct
             binding.tvPurchaseBuyer.text = detailedPurchase.buyerName
-            val detailedPurchaseDate = PersianDate(detailedPurchase.time)
+            val detailedPurchaseDate = PersianDate(detailedPurchase.purchaseTime)
             binding.tvPurchaseDatetime.text = persianDateFormat.format(detailedPurchaseDate)
             binding.tvPurchasePrice.text = binding.root.context.getString(
                 R.string.price_template,
-                decimalFormat.format(detailedPurchase.price)
+                decimalFormat.format(detailedPurchase.purchasePrice)
             )
 
         }

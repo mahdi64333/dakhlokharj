@@ -1,10 +1,9 @@
 package ir.demoodite.dakhlokharj.models.database
 
 data class DetailedPurchase(
-    val id: Long,
-    var product: String,
-    var price: Long,
-    var buyerId: Long,
-    var time: Long,
+    val purchaseId: Long,
+    var purchaseProduct: String,
+    var purchasePrice: Long,
+    var purchaseTime: Long,
     var buyerName: String,
 )

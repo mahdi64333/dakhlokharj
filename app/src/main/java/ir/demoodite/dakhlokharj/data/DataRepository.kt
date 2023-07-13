@@ -14,7 +14,7 @@ import ir.demoodite.dakhlokharj.models.database.Resident
         Purchase::class,
         Consumer::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = false,
 )
 abstract class DataRepository : RoomDatabase() {
@@ -28,20 +28,20 @@ abstract class DataRepository : RoomDatabase() {
 
     companion object {
         // Database info
-        const val databaseName = "dakhlokharj.db"
+        private const val databaseName = "dakhlokharj.db"
 
         // Residents table keys
         const val residentsTableName = "residents"
         const val residentId = "residentId"
-        const val residentName = "name"
-        const val residentActive = "active"
+        const val residentName = "residentName"
+        const val residentActive = "residentActive"
 
         // Receipts table keys
         const val purchasesTableName = "purchases"
         const val purchaseId = "purchaseId"
-        const val purchaseProduct = "product"
-        const val purchasePrice = "price"
-        const val purchaseBuyerId = "PayerId"
+        const val purchaseProduct = "purchaseProduct"
+        const val purchasePrice = "purchasePrice"
+        const val purchaseBuyerId = "purchaseBuyerId"
         const val purchaseTime = "purchaseTime"
 
         // Consumers table keys
