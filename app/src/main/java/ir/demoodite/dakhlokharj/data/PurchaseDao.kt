@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Query
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseBuyerId
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchasesTableName
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentActive
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentId
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentName
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentsTableName
@@ -17,7 +18,8 @@ interface PurchaseDao {
     @Query(
         "SELECT *, $residentName as buyerName FROM $purchasesTableName " +
                 "INNER JOIN $residentsTableName " +
-                "ON $purchaseBuyerId = $residentId"
+                "ON $purchaseBuyerId = $residentId " +
+                "WHERE $residentActive = 1"
     )
     fun getAllDetailedPurchases(): Flow<List<DetailedPurchase>>
 
