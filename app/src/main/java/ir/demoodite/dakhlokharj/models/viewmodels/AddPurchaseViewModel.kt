@@ -4,15 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ir.demoodite.dakhlokharj.data.DataRepository
+import ir.demoodite.dakhlokharj.models.database.Consumer
 import ir.demoodite.dakhlokharj.models.database.Purchase
 import ir.demoodite.dakhlokharj.models.database.Resident
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class AddPurchaseViewModel @Inject constructor(
-    private val dataRepository: DataRepository
+    private val dataRepository: DataRepository,
 ) : ViewModel() {
     val residentsStateFlow: StateFlow<List<Resident>> by lazy {
         runBlocking {
@@ -56,6 +59,16 @@ class AddPurchaseViewModel @Inject constructor(
             it.toMutableSet().apply {
                 remove(resident)
             }.toSet()
+        }
+    }
+
+    fun savePurchaseRecord(purchase: Purchase, consumerResidents: List<Resident>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataRepository.purchaseDao.insert(purchase)
+            val consumers = consumerResidents.map {
+                Consumer(purchase.id, it.id)
+            }
+            dataRepository.consumerDao.insert(consumers)
         }
     }
 }

@@ -52,7 +52,7 @@
     <string name="from">From</string>
     <string name="to">to</string>
     <string name="orders_sum">Total expenses:</string>
-    <string name="can_not_be_negative">Can not be negative</string>
+    <string name="must_be_positive">Must Be positive</string>
     <string name="can_not_be_zero">Can not be zero</string>
     <string name="has_to_be_smaller">Must be smaller</string>
     <string name="has_to_be_bigger">Must be larger</string>

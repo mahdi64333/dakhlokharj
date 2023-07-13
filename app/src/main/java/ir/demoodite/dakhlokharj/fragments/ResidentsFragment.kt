@@ -64,7 +64,7 @@ class ResidentsFragment : Fragment() {
     private fun setupResidentSaveUi() {
         binding.textInputLayoutResidentName.setEndIconOnClickListener {
             binding.textInputLayoutResidentName.setEndIconActivated(false)
-            validateFormsAndGetResident()?.let {
+            validateInputsAndGetResident()?.let {
                 insertEditingResident(it)
             }
             binding.textInputLayoutResidentName.setEndIconActivated(true)
@@ -89,7 +89,7 @@ class ResidentsFragment : Fragment() {
         viewModel.insertResident(insertionStatus, resident)
     }
 
-    private fun validateFormsAndGetResident(): Resident? {
+    private fun validateInputsAndGetResident(): Resident? {
         var errorFlag = false
         val resident = Resident(0, "", true)
         val name = binding.textInputEditTextResidentName.text.toString().trim()

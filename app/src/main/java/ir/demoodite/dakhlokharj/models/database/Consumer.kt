@@ -3,7 +3,7 @@ package ir.demoodite.dakhlokharj.models.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import ir.demoodite.dakhlokharj.data.DataRepository.Companion.consumerId
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.consumerResidentId
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.consumersTableName
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseId
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseProductId
@@ -13,7 +13,7 @@ import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentId
     tableName = consumersTableName,
     primaryKeys = [
         purchaseProductId,
-        consumerId,
+        consumerResidentId,
     ],
     foreignKeys = [
         ForeignKey(
@@ -25,12 +25,12 @@ import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentId
         ForeignKey(
             entity = Resident::class,
             parentColumns = [residentId],
-            childColumns = [consumerId],
+            childColumns = [consumerResidentId],
             onDelete = ForeignKey.NO_ACTION,
         ),
     ],
 )
 data class Consumer(
-    @ColumnInfo(name = purchaseProductId) val product: Long,
-    @ColumnInfo(name = consumerId, index = true) val consumer: Long,
+    @ColumnInfo(name = purchaseProductId) val productId: Long,
+    @ColumnInfo(name = consumerResidentId, index = true) val consumerId: Long,
 )

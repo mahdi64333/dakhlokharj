@@ -10,7 +10,10 @@ import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,7 +44,7 @@ class HomeFragment : Fragment() {
     private var snackBar: Snackbar? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentHomeBinding.inflate(layoutInflater, container, false)
         return binding.root
@@ -66,7 +69,7 @@ class HomeFragment : Fragment() {
         decimalFormat.applyPattern("#,###")
         val adapter = DetailedPurchasesListAdapter(decimalFormat) {
             UiUtil.setSweetAlertDialogNightMode(resources)
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch {
                 SweetAlertDialog(requireContext(), SweetAlertDialog.NORMAL_TYPE).apply {
                     titleText = getString(R.string.consumers)
                     val listView = ListView(requireContext())
@@ -95,16 +98,20 @@ class HomeFragment : Fragment() {
             isLastItemDecorated = false
         })
         lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.purchasesStateFlow.collectLatest {
-                adapter.submitList(it)
-                binding.tvNoData.isVisible = it.isEmpty()
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.purchasesStateFlow.collectLatest {
+                    adapter.submitList(it)
+                    withStarted {
+                        binding.tvNoData.isVisible = it.isEmpty()
+                    }
+                }
             }
         }
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
+                target: RecyclerView.ViewHolder,
             ): Boolean {
                 return false
             }

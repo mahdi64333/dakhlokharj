@@ -46,7 +46,7 @@ abstract class DataRepository : RoomDatabase() {
 
         // Consumers table keys
         const val consumersTableName = "consumers"
-        const val consumerId = "consumerId"
+        const val consumerResidentId = "consumerId"
         const val purchaseProductId = "purchaseProductId"
 
         // Declaration of the singleton database object

@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseId
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseBuyerId
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseId
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchasePrice
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseProduct
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseTime
@@ -22,7 +22,7 @@ import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentId
     )],
 )
 data class Purchase(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = purchaseId, index = true) val id: Long,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = purchaseId) val id: Long,
     @ColumnInfo(name = purchaseProduct) var product: String,
     @ColumnInfo(name = purchasePrice) var price: Long,
     @ColumnInfo(name = purchaseBuyerId, index = true) var buyerId: Long,

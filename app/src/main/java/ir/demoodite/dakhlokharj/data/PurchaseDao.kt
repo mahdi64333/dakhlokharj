@@ -2,6 +2,7 @@ package ir.demoodite.dakhlokharj.data
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.Query
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseBuyerId
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchasesTableName
@@ -22,6 +23,9 @@ interface PurchaseDao {
                 "WHERE $residentActive = 1"
     )
     fun getAllDetailedPurchases(): Flow<List<DetailedPurchase>>
+
+    @Insert
+    suspend fun insert(purchase: Purchase)
 
     @Delete
     suspend fun delete(purchase: Purchase)

@@ -18,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.adapters.ConsumersListAdapter
 import ir.demoodite.dakhlokharj.databinding.FragmentAddPurchaseBinding
+import ir.demoodite.dakhlokharj.models.database.Purchase
 import ir.demoodite.dakhlokharj.models.database.Resident
 import ir.demoodite.dakhlokharj.models.viewmodels.AddPurchaseViewModel
 import ir.demoodite.dakhlokharj.utils.UiUtil
@@ -25,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import saman.zamani.persiandate.PersianDate
 
 @AndroidEntryPoint
 class AddPurchaseBottomSheetFragment :
@@ -64,7 +66,7 @@ class AddPurchaseBottomSheetFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentAddPurchaseBinding.inflate(layoutInflater, container, false)
         return binding.root
@@ -82,6 +84,13 @@ class AddPurchaseBottomSheetFragment :
         }
         setupConsumerAutocompleteTextView()
         setupConsumerChips()
+        binding.btnSubmit.setOnClickListener {
+            it.isEnabled = false
+            validateInputsAndGetPurchase()?.let { purchase ->
+                viewModel.savePurchaseRecord(purchase, selectedResidents)
+            }
+            it.isEnabled = true
+        }
     }
 
     override fun onDestroyView() {
@@ -158,6 +167,12 @@ class AddPurchaseBottomSheetFragment :
             }
             binding.autoCompleteTextViewConsumerName.setText("")
         }
+        binding.textInputLayoutConsumerName.setEndIconOnLongClickListener {
+            activeResidents.forEach { activeResident ->
+                viewModel.addSelectedResident(activeResident)
+            }
+            true
+        }
     }
 
     private fun setupConsumerChips() {
@@ -191,6 +206,63 @@ class AddPurchaseBottomSheetFragment :
                     }
                 }
             }
+        }
+    }
+
+    private fun validateInputsAndGetPurchase(): Purchase? {
+        var errorFlag = false
+        val productName = binding.textInputEditTextProductName.text.toString().trim()
+        val priceText = binding.textInputEditTextProductPrice.getTextWithoutCommas()
+        val price = if (priceText.isEmpty()) 0 else priceText.toLong()
+        val buyerName = binding.autoCompleteTextViewProductBuyer.text.toString().trim()
+        val buyer = activeResidents.find { it.name == buyerName }
+
+        if (productName.isEmpty()) {
+            binding.textInputLayoutProductName.error = getString(R.string.its_empty)
+            UiUtil.removeErrorOnType(binding.textInputEditTextProductName)
+            errorFlag = true
+        }
+        if (priceText.isEmpty()) {
+            binding.textInputLayoutProductPrice.error = getString(R.string.its_empty)
+            UiUtil.removeErrorOnType(binding.textInputEditTextProductPrice)
+            errorFlag = true
+        } else if (price <= 0) {
+            binding.textInputLayoutProductPrice.error = getString(R.string.must_be_positive)
+            UiUtil.removeErrorOnType(binding.textInputEditTextProductPrice)
+            errorFlag = true
+        }
+        if (buyerName.isEmpty()) {
+            binding.textInputLayoutProductBuyer.error = getString(R.string.its_empty)
+            UiUtil.removeErrorOnType(binding.autoCompleteTextViewProductBuyer)
+            errorFlag = true
+        } else if (!activeResidents.contains(buyer)) {
+            binding.textInputLayoutProductBuyer.error =
+                getString(R.string.no_active_residents_found)
+            UiUtil.removeErrorOnType(binding.autoCompleteTextViewProductBuyer)
+            errorFlag = true
+        } else if (!residents.contains(buyer)) {
+            binding.textInputLayoutProductBuyer.error =
+                getString(R.string.no_residents_found)
+            UiUtil.removeErrorOnType(binding.autoCompleteTextViewProductBuyer)
+            errorFlag = true
+        }
+        if (selectedResidents.isEmpty()) {
+            binding.textInputLayoutConsumerName.error =
+                getString(R.string.no_consumer_selected)
+            UiUtil.removeErrorOnType(binding.autoCompleteTextViewConsumerName)
+            errorFlag = true
+        }
+
+        return if (errorFlag) {
+            null
+        } else {
+            Purchase(
+                0,
+                productName,
+                price,
+                buyer!!.id,
+                PersianDate().time
+            )
         }
     }
 

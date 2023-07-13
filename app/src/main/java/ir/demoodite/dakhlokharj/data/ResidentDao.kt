@@ -2,8 +2,8 @@ package ir.demoodite.dakhlokharj.data
 
 import androidx.room.*
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentActive
-import ir.demoodite.dakhlokharj.models.database.Resident
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentsTableName
+import ir.demoodite.dakhlokharj.models.database.Resident
 import kotlinx.coroutines.flow.Flow
 
 @Dao
