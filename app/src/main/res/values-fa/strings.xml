@@ -122,4 +122,5 @@
     <string name="consumer_name">نام مصرف‌کننده</string>
     <string name="min">حداقل</string>
     <string name="max">حداکثر</string>
+    <string name="no_data_to_show">داده‌ای برای نمایش یافت نشد</string>
 </resources>
