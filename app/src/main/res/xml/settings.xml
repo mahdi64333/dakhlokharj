@@ -3,8 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ListPreference
-        android:entries="@array/languages"
-        android:entryValues="@array/languages_values"
         android:key="language"
         android:title="@string/application_language"
         app:allowDividerBelow="true"
@@ -12,8 +10,6 @@
         app:useSimpleSummaryProvider="true" />
 
     <ListPreference
-        android:entries="@array/order_by_options"
-        android:entryValues="@array/order_by_options_values"
         android:key="order_by"
         android:title="@string/order_by"
         app:allowDividerBelow="true"

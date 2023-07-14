@@ -100,8 +100,8 @@
         <item>English</item>
     </string-array>
     <string-array name="languages_values" translatable="false">
-        <item>fa</item>
-        <item>en</item>
+        <item>FA</item>
+        <item>EN</item>
     </string-array>
     <string name="direction">ltr</string>
     <string name="currency">$</string>

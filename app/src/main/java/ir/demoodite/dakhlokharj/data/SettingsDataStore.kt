@@ -19,13 +19,8 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
     private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
     companion object {
-        private val LANGUAGE_KEY = stringPreferencesKey("language")
-        private val ORDER_BY_KEY = stringPreferencesKey("order_by")
-    }
-
-    init {
-        getString("language", null)
-        getString("order_by", null)
+        val LANGUAGE_KEY = stringPreferencesKey("language")
+        val ORDER_BY_KEY = stringPreferencesKey("order_by")
     }
 
     override fun putString(key: String?, value: String?) {
@@ -71,7 +66,7 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
                 }
             }
             .map { preferences ->
-                preferences[LANGUAGE_KEY] ?: "en"
+                preferences[LANGUAGE_KEY] ?: "EN"
             }
     }
 
