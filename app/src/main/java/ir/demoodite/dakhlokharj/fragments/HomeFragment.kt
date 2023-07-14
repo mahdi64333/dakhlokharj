@@ -1,11 +1,10 @@
 package ir.demoodite.dakhlokharj.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
@@ -54,6 +53,7 @@ class HomeFragment : Fragment() {
 
         setupRecyclerView()
         setupFab()
+        setupOptionsMenu()
     }
 
     override fun onStop() {
@@ -172,5 +172,25 @@ class HomeFragment : Fragment() {
                 AddPurchaseBottomSheetFragment.TAG
             )
         }
+    }
+
+    private fun setupOptionsMenu() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.home_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.action_filter -> {
+
+                        true
+                    }
+                    else -> {
+                        false
+                    }
+                }
+            }
+        }, viewLifecycleOwner)
     }
 }
