@@ -88,7 +88,7 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
                 }
             }
             .map { preferences ->
-                preferences[ORDER_BY_KEY] ?: "TIME_ASC"
+                preferences[ORDER_BY_KEY] ?: "TIME_DESC"
             }
     }
 }
