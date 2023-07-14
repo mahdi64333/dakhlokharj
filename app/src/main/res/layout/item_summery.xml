@@ -11,7 +11,7 @@
     android:padding="@dimen/l">
 
     <TextView
-        android:id="@+id/tv_purchase_name"
+        android:id="@+id/tv_resident_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="start"
@@ -74,7 +74,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
-        android:id="@+id/tv_purchase_buyer"
+        android:id="@+id/tv_balance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="end"
