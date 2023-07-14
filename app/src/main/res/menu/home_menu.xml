@@ -9,6 +9,7 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/menu_order_by"
         android:icon="@drawable/ic_order_time_asc"
         android:title="@string/order_by"
         app:showAsAction="always">

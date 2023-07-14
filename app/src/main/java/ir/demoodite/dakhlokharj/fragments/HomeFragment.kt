@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
@@ -24,6 +25,7 @@ import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.adapters.PurchasesListAdapter
 import ir.demoodite.dakhlokharj.data.DataRepository
 import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
+import ir.demoodite.dakhlokharj.enums.OrderBy
 import ir.demoodite.dakhlokharj.models.database.Purchase
 import ir.demoodite.dakhlokharj.models.viewmodels.HomeViewModel
 import ir.demoodite.dakhlokharj.utils.UiUtil
@@ -178,12 +180,65 @@ class HomeFragment : Fragment() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.home_menu, menu)
+                lifecycleScope.launch {
+                    repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        viewModel.orderStateFlow.collectLatest {
+                            try {
+                                val orderBy = OrderBy.valueOf(it)
+                                val menuItem = menu.findItem(R.id.menu_order_by)
+                                when (orderBy) {
+                                    OrderBy.TIME_ASC -> menuItem.icon = ResourcesCompat.getDrawable(
+                                        resources,
+                                        R.drawable.ic_order_time_asc,
+                                        requireContext().theme
+                                    )
+                                    OrderBy.TIME_DESC -> menuItem.icon =
+                                        ResourcesCompat.getDrawable(
+                                            resources,
+                                            R.drawable.ic_order_time_desc,
+                                            requireContext().theme
+                                        )
+                                    OrderBy.PRICE_ASC -> menuItem.icon =
+                                        ResourcesCompat.getDrawable(
+                                            resources,
+                                            R.drawable.ic_order_price_asc,
+                                            requireContext().theme
+                                        )
+                                    OrderBy.PRICE_DESC -> menuItem.icon =
+                                        ResourcesCompat.getDrawable(
+                                            resources,
+                                            R.drawable.ic_order_price_desc,
+                                            requireContext().theme
+                                        )
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_filter -> {
 
+                        true
+                    }
+                    R.id.action_order_time_asc -> {
+                        viewModel.setOrder(OrderBy.TIME_ASC)
+                        true
+                    }
+                    R.id.action_order_time_desc -> {
+                        viewModel.setOrder(OrderBy.TIME_DESC)
+                        true
+                    }
+                    R.id.action_order_price_asc -> {
+                        viewModel.setOrder(OrderBy.PRICE_ASC)
+                        true
+                    }
+                    R.id.action_order_price_desc -> {
+                        viewModel.setOrder(OrderBy.PRICE_DESC)
                         true
                     }
                     else -> {

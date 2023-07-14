@@ -49,7 +49,7 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
         }
     }
 
-    private suspend fun setLanguage(language: String) {
+    suspend fun setLanguage(language: String) {
         context.settingsDataStore.edit { preferences ->
             preferences[LANGUAGE_KEY] = language
         }
@@ -71,7 +71,7 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
     }
 
 
-    private suspend fun setOrderBy(orderBy: String) {
+    suspend fun setOrderBy(orderBy: String) {
         context.settingsDataStore.edit { preferences ->
             preferences[ORDER_BY_KEY] = orderBy
         }
