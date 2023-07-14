@@ -1,9 +1,20 @@
 package ir.demoodite.dakhlokharj.data
 
 import androidx.room.*
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.consumedProductId
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.consumerResidentId
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.consumersTableName
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseBuyerId
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseId
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchasePrice
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseTime
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchasesTableName
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentActive
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentId
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentName
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentsTableName
 import ir.demoodite.dakhlokharj.models.database.Resident
+import ir.demoodite.dakhlokharj.models.database.ResidentSummery
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -18,6 +29,74 @@ interface ResidentDao {
                 "WHERE $residentActive = 1"
     )
     fun getAllActive(): Flow<List<Resident>>
+
+    @Query(
+        "SELECT $residentsTableName.$residentName, credits.credit as credit, debts.debt as debt " +
+                "FROM $residentsTableName, " +
+                "(" +
+                "   SELECT $residentId, SUM($purchasePrice) as credit" +
+                "   FROM $residentsTableName" +
+                "   LEFT JOIN $purchasesTableName " +
+                "   ON $residentsTableName.$residentId = $purchasesTableName.$purchaseBuyerId " +
+                "   GROUP BY $residentId" +
+                ") as credits," +
+                "(" +
+                "   SELECT $residentId, SUM(splitPrice) as debt " +
+                "   FROM $residentsTableName " +
+                "   LEFT JOIN $consumersTableName " +
+                "   ON $residentsTableName.$residentId = $consumersTableName.$consumerResidentId " +
+                "   LEFT JOIN " +
+                "   (" +
+                "       SELECT $purchaseId, " +
+                "           $purchasePrice / COUNT($consumerResidentId) as splitPrice " +
+                "       FROM $purchasesTableName " +
+                "           LEFT JOIN $consumersTableName " +
+                "           ON $purchaseId = $consumedProductId " +
+                "       GROUP BY $purchaseId" +
+                "   ) as splitPrices " +
+                "   ON $consumersTableName.$consumedProductId = splitPrices.$purchaseId " +
+                "   GROUP BY $residentId" +
+                ") as debts " +
+                "WHERE $residentActive = 1 " +
+                "AND credits.$residentId = $residentsTableName.$residentId " +
+                "AND debts.$residentId = $residentsTableName.$residentId"
+    )
+    fun getAllSummaries(): Flow<List<ResidentSummery>>
+
+    @Query(
+        "SELECT $residentsTableName.$residentName, credits.credit as credit, debts.debt as debt " +
+                "FROM $residentsTableName, " +
+                "(" +
+                "   SELECT $residentId, SUM($purchasePrice) as credit" +
+                "   FROM $residentsTableName" +
+                "   LEFT JOIN $purchasesTableName " +
+                "   ON $residentsTableName.$residentId = $purchasesTableName.$purchaseBuyerId " +
+                "   WHERE $purchasesTableName.$purchaseTime BETWEEN :startTime AND :endTime " +
+                "   GROUP BY $residentId" +
+                ") as credits," +
+                "(" +
+                "   SELECT $residentId, SUM(splitPrice) as debt " +
+                "   FROM $residentsTableName " +
+                "   LEFT JOIN $consumersTableName " +
+                "   ON $residentsTableName.$residentId = $consumersTableName.$consumerResidentId " +
+                "   LEFT JOIN " +
+                "   (" +
+                "       SELECT $purchaseId, " +
+                "           $purchasePrice / COUNT($consumerResidentId) as splitPrice " +
+                "       FROM $purchasesTableName " +
+                "           LEFT JOIN $consumersTableName " +
+                "           ON $purchaseId = $consumedProductId " +
+                "       WHERE $purchasesTableName.$purchaseTime BETWEEN :startTime AND :endTime " +
+                "       GROUP BY $purchaseId" +
+                "   ) as splitPrices " +
+                "   ON $consumersTableName.$consumedProductId = splitPrices.$purchaseId " +
+                "   GROUP BY $residentId" +
+                ") as debts " +
+                "WHERE $residentActive = 1 " +
+                "AND credits.$residentId = $residentsTableName.$residentId " +
+                "AND debts.$residentId = $residentsTableName.$residentId"
+    )
+    fun getAllSummariesBetween(startTime: Long, endTime: Long): Flow<List<ResidentSummery>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(resident: Resident): Long

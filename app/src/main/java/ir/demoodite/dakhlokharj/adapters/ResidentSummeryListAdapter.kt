@@ -1,9 +1,9 @@
 package ir.demoodite.dakhlokharj.adapters
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -51,10 +51,22 @@ class ResidentSummeryListAdapter(
             binding.tvBalance.apply {
                 if (balance > 0) {
                     text = "+$balanceWithSuffix"
-                    setTextColor(Color.GREEN)
+                    setTextColor(
+                        ResourcesCompat.getColor(
+                            resources,
+                            android.R.color.holo_green_dark,
+                            binding.root.context.theme
+                        )
+                    )
                 } else if (balance < 0) {
-                    text = "-$balanceWithSuffix"
-                    setTextColor(Color.RED)
+                    text = balanceWithSuffix
+                    setTextColor(
+                        ResourcesCompat.getColor(
+                            resources,
+                            android.R.color.holo_red_dark,
+                            binding.root.context.theme
+                        )
+                    )
                 } else {
                     text = balanceWithSuffix
                 }

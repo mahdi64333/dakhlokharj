@@ -6,7 +6,7 @@ import androidx.room.Query
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.consumerResidentId
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.consumersTableName
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseId
-import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchaseProductId
+import ir.demoodite.dakhlokharj.data.DataRepository.Companion.consumedProductId
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.purchasesTableName
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentId
 import ir.demoodite.dakhlokharj.data.DataRepository.Companion.residentName
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.Flow
 interface ConsumerDao {
     @Query(
         "SELECT $residentName FROM $purchasesTableName " +
-                "LEFT JOIN $consumersTableName ON $purchaseId = $purchaseProductId " +
+                "LEFT JOIN $consumersTableName ON $purchaseId = $consumedProductId " +
                 "LEFT JOIN $residentsTableName ON $consumerResidentId = $residentId " +
                 "WHERE $purchaseId = :purchaseId"
     )
