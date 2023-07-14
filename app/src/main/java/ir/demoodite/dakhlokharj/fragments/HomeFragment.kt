@@ -10,10 +10,8 @@ import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.withStarted
+import androidx.lifecycle.*
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -85,9 +83,7 @@ class HomeFragment : Fragment() {
                             it.purchaseId
                         ).first()
                     val arrayAdapter = ArrayAdapter(
-                        requireContext(),
-                        android.R.layout.simple_list_item_1,
-                        consumers
+                        requireContext(), android.R.layout.simple_list_item_1, consumers
                     )
                     listView.adapter = arrayAdapter
                     setCustomView(listView)
@@ -124,8 +120,7 @@ class HomeFragment : Fragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val purchasesListAdapter =
-                    binding.rvPurchases.adapter as PurchasesListAdapter
+                val purchasesListAdapter = binding.rvPurchases.adapter as PurchasesListAdapter
                 val detailedPurchases = LinkedList(purchasesListAdapter.currentList)
                 val detailedPurchasePosition = viewHolder.adapterPosition
                 val detailedPurchase = detailedPurchases[detailedPurchasePosition]
@@ -170,8 +165,7 @@ class HomeFragment : Fragment() {
         binding.fabAddPurchase.setOnClickListener {
             val addPurchaseBottomSheetFragment = AddPurchaseBottomSheetFragment()
             addPurchaseBottomSheetFragment.show(
-                requireActivity().supportFragmentManager,
-                AddPurchaseBottomSheetFragment.TAG
+                requireActivity().supportFragmentManager, AddPurchaseBottomSheetFragment.TAG
             )
         }
     }
@@ -222,7 +216,9 @@ class HomeFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_filter -> {
-
+                        val action =
+                            HomeFragmentDirections.actionHomeFragmentToFilterPurchasesFragment()
+                        findNavController().navigate(action)
                         true
                     }
                     R.id.action_order_time_asc -> {

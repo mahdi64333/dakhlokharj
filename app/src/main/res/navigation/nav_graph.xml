@@ -9,7 +9,11 @@
         android:id="@+id/homeFragment"
         android:name="ir.demoodite.dakhlokharj.fragments.HomeFragment"
         android:label="@string/app_name"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_filterPurchasesFragment"
+            app:destination="@id/filterPurchasesFragment" />
+    </fragment>
     <fragment
         android:id="@+id/manageResidentsFragment"
         android:name="ir.demoodite.dakhlokharj.fragments.ResidentsFragment"
@@ -24,4 +28,9 @@
         android:id="@+id/settingsFragment"
         android:name="ir.demoodite.dakhlokharj.fragments.SettingsFragment"
         android:label="@string/settings" />
+    <fragment
+        android:id="@+id/filterPurchasesFragment"
+        android:name="ir.demoodite.dakhlokharj.fragments.FilterPurchasesFragment"
+        android:label="@string/filter"
+        tools:layout="@layout/fragment_filter_purchases" />
 </navigation>
