@@ -57,10 +57,16 @@
     <string name="has_to_be_smaller">باید کوچک‌تر باشد</string>
     <string name="has_to_be_bigger">باید بزرگ‌تر باشد</string>
     <string name="date_format">روز/ماه/سال</string>
-    <string name="order_by_time_desc">ترتیب بر اساس زمان نزولی</string>
-    <string name="order_by_time_asc">ترتیب بر اساس زمان صعودی</string>
+    <string name="order_by_time_desc">ترتیب بر اساس تاریخ نزولی</string>
+    <string name="order_by_time_asc">ترتیب بر اساس تاریخ صعودی</string>
     <string name="order_by_price_desc">ترتیب بر اساس قیمت نزولی</string>
     <string name="order_by_price_asc">ترتیب بر اساس قیمت صعودی</string>
+    <string-array name="order_by_options">
+        <item>ترتیب بر اساس تاریخ نزولی</item>
+        <item>ترتیب بر اساس تاریخ صعودی</item>
+        <item>ترتیب بر اساس قیمت نزولی</item>
+        <item>ترتیب بر اساس قیمت صعودی</item>
+    </string-array>
     <string name="time_desc">زمان نزولی</string>
     <string name="time_asc">زمان صعودی</string>
     <string name="price_desc">قیمت نزولی</string>
@@ -82,7 +88,11 @@
     <string name="languageSelected">languageSelected</string>
     <string name="application_language">زبان برنامه</string>
     <string name="persian">فارسی</string>
-    <string name="english">English</string>
+    <string name="english">انگلیسی</string>
+    <string-array name="languages">
+        <item>فارسی</item>
+        <item>انگلیسی</item>
+    </string-array>
     <string name="direction">rtl</string>
     <string name="currency">\ تومان</string>
     <string name="language">fa</string>

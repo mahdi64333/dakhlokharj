@@ -68,6 +68,12 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleAwareComponentsVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleAwareComponentsVersion"
 
+    // DataStore
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+    // Settings
+    implementation 'androidx.preference:preference-ktx:1.2.0'
+
     // PersianDate
     implementation 'com.github.samanzamani:PersianDate:1.5.4'
 

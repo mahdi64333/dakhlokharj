@@ -20,4 +20,8 @@
         android:name="ir.demoodite.dakhlokharj.fragments.SummeryFragment"
         android:label="@string/summery"
         tools:layout="@layout/fragment_summery" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="ir.demoodite.dakhlokharj.fragments.SettingsFragment"
+        android:label="@string/settings" />
 </navigation>
