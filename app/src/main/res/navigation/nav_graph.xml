@@ -15,4 +15,9 @@
         android:name="ir.demoodite.dakhlokharj.fragments.ResidentsFragment"
         android:label="@string/manage_residents"
         tools:layout="@layout/fragment_residents" />
+    <fragment
+        android:id="@+id/summeryFragment"
+        android:name="ir.demoodite.dakhlokharj.fragments.SummeryFragment"
+        android:label="@string/summery"
+        tools:layout="@layout/fragment_summery" />
 </navigation>

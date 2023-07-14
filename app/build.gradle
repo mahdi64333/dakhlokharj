@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "ir.demoodite.dakhlokharj"
-        minSdk 21
+        minSdk 22
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -75,6 +75,7 @@ dependencies {
     implementation 'com.github.f0ris.sweetalert:library:1.6.2'
 
     // EditText Mask
+    implementation files('libs/MaskedEditText-debug.aar')
     implementation 'com.github.umeriqbal97:CommaSeparatedEditText:1.0.5'
 
     // Tests
