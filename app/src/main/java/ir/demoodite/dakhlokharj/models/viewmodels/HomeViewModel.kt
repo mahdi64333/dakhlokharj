@@ -1,5 +1,7 @@
 package ir.demoodite.dakhlokharj.models.viewmodels
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -58,6 +60,14 @@ class HomeViewModel @Inject constructor(
                     e.printStackTrace()
                 }
             }
+        }
+
+        viewModelScope.launch {
+            settingsDataStore.getLanguageFlow().shareIn(viewModelScope, SharingStarted.Lazily)
+                .collectLatest {
+                    val appLocaleList = LocaleListCompat.forLanguageTags(it)
+                    AppCompatDelegate.setApplicationLocales(appLocaleList)
+                }
         }
     }
 

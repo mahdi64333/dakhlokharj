@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Dakhlokharj.Localized" parent="Theme.Dakhlokharj.Parent">
+        <item name="fontFamily">@font/iran_sans</item>
+    </style>
+</resources>
