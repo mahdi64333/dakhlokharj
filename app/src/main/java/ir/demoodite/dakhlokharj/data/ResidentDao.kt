@@ -31,32 +31,34 @@ interface ResidentDao {
     fun getAllActive(): Flow<List<Resident>>
 
     @Query(
-        "SELECT $residentsTableName.$residentName, credits.credit as credit, debts.debt as debt " +
-                "FROM $residentsTableName, " +
+        "WITH credits AS " +
                 "(" +
-                "   SELECT $residentId, SUM($purchasePrice) as credit" +
+                "   SELECT $residentId, SUM($purchasePrice) AS credit" +
                 "   FROM $residentsTableName" +
                 "   LEFT JOIN $purchasesTableName " +
                 "   ON $residentsTableName.$residentId = $purchasesTableName.$purchaseBuyerId " +
                 "   GROUP BY $residentId" +
-                ") as credits," +
+                "), " +
+        "debts AS " +
                 "(" +
-                "   SELECT $residentId, SUM(splitPrice) as debt " +
+                "   SELECT $residentId, SUM(splitPrice) AS debt " +
                 "   FROM $residentsTableName " +
                 "   LEFT JOIN $consumersTableName " +
                 "   ON $residentsTableName.$residentId = $consumersTableName.$consumerResidentId " +
                 "   LEFT JOIN " +
                 "   (" +
                 "       SELECT $purchaseId, " +
-                "           $purchasePrice / COUNT($consumerResidentId) as splitPrice " +
+                "           $purchasePrice / COUNT($consumerResidentId) AS splitPrice " +
                 "       FROM $purchasesTableName " +
                 "           LEFT JOIN $consumersTableName " +
                 "           ON $purchaseId = $consumedProductId " +
                 "       GROUP BY $purchaseId" +
-                "   ) as splitPrices " +
+                "   ) AS splitPrices " +
                 "   ON $consumersTableName.$consumedProductId = splitPrices.$purchaseId " +
                 "   GROUP BY $residentId" +
-                ") as debts " +
+                ") " +
+        " SELECT $residentsTableName.$residentName, credits.credit AS credit, debts.debt AS debt " +
+                "FROM $residentsTableName, credits, debts " +
                 "WHERE $residentActive = 1 " +
                 "AND credits.$residentId = $residentsTableName.$residentId " +
                 "AND debts.$residentId = $residentsTableName.$residentId"
@@ -64,34 +66,36 @@ interface ResidentDao {
     fun getAllSummaries(): Flow<List<ResidentSummery>>
 
     @Query(
-        "SELECT $residentsTableName.$residentName, credits.credit as credit, debts.debt as debt " +
-                "FROM $residentsTableName, " +
+        "WITH credits AS " +
                 "(" +
-                "   SELECT $residentId, SUM($purchasePrice) as credit" +
+                "   SELECT $residentId, SUM($purchasePrice) AS credit" +
                 "   FROM $residentsTableName" +
                 "   LEFT JOIN $purchasesTableName " +
                 "   ON $residentsTableName.$residentId = $purchasesTableName.$purchaseBuyerId " +
                 "   WHERE $purchasesTableName.$purchaseTime BETWEEN :startTime AND :endTime " +
                 "   GROUP BY $residentId" +
-                ") as credits," +
+                "), " +
+                "debts AS " +
                 "(" +
-                "   SELECT $residentId, SUM(splitPrice) as debt " +
+                "   SELECT $residentId, SUM(splitPrice) AS debt " +
                 "   FROM $residentsTableName " +
                 "   LEFT JOIN $consumersTableName " +
                 "   ON $residentsTableName.$residentId = $consumersTableName.$consumerResidentId " +
                 "   LEFT JOIN " +
                 "   (" +
                 "       SELECT $purchaseId, " +
-                "           $purchasePrice / COUNT($consumerResidentId) as splitPrice " +
+                "           $purchasePrice / COUNT($consumerResidentId) AS splitPrice " +
                 "       FROM $purchasesTableName " +
                 "           LEFT JOIN $consumersTableName " +
                 "           ON $purchaseId = $consumedProductId " +
                 "       WHERE $purchasesTableName.$purchaseTime BETWEEN :startTime AND :endTime " +
                 "       GROUP BY $purchaseId" +
-                "   ) as splitPrices " +
+                "   ) AS splitPrices " +
                 "   ON $consumersTableName.$consumedProductId = splitPrices.$purchaseId " +
                 "   GROUP BY $residentId" +
-                ") as debts " +
+                ") " +
+                " SELECT $residentsTableName.$residentName, credits.credit AS credit, debts.debt AS debt " +
+                "FROM $residentsTableName, credits, debts " +
                 "WHERE $residentActive = 1 " +
                 "AND credits.$residentId = $residentsTableName.$residentId " +
                 "AND debts.$residentId = $residentsTableName.$residentId"
