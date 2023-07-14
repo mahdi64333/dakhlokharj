@@ -6,54 +6,78 @@
     android:layout_height="match_parent"
     tools:context=".fragments.SummeryFragment">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout_filter"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_filtered_summery"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/screen_padding"
-        android:inputType="textPersonName"
-        android:visibility="gone"
-        app:endIconDrawable="@drawable/round_filter_alt_24"
-        app:endIconMode="custom"
-        app:endIconTint="?attr/colorPrimary"
-        app:errorEnabled="true"
-        app:hintEnabled="false"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
-        <br.com.sapereaude.maskedEditText.MaskedEditText
-            android:id="@+id/textInputEditText_filter"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/screen_padding"
+            android:inputType="textPersonName"
+            app:endIconDrawable="@drawable/round_filter_alt_24"
+            app:endIconMode="custom"
+            app:endIconTint="?attr/colorPrimary"
+            app:errorEnabled="true"
+            app:hintEnabled="false"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <br.com.sapereaude.maskedEditText.MaskedEditText
+                android:id="@+id/textInputEditText_filter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="----------------"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:singleLine="true"
+                app:enable_ime_action="true"
+                app:keep_hint="true"
+                app:mask="From ####/##/## to ####/##/##"
+                tools:ignore="HardcodedText" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_summery_filtered"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/textInputLayout_filter"
+            tools:listitem="@layout/item_summery" />
+
+        <TextView
+            android:id="@+id/tv_filtered_no_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/l"
+            android:gravity="center"
+            android:text="@string/no_data_found"
+            android:textAppearance="?attr/textAppearanceLabelMedium"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@id/rv_summery_filtered" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_summery"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_summery"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="----------------"
-            android:imeOptions="actionDone"
-            android:inputType="number"
-            android:singleLine="true"
-            app:enable_ime_action="true"
-            app:keep_hint="true"
-            app:mask="From ####/##/## to ####/##/##"
-            tools:ignore="HardcodedText" />
-    </com.google.android.material.textfield.TextInputLayout>
+            tools:listitem="@layout/item_summery" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_summery"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/textInputLayout_filter" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_summery_filtered"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/textInputLayout_filter" />
-
-    <TextView
-        android:id="@+id/tv_no_data"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/l"
-        android:gravity="center"
-        android:text="@string/no_data_found"
-        android:textAppearance="?attr/textAppearanceLabelMedium"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/textInputLayout_filter" />
+        <TextView
+            android:id="@+id/tv_no_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/l"
+            android:gravity="center"
+            android:text="@string/no_data_found"
+            android:textAppearance="?attr/textAppearanceLabelMedium"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@id/rv_summery" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

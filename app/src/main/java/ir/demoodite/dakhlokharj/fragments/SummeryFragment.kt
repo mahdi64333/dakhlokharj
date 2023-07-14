@@ -68,9 +68,8 @@ class SummeryFragment : Fragment() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isFilteringStateFlow.collectLatest {
-                    binding.textInputLayoutFilter.isVisible = it
-                    binding.rvSummeryFiltered.isVisible = it
-                    binding.rvSummery.isGone = it
+                    binding.layoutFilteredSummery.isVisible = it
+                    binding.layoutSummery.isGone = it
                 }
             }
         }
@@ -93,6 +92,7 @@ class SummeryFragment : Fragment() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.residentsSummariesStateFlow.collectLatest {
+                    binding.tvNoData.isVisible = it.isEmpty()
                     adapter.submitList(it)
                 }
             }
@@ -116,6 +116,7 @@ class SummeryFragment : Fragment() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.filteredResidentsSummariesStateFlow.collectLatest {
+                    binding.tvFilteredNoData.isVisible = it.isEmpty()
                     adapter.submitList(it)
                 }
             }
