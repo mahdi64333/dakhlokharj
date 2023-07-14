@@ -64,7 +64,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:completionThreshold="0"
-                    android:hint="@string/buyer_name"
+                    android:hint="@string/buyer"
                     android:imeOptions="actionNext"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>

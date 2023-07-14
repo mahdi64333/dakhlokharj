@@ -32,7 +32,7 @@
     <string name="are_you_sure_to_delete">مایل به حذف؟</string>
     <string name="product_name">نام کالا</string>
     <string name="product_price">قیمت کالا (تومان)</string>
-    <string name="buyer_name">خریدار</string>
+    <string name="buyer">خریدار</string>
     <string name="add_consumer">افزودن مصرف‌کننده</string>
     <string name="consumers">مصرف‌کنندگان:</string>
     <string name="add">افزودن</string>
@@ -116,4 +116,10 @@
     <string name="no_active_residents_found">ساکن فعال نیست</string>
     <string name="please_enter_valid_dates">لطفا تاریخ‌های صحیح وارد کنید</string>
     <string name="order_by">ترتیب بر اساس</string>
+    <string name="product">کالا</string>
+    <string name="time">زمان</string>
+    <string name="buyer_name">نام خریدار</string>
+    <string name="consumer_name">نام مصرف‌کننده</string>
+    <string name="min">حداقل</string>
+    <string name="max">حداکثر</string>
 </resources>
