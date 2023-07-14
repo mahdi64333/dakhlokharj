@@ -104,4 +104,5 @@
     <string name="no_purchase_found">no purchase found</string>
     <string name="price_template">%1$s$</string>
     <string name="no_active_residents_found">Resident isn\'t active</string>
+    <string name="please_enter_valid_dates">Please enter valid dates</string>
 </resources>
