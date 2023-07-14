@@ -12,11 +12,11 @@ import saman.zamani.persiandate.PersianDate
 import saman.zamani.persiandate.PersianDateFormat
 import java.text.DecimalFormat
 
-class DetailedPurchasesListAdapter(
+class PurchasesListAdapter(
     private val decimalFormat: DecimalFormat,
-    private val onClickListener: (detailedPurchase: DetailedPurchase) -> Unit
+    private val onClickListener: (detailedPurchase: DetailedPurchase) -> Unit,
 ) :
-    ListAdapter<DetailedPurchase, DetailedPurchasesListAdapter.ViewHolder>(
+    ListAdapter<DetailedPurchase, PurchasesListAdapter.ViewHolder>(
         diffCallback
     ) {
     private val persianDateFormat: PersianDateFormat by lazy { PersianDateFormat("Y/m/d H:i") }
@@ -41,7 +41,7 @@ class DetailedPurchasesListAdapter(
         fun bind(
             detailedPurchase: DetailedPurchase,
             persianDateFormat: PersianDateFormat,
-            decimalFormat: DecimalFormat
+            decimalFormat: DecimalFormat,
         ) {
             binding.tvPurchaseName.text = detailedPurchase.purchaseProduct
             binding.tvPurchaseBuyer.text = detailedPurchase.buyerName
@@ -59,14 +59,14 @@ class DetailedPurchasesListAdapter(
         private val diffCallback = object : DiffUtil.ItemCallback<DetailedPurchase>() {
             override fun areItemsTheSame(
                 oldItem: DetailedPurchase,
-                newItem: DetailedPurchase
+                newItem: DetailedPurchase,
             ): Boolean {
                 return oldItem === newItem
             }
 
             override fun areContentsTheSame(
                 oldItem: DetailedPurchase,
-                newItem: DetailedPurchase
+                newItem: DetailedPurchase,
             ): Boolean {
                 return oldItem == newItem
             }

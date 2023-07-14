@@ -22,7 +22,7 @@ import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
-import ir.demoodite.dakhlokharj.adapters.DetailedPurchasesListAdapter
+import ir.demoodite.dakhlokharj.adapters.PurchasesListAdapter
 import ir.demoodite.dakhlokharj.data.DataRepository
 import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
 import ir.demoodite.dakhlokharj.models.database.Purchase
@@ -72,7 +72,7 @@ class HomeFragment : Fragment() {
         val decimalFormat =
             NumberFormat.getInstance(Locale(getString(R.string.language))) as DecimalFormat
         decimalFormat.applyPattern("#,###")
-        val adapter = DetailedPurchasesListAdapter(decimalFormat) {
+        val adapter = PurchasesListAdapter(decimalFormat) {
             UiUtil.setSweetAlertDialogNightMode(resources)
             lifecycleScope.launch {
                 SweetAlertDialog(requireContext(), SweetAlertDialog.NORMAL_TYPE).apply {
@@ -123,7 +123,7 @@ class HomeFragment : Fragment() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val purchasesListAdapter =
-                    binding.rvPurchases.adapter as DetailedPurchasesListAdapter
+                    binding.rvPurchases.adapter as PurchasesListAdapter
                 val detailedPurchases = LinkedList(purchasesListAdapter.currentList)
                 val detailedPurchasePosition = viewHolder.adapterPosition
                 val detailedPurchase = detailedPurchases[detailedPurchasePosition]
