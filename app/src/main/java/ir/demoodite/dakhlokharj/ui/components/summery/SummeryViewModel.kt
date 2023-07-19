@@ -21,7 +21,7 @@ class SummeryViewModel @Inject constructor(
     private val _isFilteringStateFlow = MutableStateFlow(false)
     val isFilteringStateFlow get() = _isFilteringStateFlow.asStateFlow()
     private val _filteredResidentsSummariesStateFlow =
-        MutableStateFlow(listOf<ResidentSummery>())
+        MutableStateFlow<List<ResidentSummery>?>(null)
     val filteredResidentsSummariesStateFlow
         get() = _filteredResidentsSummariesStateFlow.asStateFlow()
     private var filteredResidentsSummariesCollectionJob: Job? = null

@@ -100,7 +100,7 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.filteredResidentsSummariesStateFlow.collectLatest {
-                    binding.tvFilteredNoData.isVisible = it.isEmpty()
+                    binding.tvFilteredNoData.isVisible = it?.isEmpty() ?: false
                     adapter.submitList(it)
                 }
             }
