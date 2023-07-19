@@ -9,7 +9,7 @@ import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasePrice
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseTime
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
-import ir.demoodite.dakhlokharj.enums.OrderBy
+import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import kotlinx.coroutines.Job

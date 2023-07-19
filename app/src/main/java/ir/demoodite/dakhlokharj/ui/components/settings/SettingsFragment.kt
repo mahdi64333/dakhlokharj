@@ -7,8 +7,8 @@ import androidx.preference.PreferenceFragmentCompat
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
-import ir.demoodite.dakhlokharj.enums.AppLanguage
-import ir.demoodite.dakhlokharj.enums.OrderBy
+import ir.demoodite.dakhlokharj.data.settings.enums.AppLanguage
+import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
 
 @AndroidEntryPoint
 class SettingsFragment() : PreferenceFragmentCompat() {

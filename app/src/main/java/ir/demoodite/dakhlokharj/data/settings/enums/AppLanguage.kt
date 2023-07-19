@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.enums
+package ir.demoodite.dakhlokharj.data.settings.enums
 
 import ir.demoodite.dakhlokharj.R
 

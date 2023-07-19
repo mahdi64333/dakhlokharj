@@ -30,7 +30,7 @@ import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
-import ir.demoodite.dakhlokharj.enums.OrderBy
+import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.addpurchase.AddPurchaseBottomSheetFragment
 import ir.demoodite.dakhlokharj.utils.UiUtil
