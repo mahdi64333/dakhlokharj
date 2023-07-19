@@ -51,7 +51,7 @@
     <string name="date">تاریخ</string>
     <string name="from">از</string>
     <string name="to">تا</string>
-    <string name="orders_sum">مجموع خرید‌ها:</string>
+    <string name="purchases_sum">مجموع خرید‌ها: %1$s تومان</string>
     <string name="must_be_positive">باید مثبت باشد</string>
     <string name="can_not_be_zero">نمی‌تواند صفر باشد</string>
     <string name="has_to_be_smaller">باید کوچک‌تر باشد</string>

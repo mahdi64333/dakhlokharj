@@ -38,21 +38,22 @@ class FilterPurchasesFragment :
 
             override fun createFragment(position: Int): Fragment {
                 return when (position) {
-                    0 -> FilterProductNameFragment()
-                    1 -> FilterPriceFragment()
-                    2 -> FilterBuyerFragment()
-                    3 -> FilterTimeFragment()
-                    else -> FilterConsumerFragment()
+                    FilterBy.PRODUCT_NAME.ordinal -> FilterProductNameFragment()
+                    FilterBy.PRICE.ordinal -> FilterPriceFragment()
+                    FilterBy.BUYER.ordinal -> FilterBuyerFragment()
+                    FilterBy.TIME.ordinal -> FilterTimeFragment()
+                    FilterBy.CONSUMER.ordinal -> FilterConsumerFragment()
+                    else -> throw IllegalArgumentException()
                 }
             }
         }
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             when (position) {
-                0 -> tab.text = getString(R.string.product)
-                1 -> tab.text = getString(R.string.price)
-                2 -> tab.text = getString(R.string.buyer)
-                3 -> tab.text = getString(R.string.time)
-                4 -> tab.text = getString(R.string.consumer)
+                FilterBy.PRODUCT_NAME.ordinal -> tab.text = getString(R.string.product)
+                FilterBy.PRICE.ordinal -> tab.text = getString(R.string.price)
+                FilterBy.BUYER.ordinal -> tab.text = getString(R.string.buyer)
+                FilterBy.TIME.ordinal -> tab.text = getString(R.string.time)
+                FilterBy.CONSUMER.ordinal -> tab.text = getString(R.string.consumer)
             }
         }.attach()
     }
@@ -65,21 +66,17 @@ class FilterPurchasesFragment :
                 binding.viewPager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
                     override fun onPageSelected(position: Int) {
                         super.onPageSelected(position)
-//                        TODO "Hide and show the delete menu icon"
-//                        when (position) {
-//                            0 -> return
-//                            1 -> return
-//                            2 -> return
-//                            3 -> return
-//                            4 -> return
-//                        }
+                        val deleteAllMenuItem = menu.findItem(R.id.action_delete_all_filtered)
+                        deleteAllMenuItem.isVisible =
+                            viewModel.getPurchasesStateFlow(FilterBy[position]).value?.first?.isEmpty()
+                                ?: false
                     }
                 })
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
-                    R.id.action_delete -> {
+                    R.id.action_delete_all_filtered -> {
                         // TODO "Delete all filtered entries"
                         true
                     }

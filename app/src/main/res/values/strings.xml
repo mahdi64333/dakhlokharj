@@ -51,7 +51,7 @@
     <string name="date">Date</string>
     <string name="from">From</string>
     <string name="to">to</string>
-    <string name="orders_sum">Total expenses:</string>
+    <string name="purchases_sum">Total expenses: %1$s\$</string>
     <string name="must_be_positive">Must Be positive</string>
     <string name="can_not_be_zero">Can not be zero</string>
     <string name="has_to_be_smaller">Must be smaller</string>

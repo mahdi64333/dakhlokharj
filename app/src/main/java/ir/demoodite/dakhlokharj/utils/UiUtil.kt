@@ -3,16 +3,21 @@ package ir.demoodite.dakhlokharj.utils
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ListView
 import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.textfield.TextInputLayout
+import ir.demoodite.dakhlokharj.R
 
 
 object UiUtil {
@@ -59,5 +64,19 @@ object UiUtil {
 
     private fun dpToPixel(context: Context, dp: Int): Int {
         return (dp * context.resources.displayMetrics.density).toInt()
+    }
+
+    fun createConsumersSweetAlertDialog(context: Context, consumers: List<String>): SweetAlertDialog {
+        return SweetAlertDialog(context, SweetAlertDialog.NORMAL_TYPE).apply {
+            titleText = context.getString(R.string.consumers)
+            val listView = ListView(context)
+            val arrayAdapter = ArrayAdapter(
+                context, android.R.layout.simple_list_item_1, consumers
+            )
+            listView.adapter = arrayAdapter
+            listView.selector = ColorDrawable(Color.TRANSPARENT)
+            setCustomView(listView)
+            confirmText = context.getString(R.string.confirm)
+        }
     }
 }

@@ -1,14 +1,10 @@
 package ir.demoodite.dakhlokharj.ui.components.home
 
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.ListView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
@@ -29,8 +25,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.models.Purchase
-import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
 import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
+import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.addpurchase.AddPurchaseBottomSheetFragment
 import ir.demoodite.dakhlokharj.utils.UiUtil
@@ -67,20 +63,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         val adapter = PurchasesListAdapter(decimalFormat) {
             UiUtil.setSweetAlertDialogNightMode(resources)
             lifecycleScope.launch {
-                SweetAlertDialog(requireContext(), SweetAlertDialog.NORMAL_TYPE).apply {
-                    titleText = getString(R.string.consumers)
-                    val listView = ListView(requireContext())
-                    val consumers =
-                        DataRepository.getDatabase(requireContext()).consumerDao.getConsumerNamesOfPurchase(
-                            it.purchaseId
-                        ).first()
-                    val arrayAdapter = ArrayAdapter(
-                        requireContext(), android.R.layout.simple_list_item_1, consumers
-                    )
-                    listView.adapter = arrayAdapter
-                    listView.selector = ColorDrawable(Color.TRANSPARENT)
-                    setCustomView(listView)
-                    confirmText = getString(R.string.confirm)
+                val consumers =
+                    DataRepository.getDatabase(requireContext()).consumerDao.getConsumerNamesOfPurchase(
+                        it.purchaseId
+                    ).first()
+                UiUtil.createConsumersSweetAlertDialog(requireContext(), consumers).apply {
                     show()
                     getButton(SweetAlertDialog.BUTTON_CONFIRM).setPadding(0)
                 }

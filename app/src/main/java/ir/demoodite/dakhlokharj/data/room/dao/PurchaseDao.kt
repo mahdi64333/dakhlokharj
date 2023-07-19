@@ -74,6 +74,18 @@ interface PurchaseDao {
         }
     }
 
+    @Query(
+        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
+                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
+                "FROM $purchasesTableName " +
+                "INNER JOIN $residentsTableName " +
+                "ON $purchaseBuyerId = $residentId " +
+                "WHERE $residentActive = 1 " +
+                "AND $purchaseProduct LIKE '%' || :productName || '%' " +
+                "ORDER BY $purchaseTime DESC"
+    )
+    fun getAllDetailedPurchasesByProductName(productName: String): Flow<List<DetailedPurchase>>
+
     @Insert
     suspend fun insert(purchase: Purchase): Long
 
