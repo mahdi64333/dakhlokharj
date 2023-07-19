@@ -1,5 +1,7 @@
 package ir.demoodite.dakhlokharj.ui.components.home
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -76,6 +78,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                         requireContext(), android.R.layout.simple_list_item_1, consumers
                     )
                     listView.adapter = arrayAdapter
+                    listView.selector = ColorDrawable(Color.TRANSPARENT)
                     setCustomView(listView)
                     confirmText = getString(R.string.confirm)
                     show()
