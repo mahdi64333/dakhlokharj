@@ -2,7 +2,6 @@ package ir.demoodite.dakhlokharj.ui.components.residents
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -19,10 +18,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.models.Resident
 import ir.demoodite.dakhlokharj.databinding.FragmentResidentsBinding
-import ir.demoodite.dakhlokharj.models.AsyncOperationStatus
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.utils.UiUtil
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -55,24 +52,20 @@ class ResidentsFragment :
             }
             binding.textInputLayoutResidentName.setEndIconActivated(true)
         }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.residentNameInputErrorResChannel.collectLatest {
+                    binding.textInputLayoutResidentName.error =
+                        getString(R.string.duplicate)
+                    UiUtil.removeErrorOnType(binding.textInputEditTextResidentName)
+                }
+            }
+        }
     }
 
     private fun insertEditingResident(resident: Resident) {
         (binding.rvResidents.adapter as ResidentsListAdapter).endEditing()
-        val insertionStatus = MutableSharedFlow<AsyncOperationStatus>()
-        lifecycleScope.launch {
-            insertionStatus.first {
-                if (it.isSuccessful) {
-                    binding.textInputEditTextResidentName.setText("")
-                    UiUtil.hideKeyboard(binding.textInputEditTextResidentName)
-                } else {
-                    binding.textInputLayoutResidentName.error =
-                        getString(R.string.duplicate)
-                }
-                true
-            }
-        }
-        viewModel.insertResident(insertionStatus, resident)
+        viewModel.insertResident(resident)
     }
 
     private fun validateInputsAndGetResident(): Resident? {
@@ -95,38 +88,24 @@ class ResidentsFragment :
         binding.rvResidents.adapter = ResidentsListAdapter().apply {
             onActivationChangedListener = { resident, active ->
                 resident.active = active
-                val updateStatus = MutableSharedFlow<AsyncOperationStatus>()
-                lifecycleScope.launch {
-                    updateStatus.first {
-                        if (!it.isSuccessful) {
-                            Toast.makeText(
-                                requireContext(),
-                                R.string.an_error_has_occurred,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        true
-                    }
-                }
-                viewModel.updateResident(updateStatus, resident)
+                viewModel.updateResident(resident)
             }
             onNameChangedListener = { resident, newName, editText, viewHolder ->
                 resident.name = newName
-                val updateStatus = MutableSharedFlow<AsyncOperationStatus>()
                 lifecycleScope.launch {
-                    updateStatus.first {
-                        if (it.isSuccessful) {
+                    viewModel.residentNameEditErrorResChannel.first {
+                        if (it == null) {
                             UiUtil.hideKeyboard(editText)
                             viewHolder.setEditing(false)
                         } else {
                             val textInputLayout = editText.parent.parent as TextInputLayout
-                            textInputLayout.error = getString(R.string.duplicate)
+                            textInputLayout.error = getString(it)
                             UiUtil.removeErrorOnType(editText)
                         }
                         true
                     }
                 }
-                viewModel.updateResident(updateStatus, resident)
+                viewModel.updateResident(resident)
             }
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
