@@ -71,14 +71,14 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
 
     private fun updateSummariesUi(residentSummaries: List<ResidentSummery>) {
         val residentSummariesListAdapter =
-            binding.rvSummery.adapter as ResidentSummeryListAdapter
+            binding.rvSummery.adapter as ResidentSummariesListAdapter
         binding.tvNoData.isVisible = residentSummaries.isEmpty()
         residentSummariesListAdapter.submitList(residentSummaries)
     }
 
     private fun updateFilteredSummariesUi(residentSummaries: List<ResidentSummery>?) {
         val filteredResidentSummariesListAdapter =
-            binding.rvSummeryFiltered.adapter as ResidentSummeryListAdapter
+            binding.rvSummeryFiltered.adapter as ResidentSummariesListAdapter
         binding.tvFilteredNoData.isVisible = residentSummaries?.isEmpty() ?: false
         filteredResidentSummariesListAdapter.submitList(residentSummaries)
     }
@@ -99,7 +99,7 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
     }
 
     private fun setupSummariesRecyclerView() {
-        val adapter = ResidentSummeryListAdapter(decimalFormat)
+        val adapter = ResidentSummariesListAdapter(decimalFormat)
         binding.rvSummery.apply {
             layoutManager = LinearLayoutManager(requireContext())
             addItemDecoration(
@@ -115,7 +115,7 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
     }
 
     private fun setupFilteredSummariesRecyclerView() {
-        val adapter = ResidentSummeryListAdapter(decimalFormat)
+        val adapter = ResidentSummariesListAdapter(decimalFormat)
         binding.rvSummeryFiltered.apply {
             layoutManager = LinearLayoutManager(requireContext())
             addItemDecoration(

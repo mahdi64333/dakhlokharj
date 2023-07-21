@@ -8,14 +8,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ir.demoodite.dakhlokharj.R
-import ir.demoodite.dakhlokharj.databinding.ItemSummeryBinding
 import ir.demoodite.dakhlokharj.data.room.models.ResidentSummery
+import ir.demoodite.dakhlokharj.databinding.ItemSummeryBinding
 import java.text.DecimalFormat
 
-class ResidentSummeryListAdapter(
+class ResidentSummariesListAdapter(
     private val decimalFormat: DecimalFormat,
 ) :
-    ListAdapter<ResidentSummery, ResidentSummeryListAdapter.ViewHolder>(diffCallBack) {
+    ListAdapter<ResidentSummery, ResidentSummariesListAdapter.ViewHolder>(diffCallBack) {
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
