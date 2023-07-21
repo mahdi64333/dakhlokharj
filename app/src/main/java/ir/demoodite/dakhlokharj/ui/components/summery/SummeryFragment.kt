@@ -20,13 +20,13 @@ import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.FragmentSummeryBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.utils.DateUtil
+import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import saman.zamani.persiandate.PersianDateFormat
 import java.text.DecimalFormat
 import java.text.NumberFormat
-import java.util.*
 
 @AndroidEntryPoint
 class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBinding::inflate) {
@@ -37,7 +37,7 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
         super.onViewCreated(view, savedInstanceState)
 
         decimalFormat =
-            NumberFormat.getInstance(Locale(getString(R.string.language))) as DecimalFormat
+            NumberFormat.getInstance(LocaleHelper.getCurrentLocale(resources.configuration)) as DecimalFormat
         setupOptionsMenu()
         setupFilteringUi()
         setupSummariesRecyclerView()

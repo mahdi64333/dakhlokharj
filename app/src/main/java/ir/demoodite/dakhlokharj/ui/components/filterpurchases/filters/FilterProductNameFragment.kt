@@ -20,6 +20,7 @@ import ir.demoodite.dakhlokharj.databinding.FragmentFilterProductNameBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.filterpurchases.FilterPurchasesViewModel
 import ir.demoodite.dakhlokharj.ui.components.home.PurchasesListAdapter
+import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -34,11 +35,11 @@ class FilterProductNameFragment :
     private val viewModel: FilterPurchasesViewModel by activityViewModels()
     private lateinit var decimalFormat: DecimalFormat
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         decimalFormat =
-            NumberFormat.getInstance(Locale(getString(R.string.language))) as DecimalFormat
+            NumberFormat.getInstance(LocaleHelper.getCurrentLocale(resources.configuration)) as DecimalFormat
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

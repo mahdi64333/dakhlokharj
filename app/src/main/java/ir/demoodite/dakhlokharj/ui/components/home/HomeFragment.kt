@@ -28,6 +28,7 @@ import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
 import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.addpurchase.AddPurchaseBottomSheetFragment
+import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -50,7 +51,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     private fun setupRecyclerView() {
         val decimalFormat =
-            NumberFormat.getInstance(Locale(getString(R.string.language))) as DecimalFormat
+            NumberFormat.getInstance(LocaleHelper.getCurrentLocale(resources.configuration)) as DecimalFormat
         decimalFormat.applyPattern("#,###")
         val adapter = PurchasesListAdapter(decimalFormat) {
             UiUtil.setSweetAlertDialogNightMode(resources)
