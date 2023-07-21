@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasePrice
@@ -12,6 +15,7 @@ import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.data.room.models.Purchase
+import ir.demoodite.dakhlokharj.data.room.workers.DeletePurchaseWorker
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.*
@@ -23,6 +27,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     private val settingsDataStore: SettingsDataStore,
+    private val workManager: WorkManager,
 ) : ViewModel() {
     private val _purchasesStateFlow = MutableStateFlow(listOf<DetailedPurchase>())
     val purchasesStateFlow get() = _purchasesStateFlow.asStateFlow()
@@ -72,9 +77,13 @@ class HomeViewModel @Inject constructor(
     }
 
     fun deletePurchase(purchase: Purchase) {
-        viewModelScope.launch {
-            dataRepository.purchaseDao.delete(purchase)
-        }
+        val data = Data.Builder()
+            .putLong(DeletePurchaseWorker.PURCHASE_ID_KEY, purchase.id)
+            .build()
+        val deletePurchaseWorker = OneTimeWorkRequest.Builder(DeletePurchaseWorker::class.java)
+            .setInputData(data)
+            .build()
+        workManager.enqueue(deletePurchaseWorker)
     }
 
     fun setOrder(orderBy: OrderBy) {

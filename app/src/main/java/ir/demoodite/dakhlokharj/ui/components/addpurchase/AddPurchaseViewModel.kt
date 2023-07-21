@@ -37,13 +37,7 @@ class AddPurchaseViewModel @Inject constructor(
     private var _selectedResidentsStateFlow: MutableStateFlow<Set<Resident>> =
         MutableStateFlow(setOf())
     val selectedResidentsStateFlow get() = _selectedResidentsStateFlow.asStateFlow()
-    val savedPurchaseInfo = Purchase(
-        -1,
-        "",
-        -1,
-        -1,
-        -1,
-    )
+    val savedPurchaseInfo = Purchase(-1)
 
     fun addSelectedResident(resident: Resident) {
         _selectedResidentsStateFlow.update {

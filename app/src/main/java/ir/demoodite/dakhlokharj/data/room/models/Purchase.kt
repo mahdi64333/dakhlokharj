@@ -23,8 +23,8 @@ import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentId
 )
 data class Purchase(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = purchaseId) val id: Long,
-    @ColumnInfo(name = purchaseProduct) var product: String,
-    @ColumnInfo(name = purchasePrice) var price: Long,
-    @ColumnInfo(name = purchaseBuyerId, index = true) var buyerId: Long,
-    @ColumnInfo(name = purchaseTime) var time: Long,
+    @ColumnInfo(name = purchaseProduct) var product: String = "",
+    @ColumnInfo(name = purchasePrice) var price: Long = 0,
+    @ColumnInfo(name = purchaseBuyerId, index = true) var buyerId: Long = 0,
+    @ColumnInfo(name = purchaseTime) var time: Long = 0,
 )
