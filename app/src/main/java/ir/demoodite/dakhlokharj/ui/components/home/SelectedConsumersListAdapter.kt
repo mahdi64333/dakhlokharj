@@ -5,12 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import ir.demoodite.dakhlokharj.databinding.ItemConsumerBinding
 import ir.demoodite.dakhlokharj.data.room.models.Resident
+import ir.demoodite.dakhlokharj.databinding.ItemConsumerBinding
 
-class ConsumersListAdapter(
+class SelectedConsumersListAdapter(
     private val onClickListener: (Resident) -> Unit,
-) : ListAdapter<Resident, ConsumersListAdapter.ViewHolder>(diffCallback) {
+) : ListAdapter<Resident, SelectedConsumersListAdapter.ViewHolder>(diffCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             ItemConsumerBinding.inflate(

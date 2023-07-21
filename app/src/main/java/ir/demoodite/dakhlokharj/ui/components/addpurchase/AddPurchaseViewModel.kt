@@ -9,35 +9,33 @@ import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import ir.demoodite.dakhlokharj.data.room.models.Resident
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class AddPurchaseViewModel @Inject constructor(
     private val dataRepository: DataRepository,
 ) : ViewModel() {
-    val residentsStateFlow: StateFlow<List<Resident>> by lazy {
-        runBlocking {
-            dataRepository.residentDao.getAll().stateIn(
-                viewModelScope,
-                SharingStarted.Lazily,
-                dataRepository.residentDao.getAll().first()
-            )
-        }
+    private val residentsStateFlow: StateFlow<List<Resident>> by lazy {
+        dataRepository.residentDao.getAll().stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            listOf()
+        )
     }
     val activeResidentsStateFlow: StateFlow<List<Resident>> by lazy {
-        runBlocking {
-            dataRepository.residentDao.getAllActive().stateIn(
-                viewModelScope,
-                SharingStarted.Lazily,
-                dataRepository.residentDao.getAllActive().first()
-            )
-        }
+        dataRepository.residentDao.getAllActive().stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            listOf()
+        )
     }
     private var _selectedResidentsStateFlow: MutableStateFlow<Set<Resident>> =
         MutableStateFlow(setOf())
     val selectedResidentsStateFlow get() = _selectedResidentsStateFlow.asStateFlow()
     val savedPurchaseInfo = Purchase(-1)
+    val residents get() = residentsStateFlow.value
+    val activeResidents get() = activeResidentsStateFlow.value
+    val selectedResidents get() = selectedResidentsStateFlow.value
 
     fun addSelectedResident(resident: Resident) {
         _selectedResidentsStateFlow.update {

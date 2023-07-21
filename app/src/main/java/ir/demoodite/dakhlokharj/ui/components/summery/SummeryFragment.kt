@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
+import ir.demoodite.dakhlokharj.data.room.models.ResidentSummery
 import ir.demoodite.dakhlokharj.databinding.FragmentSummeryBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.utils.DateUtil
@@ -33,30 +34,68 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
     private val viewModel: SummeryViewModel by viewModels()
     private lateinit var decimalFormat: DecimalFormat
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        startDataCollection()
+        setupFilteringState()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         decimalFormat =
             NumberFormat.getInstance(LocaleHelper.getCurrentLocale(resources.configuration)) as DecimalFormat
         setupOptionsMenu()
-        setupFilteringUi()
         setupSummariesRecyclerView()
         setupFilteredSummariesRecyclerView()
     }
 
-    private fun toggleFiltering() {
-        viewModel.toggleFiltering()
+    private fun startDataCollection() {
+        lifecycleScope.launch {
+            viewModel.residentsSummariesStateFlow.collectLatest {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    updateSummariesUi(it)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.filteredResidentsSummariesStateFlow.collectLatest {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    updateFilteredSummariesUi(it)
+                }
+            }
+        }
     }
 
-    private fun setupFilteringUi() {
+    private fun updateSummariesUi(residentSummaries: List<ResidentSummery>) {
+        val residentSummariesListAdapter =
+            binding.rvSummery.adapter as ResidentSummeryListAdapter
+        binding.tvNoData.isVisible = residentSummaries.isEmpty()
+        residentSummariesListAdapter.submitList(residentSummaries)
+    }
+
+    private fun updateFilteredSummariesUi(residentSummaries: List<ResidentSummery>?) {
+        val filteredResidentSummariesListAdapter =
+            binding.rvSummeryFiltered.adapter as ResidentSummeryListAdapter
+        binding.tvFilteredNoData.isVisible = residentSummaries?.isEmpty() ?: false
+        filteredResidentSummariesListAdapter.submitList(residentSummaries)
+    }
+
+    private fun setupFilteringState() {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.isFilteringStateFlow.collectLatest {
+            viewModel.isFilteringStateFlow.collectLatest {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
                     binding.layoutFilteredSummery.isVisible = it
                     binding.layoutSummery.isGone = it
                 }
             }
         }
+    }
+
+    private fun toggleFiltering() {
+        viewModel.toggleFiltering()
     }
 
     private fun setupSummariesRecyclerView() {
@@ -73,14 +112,6 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
             )
             this.adapter = adapter
         }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.residentsSummariesStateFlow.collectLatest {
-                    binding.tvNoData.isVisible = it.isEmpty()
-                    adapter.submitList(it)
-                }
-            }
-        }
     }
 
     private fun setupFilteredSummariesRecyclerView() {
@@ -96,14 +127,6 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
                 }
             )
             this.adapter = adapter
-        }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.filteredResidentsSummariesStateFlow.collectLatest {
-                    binding.tvFilteredNoData.isVisible = it?.isEmpty() ?: false
-                    adapter.submitList(it)
-                }
-            }
         }
         binding.textInputLayoutFilter.setEndIconOnClickListener {
             if (binding.textInputEditTextFilter.rawText.length < 16) {

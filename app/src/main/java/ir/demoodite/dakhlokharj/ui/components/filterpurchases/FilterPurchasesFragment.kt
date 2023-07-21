@@ -68,7 +68,7 @@ class FilterPurchasesFragment :
                         super.onPageSelected(position)
                         val deleteAllMenuItem = menu.findItem(R.id.action_delete_all_filtered)
                         deleteAllMenuItem.isVisible =
-                            viewModel.getPurchasesStateFlow(FilterBy[position]).value?.first?.isEmpty()
+                            viewModel.getFilteredPurchasesStateFlow(FilterBy[position]).value?.first?.isEmpty()
                                 ?: false
                     }
                 })

@@ -7,7 +7,6 @@ import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters.FilterBy
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -24,7 +23,7 @@ class FilterPurchasesViewModel @Inject constructor(
     private var purchasesCollectionJobs: MutableList<Job?> =
         MutableList(_purchasesStateFlows.size) { null }
 
-    fun getPurchasesStateFlow(filterBy: FilterBy) =
+    fun getFilteredPurchasesStateFlow(filterBy: FilterBy) =
         _purchasesStateFlows[filterBy.ordinal]
 
     fun filterByProductName(productName: String) {

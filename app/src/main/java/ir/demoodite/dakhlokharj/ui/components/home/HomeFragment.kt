@@ -13,7 +13,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.withStarted
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.DataRepository
+import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
 import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
@@ -40,6 +40,13 @@ import java.util.*
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
     private val viewModel: HomeViewModel by viewModels()
+    private lateinit var orderMenuItem: MenuItem
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        startDataCollection()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -47,6 +54,65 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         setupRecyclerView()
         setupFab()
         setupOptionsMenu()
+    }
+
+
+    private fun startDataCollection() {
+        lifecycleScope.launch {
+            viewModel.purchasesStateFlow.collectLatest {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    updatePurchasesUi(it)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.orderStateFlow.collectLatest {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    updateOrderMenuItemIcon(OrderBy.valueOf(it))
+                }
+            }
+        }
+    }
+
+    private fun updatePurchasesUi(detailedPurchases: List<DetailedPurchase>) {
+        val purchasesListAdapter =
+            binding.rvPurchases.adapter as PurchasesListAdapter
+        purchasesListAdapter.submitList(detailedPurchases)
+        binding.tvNoData.isVisible = detailedPurchases.isEmpty()
+    }
+
+    private fun updateOrderMenuItemIcon(orderBy: OrderBy) {
+        try {
+            when (orderBy) {
+                OrderBy.TIME_ASC -> orderMenuItem.icon =
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_order_time_asc,
+                        requireContext().theme
+                    )
+                OrderBy.TIME_DESC -> orderMenuItem.icon =
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_order_time_desc,
+                        requireContext().theme
+                    )
+                OrderBy.PRICE_ASC -> orderMenuItem.icon =
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_order_price_asc,
+                        requireContext().theme
+                    )
+                OrderBy.PRICE_DESC -> orderMenuItem.icon =
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_order_price_desc,
+                        requireContext().theme
+                    )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun setupRecyclerView() {
@@ -73,16 +139,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         ).apply {
             isLastItemDecorated = false
         })
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.purchasesStateFlow.collectLatest {
-                    withStarted {
-                        adapter.submitList(it)
-                        binding.tvNoData.isVisible = it.isEmpty()
-                    }
-                }
-            }
-        }
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -135,43 +191,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.home_menu, menu)
-                lifecycleScope.launch {
-                    repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        viewModel.orderStateFlow.collectLatest {
-                            try {
-                                val orderBy = OrderBy.valueOf(it)
-                                val menuItem = menu.findItem(R.id.menu_order_by)
-                                when (orderBy) {
-                                    OrderBy.TIME_ASC -> menuItem.icon = ResourcesCompat.getDrawable(
-                                        resources,
-                                        R.drawable.ic_order_time_asc,
-                                        requireContext().theme
-                                    )
-                                    OrderBy.TIME_DESC -> menuItem.icon =
-                                        ResourcesCompat.getDrawable(
-                                            resources,
-                                            R.drawable.ic_order_time_desc,
-                                            requireContext().theme
-                                        )
-                                    OrderBy.PRICE_ASC -> menuItem.icon =
-                                        ResourcesCompat.getDrawable(
-                                            resources,
-                                            R.drawable.ic_order_price_asc,
-                                            requireContext().theme
-                                        )
-                                    OrderBy.PRICE_DESC -> menuItem.icon =
-                                        ResourcesCompat.getDrawable(
-                                            resources,
-                                            R.drawable.ic_order_price_desc,
-                                            requireContext().theme
-                                        )
-                                }
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                    }
-                }
+                orderMenuItem = menu.findItem(R.id.menu_order_by)
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

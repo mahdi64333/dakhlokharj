@@ -1,6 +1,5 @@
 package ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
@@ -9,13 +8,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.DataRepository
+import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.databinding.FragmentFilterProductNameBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.filterpurchases.FilterPurchasesViewModel
@@ -27,7 +26,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.text.NumberFormat
-import java.util.*
 
 @AndroidEntryPoint
 class FilterProductNameFragment :
@@ -40,6 +38,7 @@ class FilterProductNameFragment :
 
         decimalFormat =
             NumberFormat.getInstance(LocaleHelper.getCurrentLocale(resources.configuration)) as DecimalFormat
+        startDataCollection()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,6 +46,27 @@ class FilterProductNameFragment :
 
         setupFilterInput()
         setupPurchasesRecyclerView()
+    }
+
+    private fun startDataCollection() {
+        lifecycleScope.launch {
+            viewModel.getFilteredPurchasesStateFlow(FilterBy.PRODUCT_NAME).collectLatest {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    it?.let {
+                        updateFilteredPurchasesUi(it.first, it.second)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateFilteredPurchasesUi(purchases: List<DetailedPurchase>, priceSum: Long) {
+        val filteredPurchasesListAdapter =
+            binding.rvPurchasesFiltered.adapter as PurchasesListAdapter
+        filteredPurchasesListAdapter.submitList(purchases)
+        binding.tvPurchasesSum.text =
+            getString(R.string.purchases_sum, decimalFormat.format(priceSum))
+        binding.tvFilteredNoData.isVisible = purchases.isEmpty()
     }
 
     private fun setupFilterInput() {
@@ -84,19 +104,5 @@ class FilterProductNameFragment :
             ).apply {
                 isLastItemDecorated = false
             })
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.getPurchasesStateFlow(FilterBy.PRODUCT_NAME).collectLatest {
-                    withStarted {
-                        it?.let {
-                            adapter.submitList(it.first)
-                            binding.tvPurchasesSum.text =
-                                getString(R.string.purchases_sum, decimalFormat.format(it.second))
-                            binding.tvFilteredNoData.isVisible = it.first.isEmpty()
-                        }
-                    }
-                }
-            }
-        }
     }
 }

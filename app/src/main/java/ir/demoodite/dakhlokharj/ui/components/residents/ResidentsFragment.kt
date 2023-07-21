@@ -2,7 +2,6 @@ package ir.demoodite.dakhlokharj.ui.components.residents
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -30,11 +29,46 @@ class ResidentsFragment :
     BaseFragment<FragmentResidentsBinding>(FragmentResidentsBinding::inflate) {
     private val viewModel: ResidentsViewModel by viewModels()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        startDataCollection()
+        setupErrorReceiver()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setupResidentSaveUi()
         setupResidentsRecyclerView()
+    }
+
+    private fun startDataCollection() {
+        lifecycleScope.launch {
+            viewModel.residentsStateFlow.collectLatest {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    updateResidentsUi(it)
+                }
+            }
+        }
+    }
+
+    private fun updateResidentsUi(residents: List<Resident>) {
+        val residentListAdapter = binding.rvResidents.adapter as ResidentsListAdapter
+        binding.tvNoData.isVisible = residents.isEmpty()
+        residentListAdapter.submitList(residents)
+    }
+
+    private fun setupErrorReceiver() {
+        lifecycleScope.launch {
+            viewModel.residentNameInputErrorResChannel.collectLatest {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    binding.textInputLayoutResidentName.error =
+                        getString(R.string.duplicate)
+                    UiUtil.removeErrorOnType(binding.textInputEditTextResidentName)
+                }
+            }
+        }
     }
 
     private fun setupResidentSaveUi() {
@@ -45,15 +79,7 @@ class ResidentsFragment :
             }
             binding.textInputLayoutResidentName.setEndIconActivated(true)
         }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.residentNameInputErrorResChannel.collectLatest {
-                    binding.textInputLayoutResidentName.error =
-                        getString(R.string.duplicate)
-                    UiUtil.removeErrorOnType(binding.textInputEditTextResidentName)
-                }
-            }
-        }
+
     }
 
     private fun insertEditingResident(resident: Resident) {
@@ -100,15 +126,6 @@ class ResidentsFragment :
                     }
                 }
                 viewModel.updateResident(resident)
-            }
-            lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.residentsStateFlow.collectLatest {
-                        submitList(it)
-                        binding.rvResidents.isGone = it.isEmpty()
-                        binding.tvNoData.isVisible = it.isEmpty()
-                    }
-                }
             }
         }
 
