@@ -1,6 +1,7 @@
 package ir.demoodite.dakhlokharj.di
 
 import android.content.Context
+import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,5 +25,11 @@ object AppModule {
     @Provides
     fun provideSettingsDataStore(
         @ApplicationContext app: Context,
-    ): SettingsDataStore = SettingsDataStore(app.applicationContext)
+    ): SettingsDataStore = SettingsDataStore(app)
+
+    @Singleton
+    @Provides
+    fun provideWorkManager(
+        @ApplicationContext app: Context,
+    ): WorkManager = WorkManager.getInstance(app)
 }

@@ -29,19 +29,12 @@ import java.util.*
 class ResidentsFragment :
     BaseFragment<FragmentResidentsBinding>(FragmentResidentsBinding::inflate) {
     private val viewModel: ResidentsViewModel by viewModels()
-    private var snackBar: Snackbar? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setupResidentSaveUi()
         setupResidentsRecyclerView()
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        snackBar?.dismiss()
     }
 
     private fun setupResidentSaveUi() {
@@ -66,11 +59,12 @@ class ResidentsFragment :
     private fun insertEditingResident(resident: Resident) {
         (binding.rvResidents.adapter as ResidentsListAdapter).endEditing()
         viewModel.insertResident(resident)
+        binding.textInputEditTextResidentName.setText("")
     }
 
     private fun validateInputsAndGetResident(): Resident? {
         var errorFlag = false
-        val resident = Resident(0, "", true)
+        val resident = Resident(0)
         val name = binding.textInputEditTextResidentName.text.toString().trim()
 
         if (name.isEmpty()) {
@@ -146,27 +140,28 @@ class ResidentsFragment :
                 residentsAdapter.endEditing()
                 residents.removeAt(residentPosition)
                 residentsAdapter.submitList(residents)
-                snackBar?.dismiss()
-                snackBar =
-                    Snackbar.make(binding.root, R.string.resident_got_deleted, Snackbar.LENGTH_LONG)
-                val snackBarCallback = object : Snackbar.Callback() {
-                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                        super.onDismissed(transientBottomBar, event)
 
-                        viewModel.deleteResident(resident)
+                Snackbar.make(binding.root, R.string.resident_got_deleted, Snackbar.LENGTH_LONG)
+                    .apply {
+                        setAction(R.string.undo) {
+                            residents.add(residentPosition, resident)
+                            residentsAdapter.submitList(residents)
+                            binding.rvResidents.adapter = residentsAdapter
+                        }
+                        addCallback(object : Snackbar.Callback() {
+                            override fun onDismissed(
+                                transientBottomBar: Snackbar?,
+                                event: Int,
+                            ) {
+                                super.onDismissed(transientBottomBar, event)
+
+                                if (event != DISMISS_EVENT_ACTION) {
+                                    viewModel.deleteResident(resident)
+                                }
+                            }
+                        })
+                        show()
                     }
-                }
-                snackBar?.apply {
-                    setAction(R.string.undo) {
-                        residents.add(residentPosition, resident)
-                        residentsAdapter.submitList(residents)
-                        binding.rvResidents.adapter = residentsAdapter
-                        removeCallback(snackBarCallback)
-                        dismiss()
-                    }
-                    addCallback(snackBarCallback)
-                    show()
-                }
             }
         }).attachToRecyclerView(binding.rvResidents)
     }

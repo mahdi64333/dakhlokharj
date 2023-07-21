@@ -20,6 +20,6 @@ import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentsTabl
 )
 data class Resident(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = residentId) val id: Long,
-    @ColumnInfo(name = residentName) var name: String,
-    @ColumnInfo(name = residentActive) var active: Boolean,
+    @ColumnInfo(name = residentName) var name: String = "",
+    @ColumnInfo(name = residentActive) var active: Boolean = true,
 )
