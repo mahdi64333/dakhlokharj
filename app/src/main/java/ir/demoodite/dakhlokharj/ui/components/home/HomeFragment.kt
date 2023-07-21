@@ -24,7 +24,6 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.DataRepository
-import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
 import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
@@ -40,7 +39,6 @@ import java.util.*
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
     private val viewModel: HomeViewModel by viewModels()
-    private var snackBar: Snackbar? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,12 +46,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         setupRecyclerView()
         setupFab()
         setupOptionsMenu()
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        snackBar?.dismiss()
     }
 
     private fun setupRecyclerView() {
@@ -106,35 +98,23 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                 val detailedPurchase = detailedPurchases[detailedPurchasePosition]
                 detailedPurchases.removeAt(detailedPurchasePosition)
                 purchasesListAdapter.submitList(detailedPurchases)
-                snackBar?.dismiss()
-                snackBar = Snackbar.make(
+                Snackbar.make(
                     binding.root, getString(R.string.purchase_got_deleted), Snackbar.LENGTH_LONG
-                )
-                val snackBarCallBack = object : Snackbar.Callback() {
-                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                        super.onDismissed(transientBottomBar, event)
-
-                        val purchase = detailedPurchase.let {
-                            Purchase(
-                                it.purchaseId,
-                                it.purchaseProduct,
-                                it.purchasePrice,
-                                it.purchaseBuyerId,
-                                it.purchaseTime
-                            )
-                        }
-                        viewModel.deletePurchase(purchase)
-                    }
-                }
-                snackBar?.apply {
+                ).apply {
                     setAction(R.string.undo) {
                         detailedPurchases.add(detailedPurchasePosition, detailedPurchase)
                         purchasesListAdapter.submitList(detailedPurchases)
                         binding.rvPurchases.adapter = purchasesListAdapter
-                        removeCallback(snackBarCallBack)
-                        dismiss()
                     }
-                    addCallback(snackBarCallBack)
+                    addCallback(object : Snackbar.Callback() {
+                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                            super.onDismissed(transientBottomBar, event)
+
+                            if (event != DISMISS_EVENT_ACTION) {
+                                viewModel.deletePurchase(detailedPurchase.purchase)
+                            }
+                        }
+                    })
                     show()
                 }
             }

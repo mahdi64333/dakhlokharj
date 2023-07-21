@@ -7,4 +7,13 @@ data class DetailedPurchase(
     var purchaseTime: Long,
     val purchaseBuyerId: Long,
     var buyerName: String,
-)
+) {
+    val purchase
+        get() = Purchase(
+            id = purchaseId,
+            product = purchaseProduct,
+            price = purchasePrice,
+            buyerId = purchaseBuyerId,
+            time = purchaseTime
+        )
+}

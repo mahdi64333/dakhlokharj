@@ -42,7 +42,7 @@
     <string name="buyer_not_found_do_you_want_to_save_new">There is no buyer with such name.\nDo you want to add as new resident?</string>
     <string name="consumer_not_found_do_you_want_to_save_new">There is no consumer with such name.\nDo you want to add as new resident?</string>
     <string name="not_found_in_residents">Not found in residents list</string>
-    <string name="purchase_got_deleted">Order got deleted</string>
+    <string name="purchase_got_deleted">Purchase got deleted</string>
     <string name="filter">Filter</string>
     <string name="delete_all">Delete all</string>
     <string name="price">Price</string>
