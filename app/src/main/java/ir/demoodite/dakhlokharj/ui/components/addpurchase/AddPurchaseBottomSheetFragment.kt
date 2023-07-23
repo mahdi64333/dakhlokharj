@@ -36,13 +36,7 @@ class AddPurchaseBottomSheetFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.savedPurchaseInfo.apply {
-            binding.textInputEditTextProductName.setText(product)
-            binding.textInputEditTextProductPrice.setText(if (price >= 0) price.toString() else "")
-            val buyer =
-                viewModel.activeResidents.find { it.id == buyerId }
-            binding.autoCompleteTextViewProductBuyer.setText(buyer?.name)
-        }
+        fillInputsWithLastEnteredPurchaseInfo()
         setupConsumerAutocompleteTextView()
         setupConsumerChips()
         setupSubmitButton()
@@ -82,14 +76,11 @@ class AddPurchaseBottomSheetFragment :
         lifecycleScope.launch {
             viewModel.selectedResidentsStateFlow.collectLatest {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    val selectedResidents =
-                        viewModel.residents.intersect(it).toList()
+                    val selectedResidents = viewModel.residents.intersect(it).toList()
                     updateSelectedResidentsRecyclerView(selectedResidents)
-                    val unselectedResidentNames =
-                        viewModel.residents.subtract(it)
-                            .map { resident ->
-                                resident.name
-                            }
+                    val unselectedResidentNames = viewModel.residents.subtract(it).map { resident ->
+                        resident.name
+                    }
                     setupConsumerAutocompleteTextViewAdapter(unselectedResidentNames)
                 }
             }
@@ -107,20 +98,27 @@ class AddPurchaseBottomSheetFragment :
             it.name
         }
         val arrayAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_list_item_1,
-            activeResidentNames
+            requireContext(), android.R.layout.simple_list_item_1, activeResidentNames
         )
         binding.autoCompleteTextViewProductBuyer.setAdapter(arrayAdapter)
     }
 
     private fun setupConsumerAutocompleteTextViewAdapter(unselectedResidentNames: List<String>) {
         val arrayAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_list_item_1,
-            unselectedResidentNames
+            requireContext(), android.R.layout.simple_list_item_1, unselectedResidentNames
         )
         binding.autoCompleteTextViewConsumerName.setAdapter(arrayAdapter)
+    }
+
+    private fun fillInputsWithLastEnteredPurchaseInfo() {
+        viewModel.savedPurchaseInfo.let { purchase ->
+            binding.textInputEditTextProductName.setText(purchase.product)
+            binding.textInputEditTextProductPrice.setText(if (purchase.price > 0) purchase.price.toString() else "")
+            val buyer = viewModel.activeResidents.find { resident ->
+                resident.id == purchase.buyerId
+            }
+            binding.autoCompleteTextViewProductBuyer.setText(buyer?.name)
+        }
     }
 
     private fun setupConsumerAutocompleteTextView() {
@@ -166,12 +164,9 @@ class AddPurchaseBottomSheetFragment :
         binding.rvConsumers.adapter = SelectedConsumersListAdapter {
             viewModel.removeSelectedResident(it)
         }
-        binding.rvConsumers.layoutManager =
-            LinearLayoutManager(
-                requireContext(),
-                LinearLayoutManager.HORIZONTAL,
-                false
-            )
+        binding.rvConsumers.layoutManager = LinearLayoutManager(
+            requireContext(), LinearLayoutManager.HORIZONTAL, false
+        )
     }
 
     private fun setupSubmitButton() {
@@ -179,8 +174,7 @@ class AddPurchaseBottomSheetFragment :
             it.isEnabled = false
             validateInputsAndGetPurchase()?.let { purchase ->
                 viewModel.savePurchaseRecord(
-                    purchase,
-                    viewModel.selectedResidents.toList()
+                    purchase, viewModel.selectedResidents.toList()
                 )
                 cleanupAndDismiss()
             }
@@ -220,14 +214,12 @@ class AddPurchaseBottomSheetFragment :
             UiUtil.removeErrorOnType(binding.autoCompleteTextViewProductBuyer)
             errorFlag = true
         } else if (!viewModel.residents.contains(buyer)) {
-            binding.textInputLayoutProductBuyer.error =
-                getString(R.string.no_residents_found)
+            binding.textInputLayoutProductBuyer.error = getString(R.string.no_residents_found)
             UiUtil.removeErrorOnType(binding.autoCompleteTextViewProductBuyer)
             errorFlag = true
         }
         if (viewModel.selectedResidents.isEmpty()) {
-            binding.textInputLayoutConsumerName.error =
-                getString(R.string.no_consumer_selected)
+            binding.textInputLayoutConsumerName.error = getString(R.string.no_consumer_selected)
             UiUtil.removeErrorOnType(binding.autoCompleteTextViewConsumerName)
             errorFlag = true
         }
@@ -236,11 +228,7 @@ class AddPurchaseBottomSheetFragment :
             null
         } else {
             Purchase(
-                0,
-                productName,
-                price,
-                buyer!!.id,
-                PersianDate().time
+                0, productName, price, buyer!!.id, PersianDate().time
             )
         }
     }
