@@ -110,6 +110,17 @@ interface PurchaseDao {
     )
     fun getAllDetailedPurchasesByTime(startTime: Long, endTime: Long): Flow<List<DetailedPurchase>>
 
+    @Query(
+        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
+                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
+                "FROM $purchasesTableName " +
+                "INNER JOIN $residentsTableName " +
+                "ON $purchaseBuyerId = $residentId " +
+                "WHERE $purchaseBuyerId = :buyerId " +
+                "ORDER BY $purchaseTime DESC"
+    )
+    fun getAllDetailedPurchasesByBuyer(buyerId: Long): Flow<List<DetailedPurchase>>
+
     @Insert
     suspend fun insert(purchase: Purchase): Long
 

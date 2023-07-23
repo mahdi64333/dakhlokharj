@@ -5,12 +5,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
+import ir.demoodite.dakhlokharj.data.room.models.Resident
 import ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters.FilterBy
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,6 +21,14 @@ class FilterPurchasesViewModel @Inject constructor(
         List(FilterBy.size) { MutableStateFlow(null) }
     private var purchasesCollectionJobs: MutableList<Job?> =
         MutableList(_purchasesStateFlows.size) { null }
+    val residentsStateFlow: StateFlow<List<Resident>> by lazy {
+        dataRepository.residentDao.getAll().stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            listOf()
+        )
+    }
+    val residents get() = residentsStateFlow.value
 
     fun getFilteredPurchasesStateFlow(filterBy: FilterBy) =
         _purchasesStateFlows[filterBy.ordinal]
@@ -50,6 +57,24 @@ class FilterPurchasesViewModel @Inject constructor(
         purchasesCollectionJobs[filterIndex]?.cancel()
         viewModelScope.launch {
             dataRepository.purchaseDao.getAllDetailedPurchasesByPrice(minPrice, maxPrice)
+                .collectLatest {
+                    ensureActive()
+                    _purchasesStateFlows[filterIndex].update { _ ->
+                        val sum = it.fold(0L) { acc, next ->
+                            acc + next.purchasePrice
+                        }
+                        Pair(it, sum)
+                    }
+                }
+        }
+    }
+
+    fun filterByBuyer(buyerId: Long) {
+        val filterIndex = FilterBy.BUYER.ordinal
+
+        purchasesCollectionJobs[filterIndex]?.cancel()
+        viewModelScope.launch {
+            dataRepository.purchaseDao.getAllDetailedPurchasesByBuyer(buyerId)
                 .collectLatest {
                     ensureActive()
                     _purchasesStateFlows[filterIndex].update { _ ->
