@@ -133,4 +133,5 @@
     <string name="min">Min</string>
     <string name="max">max</string>
     <string name="no_data_to_show">No data to show</string>
+    <string name="min_price_is_larger_than_max">Minimum shoudn\'t be larger than maximum</string>
 </resources>

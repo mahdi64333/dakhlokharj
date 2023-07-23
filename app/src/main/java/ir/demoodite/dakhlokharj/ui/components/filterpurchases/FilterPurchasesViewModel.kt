@@ -43,4 +43,22 @@ class FilterPurchasesViewModel @Inject constructor(
                 }
         }
     }
+
+    fun filterByPrice(minPrice: Long, maxPrice: Long) {
+        val filterIndex = FilterBy.PRICE.ordinal
+
+        purchasesCollectionJobs[filterIndex]?.cancel()
+        viewModelScope.launch {
+            dataRepository.purchaseDao.getAllDetailedPurchasesByPrice(minPrice, maxPrice)
+                .collectLatest {
+                    ensureActive()
+                    _purchasesStateFlows[filterIndex].update { _ ->
+                        val sum = it.fold(0L) { acc, next ->
+                            acc + next.purchasePrice
+                        }
+                        Pair(it, sum)
+                    }
+                }
+        }
+    }
 }

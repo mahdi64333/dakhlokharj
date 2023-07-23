@@ -8,44 +8,70 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout_filter_min"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/screen_padding"
         android:inputType="textPersonName"
         app:errorEnabled="true"
         app:hintEnabled="false"
+        app:layout_constraintEnd_toStartOf="@id/textInputLayout_filter_max"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <com.fauji.commaseparated.widget.CommaSeparatedEditText
             android:id="@+id/textInputEditText_filter_min"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/min"
-            android:imeOptions="actionDone"
-            android:singleLine="true" />
+            android:imeOptions="actionNext"
+            android:inputType="numberDecimal"
+            android:layoutDirection="ltr"
+            android:maxLength="15"
+            android:singleLine="true"
+            app:isSeparateByCommas="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout_filter_max"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/screen_padding"
+        android:layout_marginEnd="@dimen/screen_padding"
         android:inputType="textPersonName"
         app:endIconDrawable="@drawable/round_filter_alt_24"
         app:endIconMode="custom"
         app:endIconTint="?attr/colorPrimary"
         app:errorEnabled="true"
         app:hintEnabled="false"
-        app:layout_constraintTop_toBottomOf="@id/textInputLayout_filter_min">
+        app:layout_constraintBottom_toBottomOf="@id/textInputLayout_filter_min"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/textInputLayout_filter_min"
+        app:layout_constraintTop_toTopOf="@id/textInputLayout_filter_min">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <com.fauji.commaseparated.widget.CommaSeparatedEditText
             android:id="@+id/textInputEditText_filter_max"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/max"
             android:imeOptions="actionDone"
-            android:singleLine="true" />
+            android:inputType="numberDecimal"
+            android:layoutDirection="ltr"
+            android:maxLength="15"
+            android:singleLine="true"
+            app:isSeparateByCommas="true" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/tv_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/m"
+        android:text="@string/min_price_is_larger_than_max"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorError"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/textInputLayout_filter_min"
+        app:layout_constraintEnd_toEndOf="@id/textInputLayout_filter_max"
+        app:layout_constraintStart_toStartOf="@id/textInputLayout_filter_min" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_purchases_filtered"

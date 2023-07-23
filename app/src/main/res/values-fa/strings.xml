@@ -123,4 +123,5 @@
     <string name="min">حداقل</string>
     <string name="max">حداکثر</string>
     <string name="no_data_to_show">داده‌ای برای نمایش یافت نشد</string>
+    <string name="min_price_is_larger_than_max">حداقل قیمت نباید بزرگ‌تر از حداکثر باشد</string>
 </resources>

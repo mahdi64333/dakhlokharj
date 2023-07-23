@@ -86,6 +86,18 @@ interface PurchaseDao {
     )
     fun getAllDetailedPurchasesByProductName(productName: String): Flow<List<DetailedPurchase>>
 
+    @Query(
+        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
+                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
+                "FROM $purchasesTableName " +
+                "INNER JOIN $residentsTableName " +
+                "ON $purchaseBuyerId = $residentId " +
+                "WHERE $residentActive = 1 " +
+                "AND $purchasePrice BETWEEN :minPrice AND :maxPrice " +
+                "ORDER BY $purchaseTime DESC"
+    )
+    fun getAllDetailedPurchasesByPrice(minPrice: Long, maxPrice: Long): Flow<List<DetailedPurchase>>
+
     @Insert
     suspend fun insert(purchase: Purchase): Long
 
