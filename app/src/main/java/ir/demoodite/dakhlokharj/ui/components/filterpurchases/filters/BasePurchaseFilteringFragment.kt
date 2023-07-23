@@ -11,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -95,6 +94,21 @@ abstract class BasePurchaseFilteringFragment<T : ViewBinding>(
                 }
             }
         }
+        adapter.onLongClickListener = { detailedPurchase ->
+            UiUtil.setSweetAlertDialogNightMode(resources)
+            SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE).apply {
+                titleText = getString(R.string.are_you_sure_to_delete)
+                confirmText = getString(R.string.yes)
+                cancelText = getString(R.string.cancel)
+                setConfirmClickListener {
+                    viewModel.requestPurchaseDelete(detailedPurchase.purchase)
+                    dismiss()
+                }
+                show()
+                UiUtil.fixSweetAlertDialogButtons(getButton(SweetAlertDialog.BUTTON_CONFIRM))
+                UiUtil.fixSweetAlertDialogButtons(getButton(SweetAlertDialog.BUTTON_CANCEL))
+            }
+        }
         filteredPurchasesRecyclerView.adapter = adapter
         filteredPurchasesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         filteredPurchasesRecyclerView.addItemDecoration(
@@ -103,22 +117,5 @@ abstract class BasePurchaseFilteringFragment<T : ViewBinding>(
             ).apply {
                 isLastItemDecorated = false
             })
-        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder,
-            ): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val purchasesListAdapter =
-                    filteredPurchasesRecyclerView.adapter as PurchasesListAdapter
-                viewModel.requestPurchaseDelete(
-                    purchasesListAdapter.currentList[viewHolder.adapterPosition].purchase
-                )
-            }
-        }).attachToRecyclerView(filteredPurchasesRecyclerView)
     }
 }

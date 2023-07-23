@@ -1,7 +1,6 @@
 package ir.demoodite.dakhlokharj.ui.components.filterpurchases
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -14,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,6 +21,7 @@ import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.FragmentFilterPurchasesBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters.*
+import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -128,12 +129,25 @@ class FilterPurchasesFragment :
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_delete_all_filtered -> {
-                        val currentFilter = FilterBy[binding.viewPager.currentItem]
-                        val purchases =
-                            viewModel.getFilteredPurchasesStateFlow(currentFilter).value?.first?.map {
-                                it.purchase
-                            } ?: listOf()
-                        viewModel.requestPurchasesDelete(purchases)
+                        UiUtil.setSweetAlertDialogNightMode(resources)
+                        SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE).apply {
+                            titleText = getString(R.string.are_you_sure_to_delete)
+                            confirmText = getString(R.string.yes)
+                            cancelText = getString(R.string.cancel)
+                            setConfirmClickListener {
+                                val currentFilter = FilterBy[binding.viewPager.currentItem]
+                                val purchases =
+                                    viewModel.getFilteredPurchasesStateFlow(currentFilter).value?.first?.map {
+                                        it.purchase
+                                    } ?: listOf()
+                                viewModel.requestPurchasesDelete(purchases)
+                                dismiss()
+                            }
+                            show()
+                            UiUtil.fixSweetAlertDialogButtons(getButton(SweetAlertDialog.BUTTON_CONFIRM))
+                            UiUtil.fixSweetAlertDialogButtons(getButton(SweetAlertDialog.BUTTON_CANCEL))
+                        }
+
                         true
                     }
                     else -> false
@@ -143,17 +157,6 @@ class FilterPurchasesFragment :
     }
 
     private fun updateDeleteAllMenuItemVisibility(filterType: FilterBy) {
-        Log.i("delete_all_menu_item", filterType.name)
-        Log.i("delete_all_menu_item", deleteAllMenuItem.toString())
-        Log.i(
-            "delete_all_menu_item",
-            viewModel.getFilteredPurchasesStateFlow(filterType).value?.first?.size.toString()
-        )
-        Log.i(
-            "delete_all_menu_item",
-            viewModel.getFilteredPurchasesStateFlow(filterType).value?.first?.isNotEmpty()
-                .toString()
-        )
         deleteAllMenuItem?.isVisible =
             viewModel.getFilteredPurchasesStateFlow(filterType).value?.first?.isNotEmpty()
                 ?: false

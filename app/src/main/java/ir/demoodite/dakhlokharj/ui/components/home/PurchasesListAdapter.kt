@@ -6,8 +6,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ir.demoodite.dakhlokharj.R
-import ir.demoodite.dakhlokharj.databinding.ItemPurchaseBinding
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
+import ir.demoodite.dakhlokharj.databinding.ItemPurchaseBinding
 import saman.zamani.persiandate.PersianDate
 import saman.zamani.persiandate.PersianDateFormat
 import java.text.DecimalFormat
@@ -20,6 +20,7 @@ class PurchasesListAdapter(
         diffCallback
     ) {
     private val persianDateFormat: PersianDateFormat by lazy { PersianDateFormat("Y/m/d H:i") }
+    var onLongClickListener: ((detailedPurchase: DetailedPurchase) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -33,6 +34,10 @@ class PurchasesListAdapter(
         holder.bind(getItem(position), persianDateFormat, decimalFormat)
         holder.itemView.setOnClickListener {
             onClickListener(getItem(position))
+        }
+        holder.itemView.setOnLongClickListener {
+            onLongClickListener?.invoke(getItem(position))
+            true
         }
     }
 
