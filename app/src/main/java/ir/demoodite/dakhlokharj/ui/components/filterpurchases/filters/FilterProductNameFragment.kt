@@ -5,7 +5,6 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.FragmentFilterProductNameBinding
-import ir.demoodite.dakhlokharj.ui.base.BasePurchaseFilteringFragment
 import ir.demoodite.dakhlokharj.utils.UiUtil
 
 @AndroidEntryPoint

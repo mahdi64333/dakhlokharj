@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.ui.base
+package ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,8 +19,8 @@ import com.google.android.material.divider.MaterialDividerItemDecoration
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
+import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.filterpurchases.FilterPurchasesViewModel
-import ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters.FilterBy
 import ir.demoodite.dakhlokharj.ui.components.home.PurchasesListAdapter
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil

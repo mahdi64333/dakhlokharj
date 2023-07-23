@@ -4,7 +4,6 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.databinding.FragmentFilterPriceBinding
-import ir.demoodite.dakhlokharj.ui.base.BasePurchaseFilteringFragment
 
 @AndroidEntryPoint
 class FilterPriceFragment : BasePurchaseFilteringFragment<FragmentFilterPriceBinding>(

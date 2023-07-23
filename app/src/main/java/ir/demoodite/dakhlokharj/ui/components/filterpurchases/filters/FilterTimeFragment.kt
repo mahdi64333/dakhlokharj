@@ -3,7 +3,6 @@ package ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.FragmentFilterTimeBinding
-import ir.demoodite.dakhlokharj.ui.base.BasePurchaseFilteringFragment
 import ir.demoodite.dakhlokharj.utils.DateUtil
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import saman.zamani.persiandate.PersianDateFormat
