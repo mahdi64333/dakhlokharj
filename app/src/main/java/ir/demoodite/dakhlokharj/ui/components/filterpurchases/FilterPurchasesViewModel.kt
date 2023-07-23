@@ -180,6 +180,12 @@ class FilterPurchasesViewModel @Inject constructor(
         }
     }
 
+    fun clearStateFlows() {
+        _purchasesStateFlows.forEach {
+            it.value = null
+        }
+    }
+
     enum class PurchaseDeleteType {
         SINGLE_PURCHASE,
         MULTIPLE_PURCHASE,

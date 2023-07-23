@@ -44,6 +44,12 @@ class FilterPurchasesFragment :
         setupMenuProvider()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        viewModel.clearStateFlows()
+    }
+
     private fun startDataCollection() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
