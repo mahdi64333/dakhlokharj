@@ -104,4 +104,22 @@ class FilterPurchasesViewModel @Inject constructor(
                 }
         }
     }
+
+    fun filterByConsumer(consumerId: Long) {
+        val filterIndex = FilterBy.CONSUMER.ordinal
+
+        purchasesCollectionJobs[filterIndex]?.cancel()
+        viewModelScope.launch {
+            dataRepository.purchaseDao.getAllDetailedPurchasesByConsumer(consumerId)
+                .collectLatest {
+                    ensureActive()
+                    _purchasesStateFlows[filterIndex].update { _ ->
+                        val sum = it.fold(0L) { acc, next ->
+                            acc + next.purchasePrice
+                        }
+                        Pair(it, sum)
+                    }
+                }
+        }
+    }
 }

@@ -72,7 +72,9 @@ class FilterBuyerFragment :
                 return@setEndIconOnClickListener
             }
 
-            viewModel.filterByBuyer((viewModel.residents.find { it.name == buyerName })?.id ?: -1)
+            viewModel.filterByBuyer(
+                (viewModel.residents.find { it.name == buyerName })?.id ?: -1
+            )
         }
     }
 }

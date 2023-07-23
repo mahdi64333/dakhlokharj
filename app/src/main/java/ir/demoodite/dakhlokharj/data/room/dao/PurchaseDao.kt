@@ -4,6 +4,9 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumedProductId
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumerResidentId
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumersTableName
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseBuyerId
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseId
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasePrice
@@ -114,12 +117,25 @@ interface PurchaseDao {
         "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
                 "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
                 "FROM $purchasesTableName " +
-                "INNER JOIN $residentsTableName " +
+                "LEFT JOIN $residentsTableName " +
                 "ON $purchaseBuyerId = $residentId " +
                 "WHERE $purchaseBuyerId = :buyerId " +
                 "ORDER BY $purchaseTime DESC"
     )
     fun getAllDetailedPurchasesByBuyer(buyerId: Long): Flow<List<DetailedPurchase>>
+
+    @Query(
+        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
+                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
+                "FROM $consumersTableName " +
+                "LEFT JOIN $purchasesTableName " +
+                "ON $consumedProductId = $purchaseId " +
+                "LEFT JOIN $residentsTableName " +
+                "ON $purchaseBuyerId = $residentId " +
+                "WHERE $consumerResidentId = :consumerId " +
+                "ORDER BY $purchaseTime DESC"
+    )
+    fun getAllDetailedPurchasesByConsumer(consumerId: Long): Flow<List<DetailedPurchase>>
 
     @Insert
     suspend fun insert(purchase: Purchase): Long

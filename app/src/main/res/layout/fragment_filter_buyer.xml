@@ -24,7 +24,7 @@
             android:id="@+id/autoCompleteTextView_filter"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="@string/buyer_name"
+            android:hint="@string/consumer_name"
             android:imeOptions="actionDone"
             android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
