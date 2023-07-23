@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -31,7 +32,7 @@ import java.text.DecimalFormat
 import java.text.NumberFormat
 
 abstract class BasePurchaseFilteringFragment<T : ViewBinding>(
-    private val filterBy: FilterBy,
+    private val filterType: FilterBy,
     inflateMethod: (LayoutInflater, ViewGroup?, Boolean) -> T,
 ) : BaseFragment<T>(inflateMethod) {
     protected val viewModel: FilterPurchasesViewModel by activityViewModels()
@@ -58,10 +59,11 @@ abstract class BasePurchaseFilteringFragment<T : ViewBinding>(
 
     private fun startDataCollection() {
         lifecycleScope.launch {
-            viewModel.getFilteredPurchasesStateFlow(filterBy).collectLatest {
+            viewModel.getFilteredPurchasesStateFlow(filterType).collectLatest {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     it?.let {
                         updateFilteredPurchasesUi(it.first, it.second)
+                        viewModel.notifyFilteredPurchasesChanged(filterType)
                     }
                 }
             }
@@ -101,5 +103,22 @@ abstract class BasePurchaseFilteringFragment<T : ViewBinding>(
             ).apply {
                 isLastItemDecorated = false
             })
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder,
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val purchasesListAdapter =
+                    filteredPurchasesRecyclerView.adapter as PurchasesListAdapter
+                viewModel.requestPurchaseDelete(
+                    purchasesListAdapter.currentList[viewHolder.adapterPosition].purchase
+                )
+            }
+        }).attachToRecyclerView(filteredPurchasesRecyclerView)
     }
 }

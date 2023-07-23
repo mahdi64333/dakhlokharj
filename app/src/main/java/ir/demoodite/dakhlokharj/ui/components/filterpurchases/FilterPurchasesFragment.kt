@@ -1,6 +1,7 @@
 package ir.demoodite.dakhlokharj.ui.components.filterpurchases
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -9,25 +10,70 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.FragmentFilterPurchasesBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters.*
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class FilterPurchasesFragment :
     BaseFragment<FragmentFilterPurchasesBinding>(FragmentFilterPurchasesBinding::inflate) {
     private val viewModel: FilterPurchasesViewModel by activityViewModels()
+    private var deleteAllMenuItem: MenuItem? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        startDataCollection()
+        setupDeletionChannelReceiver()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setupViewPager()
         setupMenuProvider()
+    }
+
+    private fun startDataCollection() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.deletionChannel.collectLatest { purchaseDeleteType ->
+                    Snackbar.make(
+                        binding.root, getString(R.string.purchase_got_deleted), Snackbar.LENGTH_LONG
+                    ).apply {
+                        setAction(R.string.undo) {
+                            when (purchaseDeleteType) {
+                                FilterPurchasesViewModel.PurchaseDeleteType.SINGLE_PURCHASE ->
+                                    viewModel.undoPurchaseDelete()
+                                FilterPurchasesViewModel.PurchaseDeleteType.MULTIPLE_PURCHASE ->
+                                    viewModel.undoPurchasesDelete()
+                            }
+                        }
+                        show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupDeletionChannelReceiver() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.filteredPurchasesChangedChannel.collectLatest {
+                    updateDeleteAllMenuItemVisibility(it)
+                }
+            }
+        }
     }
 
     private fun setupViewPager() {
@@ -62,14 +108,13 @@ class FilterPurchasesFragment :
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.filter_menu, menu)
+                deleteAllMenuItem = menu.findItem(R.id.action_delete_all_filtered)
 
                 binding.viewPager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
                     override fun onPageSelected(position: Int) {
                         super.onPageSelected(position)
-                        val deleteAllMenuItem = menu.findItem(R.id.action_delete_all_filtered)
-                        deleteAllMenuItem.isVisible =
-                            viewModel.getFilteredPurchasesStateFlow(FilterBy[position]).value?.first?.isEmpty()
-                                ?: false
+
+                        updateDeleteAllMenuItemVisibility(FilterBy[position])
                     }
                 })
             }
@@ -77,12 +122,34 @@ class FilterPurchasesFragment :
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_delete_all_filtered -> {
-                        // TODO "Delete all filtered entries"
+                        val currentFilter = FilterBy[binding.viewPager.currentItem]
+                        val purchases =
+                            viewModel.getFilteredPurchasesStateFlow(currentFilter).value?.first?.map {
+                                it.purchase
+                            } ?: listOf()
+                        viewModel.requestPurchasesDelete(purchases)
                         true
                     }
                     else -> false
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.STARTED)
+    }
+
+    private fun updateDeleteAllMenuItemVisibility(filterType: FilterBy) {
+        Log.i("delete_all_menu_item", filterType.name)
+        Log.i("delete_all_menu_item", deleteAllMenuItem.toString())
+        Log.i(
+            "delete_all_menu_item",
+            viewModel.getFilteredPurchasesStateFlow(filterType).value?.first?.size.toString()
+        )
+        Log.i(
+            "delete_all_menu_item",
+            viewModel.getFilteredPurchasesStateFlow(filterType).value?.first?.isNotEmpty()
+                .toString()
+        )
+        deleteAllMenuItem?.isVisible =
+            viewModel.getFilteredPurchasesStateFlow(filterType).value?.first?.isNotEmpty()
+                ?: false
     }
 }

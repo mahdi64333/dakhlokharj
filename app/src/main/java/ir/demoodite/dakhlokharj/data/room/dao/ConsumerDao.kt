@@ -3,10 +3,10 @@ package ir.demoodite.dakhlokharj.data.room.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumedProductId
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumerResidentId
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumersTableName
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseId
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumedProductId
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasesTableName
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentId
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentName
@@ -23,6 +23,12 @@ interface ConsumerDao {
                 "WHERE $purchaseId = :purchaseId"
     )
     fun getConsumerNamesOfPurchase(purchaseId: Long): Flow<List<String>>
+
+    @Query(
+        "SELECT * FROM $consumersTableName " +
+                "WHERE $consumedProductId = :purchaseId"
+    )
+    fun getConsumersOfPurchase(purchaseId: Long): Flow<List<Consumer>>
 
     @Insert
     suspend fun insert(consumers: List<Consumer>)

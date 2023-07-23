@@ -4,10 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ir.demoodite.dakhlokharj.data.room.DataRepository
+import ir.demoodite.dakhlokharj.data.room.models.Consumer
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
+import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import ir.demoodite.dakhlokharj.data.room.models.Resident
 import ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters.FilterBy
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -29,9 +32,15 @@ class FilterPurchasesViewModel @Inject constructor(
         )
     }
     val residents get() = residentsStateFlow.value
+    private val _deletionChannel = Channel<PurchaseDeleteType>()
+    val deletionChannel get() = _deletionChannel.receiveAsFlow()
+    private var pendingPurchaseAndConsumersToDelete: Pair<Purchase, List<Consumer>>? = null
+    private var pendingPurchasesAndConsumersToDelete: List<Pair<Purchase, List<Consumer>>>? = null
+    private val _filteredPurchasesChangedChannel = Channel<FilterBy>()
+    val filteredPurchasesChangedChannel get() = _filteredPurchasesChangedChannel.receiveAsFlow()
 
-    fun getFilteredPurchasesStateFlow(filterBy: FilterBy) =
-        _purchasesStateFlows[filterBy.ordinal]
+    fun getFilteredPurchasesStateFlow(filterType: FilterBy) =
+        _purchasesStateFlows[filterType.ordinal]
 
     fun filterByProductName(productName: String) {
         val filterIndex = FilterBy.PRODUCT_NAME.ordinal
@@ -47,6 +56,7 @@ class FilterPurchasesViewModel @Inject constructor(
                         }
                         Pair(it, sum)
                     }
+
                 }
         }
     }
@@ -121,5 +131,57 @@ class FilterPurchasesViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    fun requestPurchaseDelete(purchase: Purchase) {
+        viewModelScope.launch {
+            val consumers = dataRepository.consumerDao.getConsumersOfPurchase(purchase.id).first()
+            val purchaseAndConsumers = Pair(purchase, consumers)
+            dataRepository.purchaseDao.delete(purchase)
+            pendingPurchaseAndConsumersToDelete = purchaseAndConsumers
+            _deletionChannel.send(PurchaseDeleteType.SINGLE_PURCHASE)
+        }
+    }
+
+    fun undoPurchaseDelete() {
+        viewModelScope.launch {
+            pendingPurchaseAndConsumersToDelete?.let {
+                dataRepository.purchaseDao.insert(it.first)
+                dataRepository.consumerDao.insert(it.second)
+            }
+        }
+    }
+
+    fun notifyFilteredPurchasesChanged(filterType: FilterBy) {
+        viewModelScope.launch {
+            _filteredPurchasesChangedChannel.send(filterType)
+        }
+    }
+
+    fun requestPurchasesDelete(purchases: List<Purchase>) {
+        viewModelScope.launch {
+            val purchasesAndConsumers = purchases.map { purchase ->
+                val consumers =
+                    dataRepository.consumerDao.getConsumersOfPurchase(purchase.id).first()
+                Pair(purchase, consumers)
+            }
+            dataRepository.purchaseDao.delete(purchases)
+            pendingPurchasesAndConsumersToDelete = purchasesAndConsumers
+            _deletionChannel.send(PurchaseDeleteType.MULTIPLE_PURCHASE)
+        }
+    }
+
+    fun undoPurchasesDelete() {
+        viewModelScope.launch {
+            pendingPurchasesAndConsumersToDelete?.forEach {
+                dataRepository.purchaseDao.insert(it.first)
+                dataRepository.consumerDao.insert(it.second)
+            }
+        }
+    }
+
+    enum class PurchaseDeleteType {
+        SINGLE_PURCHASE,
+        MULTIPLE_PURCHASE,
     }
 }

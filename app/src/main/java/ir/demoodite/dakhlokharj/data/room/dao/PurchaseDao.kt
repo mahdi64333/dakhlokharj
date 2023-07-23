@@ -142,4 +142,7 @@ interface PurchaseDao {
 
     @Delete
     suspend fun delete(purchase: Purchase)
+
+    @Delete
+    suspend fun delete(purchases: List<Purchase>)
 }
