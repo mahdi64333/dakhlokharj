@@ -65,7 +65,7 @@ class ResidentsFragment :
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     binding.textInputLayoutResidentName.error =
                         getString(R.string.duplicate)
-                    UiUtil.removeErrorOnType(binding.textInputEditTextResidentName)
+                    UiUtil.removeErrorOnTextChange(binding.textInputEditTextResidentName)
                 }
             }
         }
@@ -95,7 +95,7 @@ class ResidentsFragment :
 
         if (name.isEmpty()) {
             binding.textInputLayoutResidentName.error = getString(R.string.its_empty)
-            UiUtil.removeErrorOnType(binding.textInputEditTextResidentName)
+            UiUtil.removeErrorOnTextChange(binding.textInputEditTextResidentName)
             errorFlag = true
         } else {
             resident.name = name
@@ -120,7 +120,7 @@ class ResidentsFragment :
                         } else {
                             val textInputLayout = editText.parent.parent as TextInputLayout
                             textInputLayout.error = getString(it)
-                            UiUtil.removeErrorOnType(editText)
+                            UiUtil.removeErrorOnTextChange(editText)
                         }
                         true
                     }

@@ -29,7 +29,7 @@ object UiUtil {
      * @param input the TextInputEditText
      * @param preserveErrorTextSpace preserve error label space after removing the error label
      */
-    fun removeErrorOnType(input: EditText, preserveErrorTextSpace: Boolean = true) {
+    fun removeErrorOnTextChange(input: EditText, preserveErrorTextSpace: Boolean = true) {
         val layout = input.parent.parent as TextInputLayout
         input.addTextChangedListener {
             layout.error = null
@@ -66,7 +66,10 @@ object UiUtil {
         return (dp * context.resources.displayMetrics.density).toInt()
     }
 
-    fun createConsumersSweetAlertDialog(context: Context, consumers: List<String>): SweetAlertDialog {
+    fun createConsumersSweetAlertDialog(
+        context: Context,
+        consumers: List<String>,
+    ): SweetAlertDialog {
         return SweetAlertDialog(context, SweetAlertDialog.NORMAL_TYPE).apply {
             titleText = context.getString(R.string.consumers)
             val listView = ListView(context)

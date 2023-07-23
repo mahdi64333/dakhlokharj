@@ -23,10 +23,10 @@ class FilterProductNameFragment :
     override fun setupFilterInput() {
         binding.textInputLayoutFilter.setEndIconOnClickListener {
             val productName = binding.textInputEditTextFilter.text.toString().trim()
-            
+
             if (productName.isEmpty()) {
                 binding.textInputLayoutFilter.error = getString(R.string.its_empty)
-                UiUtil.removeErrorOnType(binding.textInputEditTextFilter)
+                UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilter)
             } else {
                 viewModel.filterByProductName(productName)
             }

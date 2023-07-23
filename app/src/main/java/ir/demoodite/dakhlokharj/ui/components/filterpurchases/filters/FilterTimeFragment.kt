@@ -25,7 +25,7 @@ class FilterTimeFragment :
         binding.textInputLayoutFilter.setEndIconOnClickListener {
             if (binding.textInputEditTextFilter.rawText.length < 16) {
                 binding.textInputLayoutFilter.error = getString(R.string.please_enter_valid_dates)
-                UiUtil.removeErrorOnType(binding.textInputEditTextFilter)
+                UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilter)
             } else {
                 val datesText =
                     binding.textInputEditTextFilter.text.toString().removePrefix("From ")
@@ -43,14 +43,14 @@ class FilterTimeFragment :
                     if (startDate > endDate) {
                         binding.textInputLayoutFilter.error =
                             getString(R.string.please_enter_valid_dates)
-                        UiUtil.removeErrorOnType(binding.textInputEditTextFilter)
+                        UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilter)
                     } else {
                         viewModel.filterByTime(startDate.time, endDate.time)
                     }
                 } catch (e: Exception) {
                     binding.textInputLayoutFilter.error =
                         getString(R.string.please_enter_valid_dates)
-                    UiUtil.removeErrorOnType(binding.textInputEditTextFilter)
+                    UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilter)
                 }
             }
         }

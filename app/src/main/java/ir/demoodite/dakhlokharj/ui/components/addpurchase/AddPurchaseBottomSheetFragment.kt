@@ -131,17 +131,17 @@ class AddPurchaseBottomSheetFragment :
 
             if (enteredName.isEmpty()) {
                 textInputLayout.error = getString(R.string.its_empty)
-                UiUtil.removeErrorOnType(binding.autoCompleteTextViewConsumerName)
+                UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
                 return@setEndIconOnClickListener
             }
             if (viewModel.residents.find { it.name == enteredName } == null) {
                 textInputLayout.error = getString(R.string.no_residents_found)
-                UiUtil.removeErrorOnType(binding.autoCompleteTextViewConsumerName)
+                UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
                 return@setEndIconOnClickListener
             }
             if (viewModel.activeResidents.find { it.name == enteredName } == null) {
                 textInputLayout.error = getString(R.string.no_active_residents_found)
-                UiUtil.removeErrorOnType(binding.autoCompleteTextViewConsumerName)
+                UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
                 return@setEndIconOnClickListener
             }
 
@@ -192,35 +192,35 @@ class AddPurchaseBottomSheetFragment :
 
         if (productName.isEmpty()) {
             binding.textInputLayoutProductName.error = getString(R.string.its_empty)
-            UiUtil.removeErrorOnType(binding.textInputEditTextProductName)
+            UiUtil.removeErrorOnTextChange(binding.textInputEditTextProductName)
             errorFlag = true
         }
         if (priceText.isEmpty()) {
             binding.textInputLayoutProductPrice.error = getString(R.string.its_empty)
-            UiUtil.removeErrorOnType(binding.textInputEditTextProductPrice)
+            UiUtil.removeErrorOnTextChange(binding.textInputEditTextProductPrice)
             errorFlag = true
         } else if (price <= 0) {
             binding.textInputLayoutProductPrice.error = getString(R.string.must_be_positive)
-            UiUtil.removeErrorOnType(binding.textInputEditTextProductPrice)
+            UiUtil.removeErrorOnTextChange(binding.textInputEditTextProductPrice)
             errorFlag = true
         }
         if (buyerName.isEmpty()) {
             binding.textInputLayoutProductBuyer.error = getString(R.string.its_empty)
-            UiUtil.removeErrorOnType(binding.autoCompleteTextViewProductBuyer)
+            UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewProductBuyer)
             errorFlag = true
         } else if (!viewModel.activeResidents.contains(buyer)) {
             binding.textInputLayoutProductBuyer.error =
                 getString(R.string.no_active_residents_found)
-            UiUtil.removeErrorOnType(binding.autoCompleteTextViewProductBuyer)
+            UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewProductBuyer)
             errorFlag = true
         } else if (!viewModel.residents.contains(buyer)) {
             binding.textInputLayoutProductBuyer.error = getString(R.string.no_residents_found)
-            UiUtil.removeErrorOnType(binding.autoCompleteTextViewProductBuyer)
+            UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewProductBuyer)
             errorFlag = true
         }
         if (viewModel.selectedResidents.isEmpty()) {
             binding.textInputLayoutConsumerName.error = getString(R.string.no_consumer_selected)
-            UiUtil.removeErrorOnType(binding.autoCompleteTextViewConsumerName)
+            UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
             errorFlag = true
         }
 

@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ir.demoodite.dakhlokharj.R
-import ir.demoodite.dakhlokharj.databinding.ItemResidentBinding
 import ir.demoodite.dakhlokharj.data.room.models.Resident
+import ir.demoodite.dakhlokharj.databinding.ItemResidentBinding
 import ir.demoodite.dakhlokharj.utils.UiUtil
 
 class ResidentsListAdapter :
@@ -85,7 +85,7 @@ class ResidentsListAdapter :
                 if (name.isEmpty()) {
                     binding.textInputLayoutResidentName.error =
                         binding.root.context.getString(R.string.its_empty)
-                    UiUtil.removeErrorOnType(binding.textInputEditTextResidentName)
+                    UiUtil.removeErrorOnTextChange(binding.textInputEditTextResidentName)
                 } else {
                     binding.tvResidentName.text = name
                     listener(name, binding.textInputEditTextResidentName)
