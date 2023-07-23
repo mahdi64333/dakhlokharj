@@ -32,7 +32,7 @@ class FilterTimeFragment :
                 val persianDateFormat = PersianDateFormat()
                 try {
                     datesTextList.forEach {
-                        if (!DateUtil.validateDate(it)) {
+                        if (!DateUtil.validateJalaliDate(it)) {
                             throw Exception()
                         }
                     }
