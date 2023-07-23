@@ -34,6 +34,7 @@
         android:id="@+id/rv_purchases_filtered"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/tv_purchases_sum"
         app:layout_constraintTop_toBottomOf="@id/textInputLayout_filter"
         tools:listitem="@layout/item_purchase" />
 
@@ -47,4 +48,13 @@
         android:textAppearance="?attr/textAppearanceLabelMedium"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="@id/rv_purchases_filtered" />
+
+    <TextView
+        android:id="@+id/tv_purchases_sum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/l"
+        android:gravity="center"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
