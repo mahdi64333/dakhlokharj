@@ -158,8 +158,12 @@ class FilterPurchasesViewModel @Inject constructor(
         }
     }
 
-    fun requestPurchasesDelete(purchases: List<Purchase>) {
+    fun requestPurchasesDelete(filterType: FilterBy) {
         viewModelScope.launch {
+            val purchases =
+                getFilteredPurchasesStateFlow(filterType).value?.first?.map {
+                    it.purchase
+                } ?: listOf()
             val purchasesAndConsumers = purchases.map { purchase ->
                 val consumers =
                     dataRepository.consumerDao.getConsumersOfPurchase(purchase.id).first()

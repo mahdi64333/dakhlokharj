@@ -135,12 +135,7 @@ class FilterPurchasesFragment :
                             confirmText = getString(R.string.yes)
                             cancelText = getString(R.string.cancel)
                             setConfirmClickListener {
-                                val currentFilter = FilterBy[binding.viewPager.currentItem]
-                                val purchases =
-                                    viewModel.getFilteredPurchasesStateFlow(currentFilter).value?.first?.map {
-                                        it.purchase
-                                    } ?: listOf()
-                                viewModel.requestPurchasesDelete(purchases)
+                                viewModel.requestPurchasesDelete(FilterBy[binding.viewPager.currentItem])
                                 dismiss()
                             }
                             show()
