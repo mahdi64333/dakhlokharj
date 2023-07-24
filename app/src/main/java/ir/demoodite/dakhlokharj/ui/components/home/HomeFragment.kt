@@ -117,7 +117,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     private fun setupRecyclerView() {
         val decimalFormat =
-            NumberFormat.getInstance(LocaleHelper.getCurrentLocale(resources.configuration)) as DecimalFormat
+            NumberFormat.getInstance(LocaleHelper.currentLocale) as DecimalFormat
         decimalFormat.applyPattern("#,###")
         val adapter = PurchasesListAdapter(decimalFormat) {
             UiUtil.setSweetAlertDialogNightMode(resources)

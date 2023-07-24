@@ -14,7 +14,6 @@ import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import ir.demoodite.dakhlokharj.data.room.workers.DeletePurchaseWorker
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
-import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.*
@@ -63,12 +62,6 @@ class HomeViewModel @Inject constructor(
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-            }
-        }
-
-        viewModelScope.launch {
-            settingsDataStore.getLanguageFlow().collectLatest {
-                LocaleHelper.setLocaleByLanguage(it)
             }
         }
     }

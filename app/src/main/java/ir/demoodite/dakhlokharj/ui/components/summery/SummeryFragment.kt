@@ -20,12 +20,10 @@ import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.models.ResidentSummery
 import ir.demoodite.dakhlokharj.databinding.FragmentSummeryBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
-import ir.demoodite.dakhlokharj.utils.DateUtil
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import saman.zamani.persiandate.PersianDateFormat
 import java.text.DecimalFormat
 import java.text.NumberFormat
 
@@ -45,7 +43,7 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
         super.onViewCreated(view, savedInstanceState)
 
         decimalFormat =
-            NumberFormat.getInstance(LocaleHelper.getCurrentLocale(resources.configuration)) as DecimalFormat
+            NumberFormat.getInstance(LocaleHelper.currentLocale) as DecimalFormat
         setupOptionsMenu()
         setupSummariesRecyclerView()
         setupFilteredSummariesRecyclerView()
@@ -136,15 +134,14 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
                 val datesText =
                     binding.textInputEditTextFilter.text.toString().removePrefix("From ")
                 val datesTextList = datesText.split(" to ")
-                val persianDateFormat = PersianDateFormat()
                 try {
                     datesTextList.forEach {
-                        if (!DateUtil.validateJalaliDate(it)) {
+                        if (!LocaleHelper.validateLocalizedDate(it)) {
                             throw Exception()
                         }
                     }
-                    val startDate = persianDateFormat.parse(datesTextList.first(), "yyyy/MM/dd")
-                    val endDate = persianDateFormat.parse(datesTextList.last(), "yyyy/MM/dd")
+                    val startDate = LocaleHelper.parseLocalizedDate(datesTextList.first())
+                    val endDate = LocaleHelper.parseLocalizedDate(datesTextList.last())
                     endDate.addDay(1)
                     if (startDate > endDate) {
                         binding.textInputLayoutFilter.error =

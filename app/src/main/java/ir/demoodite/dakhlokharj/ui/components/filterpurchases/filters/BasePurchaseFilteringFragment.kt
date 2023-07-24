@@ -45,7 +45,7 @@ abstract class BasePurchaseFilteringFragment<T : ViewBinding>(
         super.onCreate(savedInstanceState)
 
         decimalFormat =
-            NumberFormat.getInstance(LocaleHelper.getCurrentLocale(resources.configuration)) as DecimalFormat
+            NumberFormat.getInstance(LocaleHelper.currentLocale) as DecimalFormat
         startDataCollection()
     }
 

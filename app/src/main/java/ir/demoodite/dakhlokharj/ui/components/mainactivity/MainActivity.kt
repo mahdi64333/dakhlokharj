@@ -6,15 +6,26 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
+import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.databinding.ActivityMainBinding
+import ir.demoodite.dakhlokharj.utils.LocaleHelper
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+
+    @Inject
+    lateinit var settingsDataStore: SettingsDataStore
     private val navController by lazy {
         (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
     }
@@ -26,8 +37,21 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupLanguageSettingDataCollection()
         setupNavigation()
         handleDrawerBackPressed()
+    }
+
+    private fun setupLanguageSettingDataCollection() {
+        runBlocking {
+            LocaleHelper.applicationLanguageCode = settingsDataStore.getLanguageFlow().first()
+        }
+
+        lifecycleScope.launch {
+            settingsDataStore.getLanguageFlow().collectLatest {
+                LocaleHelper.applicationLanguageCode = it
+            }
+        }
     }
 
     private fun setupNavigation() {

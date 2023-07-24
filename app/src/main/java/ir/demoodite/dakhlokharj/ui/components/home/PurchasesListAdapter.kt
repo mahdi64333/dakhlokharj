@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.databinding.ItemPurchaseBinding
+import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import saman.zamani.persiandate.PersianDate
-import saman.zamani.persiandate.PersianDateFormat
 import java.text.DecimalFormat
 
 class PurchasesListAdapter(
@@ -19,7 +19,6 @@ class PurchasesListAdapter(
     ListAdapter<DetailedPurchase, PurchasesListAdapter.ViewHolder>(
         diffCallback
     ) {
-    private val persianDateFormat: PersianDateFormat by lazy { PersianDateFormat("Y/m/d H:i") }
     var onLongClickListener: ((detailedPurchase: DetailedPurchase) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -31,7 +30,7 @@ class PurchasesListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position), persianDateFormat, decimalFormat)
+        holder.bind(getItem(position), decimalFormat)
         holder.itemView.setOnClickListener {
             onClickListener(getItem(position))
         }
@@ -45,13 +44,12 @@ class PurchasesListAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind(
             detailedPurchase: DetailedPurchase,
-            persianDateFormat: PersianDateFormat,
             decimalFormat: DecimalFormat,
         ) {
             binding.tvPurchaseName.text = detailedPurchase.purchaseProduct
             binding.tvPurchaseBuyer.text = detailedPurchase.buyerName
-            val detailedPurchaseDate = PersianDate(detailedPurchase.purchaseTime)
-            binding.tvPurchaseDatetime.text = persianDateFormat.format(detailedPurchaseDate)
+            val purchaseDate = PersianDate(detailedPurchase.purchaseTime)
+            binding.tvPurchaseDatetime.text = LocaleHelper.formatLocalizedDate(purchaseDate)
             binding.tvPurchasePrice.text = binding.root.context.getString(
                 R.string.price_template,
                 decimalFormat.format(detailedPurchase.purchasePrice)
