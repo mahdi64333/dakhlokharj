@@ -1,7 +1,5 @@
 package ir.demoodite.dakhlokharj.ui.components.home
 
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
@@ -11,11 +9,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasePrice
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseTime
-import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
-import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import ir.demoodite.dakhlokharj.data.room.workers.DeletePurchaseWorker
+import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
+import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
+import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.*
@@ -68,11 +67,9 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            settingsDataStore.getLanguageFlow().shareIn(viewModelScope, SharingStarted.Lazily)
-                .collectLatest {
-                    val appLocaleList = LocaleListCompat.forLanguageTags(it)
-                    AppCompatDelegate.setApplicationLocales(appLocaleList)
-                }
+            settingsDataStore.getLanguageFlow().collectLatest {
+                LocaleHelper.setLocaleByLanguage(it)
+            }
         }
     }
 
