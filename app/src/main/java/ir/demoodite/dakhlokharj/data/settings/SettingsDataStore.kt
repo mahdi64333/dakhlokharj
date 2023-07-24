@@ -49,7 +49,7 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
         }
     }
 
-    suspend fun setLanguage(language: String) {
+    private suspend fun setLanguage(language: String) {
         context.settingsDataStore.edit { preferences ->
             preferences[LANGUAGE_KEY] = language
         }
