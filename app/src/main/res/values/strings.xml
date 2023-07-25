@@ -138,4 +138,6 @@
     <string name="date_input_hint">yyyymmdd</string>
     <string name="date_input_mask" translatable="false">####/##/##</string>
     <string name="database_archive">Database archive</string>
+    <string name="archive_current_database">Archive current data</string>
+    <string name="import_database_from_file">Import database from file</string>
 </resources>

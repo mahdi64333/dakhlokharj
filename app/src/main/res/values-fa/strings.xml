@@ -127,4 +127,6 @@
     <string name="min_price_is_larger_than_max">حداقل قیمت نباید بزرگ‌تر از حداکثر باشد</string>
     <string name="date_input_hint">--------</string>
     <string name="database_archive">آرشیو پایگاه داده</string>
+    <string name="archive_current_database">آرشیو کردن داده‌های فعلی</string>
+    <string name="import_database_from_file">وارد کردن پایگاه داده از فایل</string>
 </resources>
