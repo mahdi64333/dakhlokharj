@@ -66,7 +66,7 @@ class FilterTimeFragment :
 
         return Pair(
             LocaleHelper.parseLocalizedDate(minTimeText).time,
-            LocaleHelper.parseLocalizedDate(maxTimeText).time
+            LocaleHelper.parseLocalizedDate(maxTimeText).addDay(1).time
         )
     }
 }
