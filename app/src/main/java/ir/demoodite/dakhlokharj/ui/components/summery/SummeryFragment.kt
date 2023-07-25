@@ -126,37 +126,57 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
             )
             this.adapter = adapter
         }
-        binding.textInputLayoutFilter.setEndIconOnClickListener {
-            if (binding.textInputEditTextFilter.rawText.length < 16) {
-                binding.textInputLayoutFilter.error = getString(R.string.please_enter_valid_dates)
-                UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilter)
-            } else {
-                val datesText =
-                    binding.textInputEditTextFilter.text.toString().removePrefix("From ")
-                val datesTextList = datesText.split(" to ")
-                try {
-                    datesTextList.forEach {
-                        if (!LocaleHelper.validateLocalizedDate(it)) {
-                            throw Exception()
-                        }
-                    }
-                    val startDate = LocaleHelper.parseLocalizedDate(datesTextList.first())
-                    val endDate = LocaleHelper.parseLocalizedDate(datesTextList.last())
-                    endDate.addDay(1)
-                    if (startDate > endDate) {
-                        binding.textInputLayoutFilter.error =
-                            getString(R.string.please_enter_valid_dates)
-                        UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilter)
-                    } else {
-                        viewModel.setSummariesTimeWindow(startDate.time, endDate.time)
-                    }
-                } catch (e: Exception) {
-                    binding.textInputLayoutFilter.error =
-                        getString(R.string.please_enter_valid_dates)
-                    UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilter)
-                }
+        binding.textInputLayoutFilterMax.setEndIconOnClickListener {
+            val validatedTimestamps = validateAndGetTimestamps()
+            if (validatedTimestamps != null) {
+                viewModel.setSummariesTimeWindow(
+                    validatedTimestamps.first,
+                    validatedTimestamps.second
+                )
             }
         }
+    }
+
+    private fun validateAndGetTimestamps(): Pair<Long, Long>? {
+        var errorFlag = false
+
+        val minTimeText = binding.textInputEditTextFilterMin.text.toString()
+        val minTimeRawText = binding.textInputEditTextFilterMin.rawText
+        val maxTimeText = binding.textInputEditTextFilterMax.text.toString()
+        val maxTimeRawText = binding.textInputEditTextFilterMax.rawText
+
+        if (minTimeRawText.isEmpty()) {
+            binding.textInputLayoutFilterMin.error = getString(R.string.its_empty)
+            UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilterMin)
+            errorFlag = true
+        } else if (minTimeRawText.length != 8
+            || !LocaleHelper.validateLocalizedDate(minTimeText)
+        ) {
+            binding.textInputLayoutFilterMin.error = getString(R.string.please_enter_a_valid_date)
+            UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilterMin)
+            errorFlag = true
+        }
+
+        if (maxTimeRawText.isEmpty()) {
+            binding.textInputLayoutFilterMax.error = getString(R.string.its_empty)
+            UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilterMax)
+            errorFlag = true
+        } else if (maxTimeRawText.length != 8
+            || !LocaleHelper.validateLocalizedDate(maxTimeText)
+        ) {
+            binding.textInputLayoutFilterMax.error = getString(R.string.please_enter_a_valid_date)
+            UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilterMax)
+            errorFlag = true
+        }
+
+        if (errorFlag) {
+            return null
+        }
+
+        return Pair(
+            LocaleHelper.parseLocalizedDate(minTimeText).time,
+            LocaleHelper.parseLocalizedDate(maxTimeText).time
+        )
     }
 
     private fun setupOptionsMenu() {

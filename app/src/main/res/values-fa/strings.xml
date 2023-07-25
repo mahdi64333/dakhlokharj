@@ -115,6 +115,7 @@
     <string name="price_template">%1$s تومان</string>
     <string name="no_active_residents_found">ساکن فعال نیست</string>
     <string name="please_enter_valid_dates">لطفا تاریخ‌های صحیح وارد کنید</string>
+    <string name="please_enter_a_valid_date">لطفا یک تاریخ صحیح وارد کنید</string>
     <string name="order_by">ترتیب بر اساس</string>
     <string name="product">کالا</string>
     <string name="time">زمان</string>
@@ -124,4 +125,5 @@
     <string name="max">حداکثر</string>
     <string name="no_data_to_show">داده‌ای برای نمایش یافت نشد</string>
     <string name="min_price_is_larger_than_max">حداقل قیمت نباید بزرگ‌تر از حداکثر باشد</string>
+    <string name="date_input_hint">--------</string>
 </resources>

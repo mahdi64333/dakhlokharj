@@ -125,6 +125,7 @@
     <string name="price_template">%1$s$</string>
     <string name="no_active_residents_found">Resident isn\'t active</string>
     <string name="please_enter_valid_dates">Please enter valid dates</string>
+    <string name="please_enter_a_valid_date">Please enter a valid date</string>
     <string name="order_by">Order by</string>
     <string name="product">Product</string>
     <string name="time">Time</string>
@@ -134,4 +135,6 @@
     <string name="max">max</string>
     <string name="no_data_to_show">No data to show</string>
     <string name="min_price_is_larger_than_max">Minimum shouldn\'t be larger than maximum</string>
+    <string name="date_input_hint">yyyymmdd</string>
+    <string name="date_input_mask" translatable="false">####/##/##</string>
 </resources>

@@ -12,30 +12,66 @@
         android:layout_height="match_parent"
         android:visibility="gone">
 
+
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout_filter"
-            android:layout_width="match_parent"
+            android:id="@+id/textInputLayout_filter_min"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/screen_padding"
+            android:hint="@string/from"
             android:inputType="textPersonName"
+            android:layoutDirection="ltr"
+            app:errorEnabled="true"
+            app:hintEnabled="false"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/textInputLayout_filter_max"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <br.com.sapereaude.maskedEditText.MaskedEditText
+                android:id="@+id/textInputEditText_filter_min"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/date_input_hint"
+                android:imeOptions="actionNext"
+                android:inputType="number"
+                android:layoutDirection="ltr"
+                android:singleLine="true"
+                app:enable_ime_action="true"
+                app:keep_hint="true"
+                app:mask="@string/date_input_mask"
+                tools:ignore="HardcodedText" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout_filter_max"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/screen_padding"
+            android:hint="@string/to"
+            android:inputType="textPersonName"
+            android:layoutDirection="ltr"
             app:endIconDrawable="@drawable/round_filter_alt_24"
             app:endIconMode="custom"
             app:endIconTint="?attr/colorPrimary"
             app:errorEnabled="true"
             app:hintEnabled="false"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintLeft_toRightOf="@id/textInputLayout_filter_min"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/textInputLayout_filter_min"
+            tools:ignore="RtlHardcoded">
 
             <br.com.sapereaude.maskedEditText.MaskedEditText
-                android:id="@+id/textInputEditText_filter"
+                android:id="@+id/textInputEditText_filter_max"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="yyyymmddyyyymmdd"
+                android:hint="@string/date_input_hint"
                 android:imeOptions="actionDone"
                 android:inputType="number"
+                android:layoutDirection="ltr"
                 android:singleLine="true"
                 app:enable_ime_action="true"
                 app:keep_hint="true"
-                app:mask="From ####/##/## to ####/##/##"
+                app:mask="@string/date_input_mask"
                 tools:ignore="HardcodedText" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -43,7 +79,7 @@
             android:id="@+id/rv_summery_filtered"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/textInputLayout_filter"
+            app:layout_constraintTop_toBottomOf="@id/textInputLayout_filter_min"
             tools:listitem="@layout/item_summery" />
 
         <TextView

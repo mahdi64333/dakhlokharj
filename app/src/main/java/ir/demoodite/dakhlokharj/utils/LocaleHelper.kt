@@ -26,12 +26,19 @@ object LocaleHelper {
 
     private fun validateJalaliDate(date: String): Boolean {
         val dateParts = date.split("/").map {
-            it.toInt()
+            try {
+                it.toInt()
+            } catch (e: java.lang.Exception) {
+                return false
+            }
         }
         dateParts.forEach {
             if (it == 0) {
                 return false
             }
+        }
+        if (dateParts[1] > 12) {
+            return false
         }
         if (dateParts[1] == 12) {
             return dateParts[2] <= if (PersianDate.isJalaliLeap(dateParts[0])) 30 else 29
@@ -41,12 +48,19 @@ object LocaleHelper {
 
     private fun validateGregorianDate(date: String): Boolean {
         val dateParts = date.split("/").map {
-            it.toInt()
+            try {
+                it.toInt()
+            } catch (e: java.lang.Exception) {
+                return false
+            }
         }
         dateParts.forEach {
             if (it == 0) {
                 return false
             }
+        }
+        if (dateParts[1] > 12) {
+            return false
         }
         if (dateParts[1] == 2) {
             return dateParts[2] <= if (PersianDate.isGrgLeap(dateParts[0])) 29 else 28
