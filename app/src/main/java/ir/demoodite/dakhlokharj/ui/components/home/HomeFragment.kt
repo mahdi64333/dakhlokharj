@@ -188,41 +188,43 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun setupOptionsMenu() {
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.home_menu, menu)
-                orderMenuItem = menu.findItem(R.id.menu_order_by)
-            }
+        requireActivity().addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.home_menu, menu)
+                    orderMenuItem = menu.findItem(R.id.menu_order_by)
+                }
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.action_filter -> {
-                        val action =
-                            HomeFragmentDirections.actionHomeFragmentToFilterPurchasesFragment()
-                        findNavController().navigate(action)
-                        true
-                    }
-                    R.id.action_order_time_asc -> {
-                        viewModel.setOrder(OrderBy.TIME_ASC)
-                        true
-                    }
-                    R.id.action_order_time_desc -> {
-                        viewModel.setOrder(OrderBy.TIME_DESC)
-                        true
-                    }
-                    R.id.action_order_price_asc -> {
-                        viewModel.setOrder(OrderBy.PRICE_ASC)
-                        true
-                    }
-                    R.id.action_order_price_desc -> {
-                        viewModel.setOrder(OrderBy.PRICE_DESC)
-                        true
-                    }
-                    else -> {
-                        false
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.action_filter -> {
+                            val action =
+                                HomeFragmentDirections.actionHomeFragmentToFilterPurchasesFragment()
+                            findNavController().navigate(action)
+                            true
+                        }
+                        R.id.action_order_time_asc -> {
+                            viewModel.setOrder(OrderBy.TIME_ASC)
+                            true
+                        }
+                        R.id.action_order_time_desc -> {
+                            viewModel.setOrder(OrderBy.TIME_DESC)
+                            true
+                        }
+                        R.id.action_order_price_asc -> {
+                            viewModel.setOrder(OrderBy.PRICE_ASC)
+                            true
+                        }
+                        R.id.action_order_price_desc -> {
+                            viewModel.setOrder(OrderBy.PRICE_DESC)
+                            true
+                        }
+                        else -> {
+                            false
+                        }
                     }
                 }
-            }
-        }, viewLifecycleOwner)
+            }, viewLifecycleOwner, Lifecycle.State.STARTED
+        )
     }
 }

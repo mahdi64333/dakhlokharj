@@ -196,6 +196,6 @@ class SummeryFragment : BaseFragment<FragmentSummeryBinding>(FragmentSummeryBind
                     }
                 }
             }
-        }, viewLifecycleOwner)
+        }, viewLifecycleOwner, Lifecycle.State.STARTED)
     }
 }
