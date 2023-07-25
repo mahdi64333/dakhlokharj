@@ -6,6 +6,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
@@ -70,8 +72,12 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.navigationView.setupWithNavController(navController)
 
-        navController.addOnDestinationChangedListener { _, _, arguments ->
+        navController.addOnDestinationChangedListener { _, destination, arguments ->
             binding.AppBarLayout.isGone = arguments?.getBoolean("fullScreen", false) == true
+            binding.drawerLayout.setDrawerLockMode(
+                if (rootDestinations.contains(destination.id)) LOCK_MODE_UNLOCKED
+                else LOCK_MODE_LOCKED_CLOSED
+            )
         }
 
         binding.navigationView.setNavigationItemSelectedListener {
