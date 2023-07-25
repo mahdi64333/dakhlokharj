@@ -27,10 +27,19 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="ir.demoodite.dakhlokharj.ui.components.settings.SettingsFragment"
-        android:label="@string/settings" />
+        android:label="@string/settings">
+        <action
+            android:id="@+id/action_settingsFragment_to_databaseManagerFragment"
+            app:destination="@id/databaseManagerFragment" />
+    </fragment>
     <fragment
         android:id="@+id/filterPurchasesFragment"
         android:name="ir.demoodite.dakhlokharj.ui.components.filterpurchases.FilterPurchasesFragment"
         android:label="@string/filter"
         tools:layout="@layout/fragment_filter_purchases" />
+    <fragment
+        android:id="@+id/databaseManagerFragment"
+        android:name="ir.demoodite.dakhlokharj.ui.components.databasemanager.DatabaseManagerFragment"
+        android:label="@string/database_archive"
+        tools:layout="@layout/fragment_database_manager" />
 </navigation>
