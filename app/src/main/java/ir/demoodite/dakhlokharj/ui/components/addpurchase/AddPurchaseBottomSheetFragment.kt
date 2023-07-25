@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -77,6 +78,7 @@ class AddPurchaseBottomSheetFragment :
             viewModel.selectedResidentsStateFlow.collectLatest {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     val selectedResidents = viewModel.residents.intersect(it).toList()
+                    binding.tvLabelChips.isVisible = selectedResidents.isNotEmpty()
                     updateSelectedResidentsRecyclerView(selectedResidents)
                     val unselectedResidentNames = viewModel.residents.subtract(it).map { resident ->
                         resident.name

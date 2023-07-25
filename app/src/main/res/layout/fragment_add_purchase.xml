@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/xl">
@@ -87,7 +88,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:completionThreshold="1"
-                    android:hint="@string/resident_name_hint"
+                    android:hint="@string/consumer"
                     android:imeOptions="actionDone"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -107,7 +108,11 @@
                 android:id="@+id/rv_consumers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/tv_label_chips">
+                app:layout_constraintTop_toBottomOf="@id/tv_label_chips"
+                tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_consumer"
+                tools:itemCount="3"
+                tools:orientation="horizontal">
 
             </androidx.recyclerview.widget.RecyclerView>
 
