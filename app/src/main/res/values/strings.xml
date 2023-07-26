@@ -140,4 +140,6 @@
     <string name="database_archive">Database archive</string>
     <string name="archive_current_database">Archive current data</string>
     <string name="import_database_from_file">Import database from file</string>
+    <string name="please_enter_database_alias">Please enter an alias for your database</string>
+    <string name="database_alias">Database alias</string>
 </resources>

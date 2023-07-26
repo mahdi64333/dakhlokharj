@@ -129,4 +129,6 @@
     <string name="database_archive">آرشیو پایگاه داده</string>
     <string name="archive_current_database">آرشیو کردن داده‌های فعلی</string>
     <string name="import_database_from_file">وارد کردن پایگاه داده از فایل</string>
+    <string name="please_enter_database_alias">لطفا نام مستعاری برای پایگاه داده‌ی خود وارد کنید</string>
+    <string name="database_alias">نام پایگاه داده</string>
 </resources>
