@@ -10,6 +10,7 @@ import ir.demoodite.dakhlokharj.data.room.dao.ResidentDao
 import ir.demoodite.dakhlokharj.data.room.models.Consumer
 import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import ir.demoodite.dakhlokharj.data.room.models.Resident
+import java.io.File
 
 @Database(
     entities = [
@@ -17,8 +18,8 @@ import ir.demoodite.dakhlokharj.data.room.models.Resident
         Purchase::class,
         Consumer::class,
     ],
-    version = 3,
-    exportSchema = false,
+    version = 4,
+    exportSchema = true,
 )
 abstract class DataRepository : RoomDatabase() {
     // Dao functions and custom getters for better syntax
@@ -28,6 +29,8 @@ abstract class DataRepository : RoomDatabase() {
     val purchaseDao get() = purchaseDao()
     protected abstract fun consumerDao(): ConsumerDao
     val consumerDao get() = consumerDao()
+
+    lateinit var dbFile: File
 
     companion object {
         // Database info
@@ -65,6 +68,9 @@ abstract class DataRepository : RoomDatabase() {
                 )
                     .fallbackToDestructiveMigration()
                     .build()
+                    .also {
+                        it.dbFile = context.getDatabasePath(databaseName)
+                    }
                 return INSTANCE!!
             }
         }

@@ -94,7 +94,7 @@ class DatabaseManagerFragment :
     }
 
     private fun archiveCurrentDatabase(alias: String) {
-        TODO()
+        viewModel.archiveCurrentDatabase(requireContext().filesDir, alias)
     }
 
     private fun importDatabase() {
