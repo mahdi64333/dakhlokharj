@@ -142,4 +142,10 @@
     <string name="import_database_from_file">Import database from file</string>
     <string name="please_enter_database_alias">Please enter an alias for your database</string>
     <string name="database_alias">Database alias</string>
+    <string name="share_archive">Share archive</string>
+    <string name="save_archive">Save archive</string>
+    <string name="delete_archive">Delete archive</string>
+    <string name="archive_name_hint">Archive name</string>
+    <string name="archive_active_status_inactive">Status: inactive</string>
+    <string name="archive_active_status_active">Status: active</string>
 </resources>

@@ -131,4 +131,10 @@
     <string name="import_database_from_file">وارد کردن پایگاه داده از فایل</string>
     <string name="please_enter_database_alias">لطفا نام مستعاری برای پایگاه داده‌ی خود وارد کنید</string>
     <string name="database_alias">نام پایگاه داده</string>
+    <string name="share_archive">اشتراک‌گذاری آرشیو</string>
+    <string name="save_archive">ذخیره‌سازی آرشیو</string>
+    <string name="delete_archive">حذف آرشیو</string>
+    <string name="archive_name_hint">نام آرشیو</string>
+    <string name="archive_active_status_active">وضعیت: فعال</string>
+    <string name="archive_active_status_inactive">وضعیت: غیرفعال</string>
 </resources>
