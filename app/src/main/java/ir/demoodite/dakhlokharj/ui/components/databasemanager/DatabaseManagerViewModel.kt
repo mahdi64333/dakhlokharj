@@ -1,5 +1,6 @@
 package ir.demoodite.dakhlokharj.ui.components.databasemanager
 
+import android.os.FileObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,20 @@ class DatabaseManagerViewModel @Inject constructor(
     private val settingsDataStore: SettingsDataStore,
     @Named(AppModule.FILES_DIR_PROVIDER) private val filesDir: File,
 ) : ViewModel() {
+    private val archiveDir = File(filesDir, "archive").also {
+        if (!it.exists()) it.mkdir()
+    }
+    val dbArchiveFileStateFlow =
+        MutableStateFlow<List<File>>(archiveDir.listFiles()?.toList() ?: listOf())
+
+    @Suppress("DEPRECATION")
+    private val dbArchiveFileObserver = object : FileObserver(archiveDir.absolutePath) {
+        override fun onEvent(event: Int, path: String?) {
+            dbArchiveFileStateFlow.update {
+                archiveDir.listFiles()?.toList() ?: listOf()
+            }
+        }
+    }
     val currentDbAliasStateFlow by lazy {
         runBlocking {
             settingsDataStore.getCurrentDbAliasFlow().stateIn(
@@ -32,11 +47,6 @@ class DatabaseManagerViewModel @Inject constructor(
     private val currentDbAlias get() = currentDbAliasStateFlow.value
 
     fun newDatabaseArchive(newDatabaseArchiveAlias: String) {
-        val archiveDir = File(filesDir, "archive")
-        if (!archiveDir.exists()) {
-            archiveDir.mkdir()
-        }
-
         // Saving the previous database archive
         saveDb(dataRepository.dbFile, archiveDir)
 
@@ -50,9 +60,9 @@ class DatabaseManagerViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val previousDbAlias = currentDbAlias.ifEmpty { "default" }
 
-            val savedArchivesNames = archiveDir.listFiles()?.map {
+            val savedArchivesNames = dbArchiveFileStateFlow.value.map {
                 it.nameWithoutExtension
-            } ?: listOf()
+            }
 
             val possibleNamesRegex = """${previousDbAlias}(_\d+)?\$""".toRegex()
             val takenFileNames = savedArchivesNames.filter {
