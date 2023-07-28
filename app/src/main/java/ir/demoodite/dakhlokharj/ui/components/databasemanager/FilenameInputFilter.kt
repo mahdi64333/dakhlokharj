@@ -4,7 +4,7 @@ import android.text.InputFilter
 import android.text.Spanned
 
 class FilenameInputFilter : InputFilter {
-    val reservedChars = "|\\?*<\":>+[]/'."
+    private val reservedChars = "|\\?*<\":>+[]/'."
 
 
     override fun filter(

@@ -11,6 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
         android:minHeight="?attr/listPreferredItemHeight"
         android:padding="@dimen/s"
         app:layout_constraintTop_toTopOf="parent">
@@ -25,6 +27,7 @@
             app:endIconDrawable="@drawable/round_check_24"
             app:endIconMode="custom"
             app:endIconTint="@color/green_add"
+            app:errorEnabled="true"
             app:hintAnimationEnabled="false"
             app:hintEnabled="false"
             app:layout_constraintTop_toTopOf="parent">
@@ -46,12 +49,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/m"
-            android:layout_marginTop="@dimen/s"
             android:textAlignment="viewStart"
             android:textAppearance="?attr/textAppearanceBodyLarge"
-            app:layout_constraintBottom_toBottomOf="@id/textInputLayout_archive_name"
-            app:layout_constraintStart_toStartOf="@id/textInputLayout_archive_name"
-            app:layout_constraintTop_toTopOf="@id/textInputLayout_archive_name"
+            app:layout_constraintBaseline_toBaselineOf="@id/textInputLayout_archive_name"
+            app:layout_constraintStart_toStartOf="@id/layout_archive_name"
             tools:text="University" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -114,7 +115,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
-            android:id="@+id/imageView_archive_active"
+            android:id="@+id/btn_active_archive"
             android:layout_width="@dimen/database_backup_button_size"
             android:layout_height="@dimen/database_backup_button_size"
             android:adjustViewBounds="true"
