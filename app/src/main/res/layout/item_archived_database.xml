@@ -55,6 +55,16 @@
             tools:text="University" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <TextView
+        android:id="@+id/tv_last_modified"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/m"
+        android:paddingVertical="@dimen/xxs"
+        android:textAppearance="?attr/textAppearanceLabelSmall"
+        app:layout_constraintTop_toBottomOf="@id/layout_archive_name"
+        tools:text="Last modified: 2023/7/28 17:48" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_options"
         android:layout_width="match_parent"
@@ -62,7 +72,7 @@
         android:orientation="horizontal"
         android:paddingHorizontal="@dimen/m"
         android:paddingVertical="@dimen/xs"
-        app:layout_constraintTop_toBottomOf="@id/layout_archive_name">
+        app:layout_constraintTop_toBottomOf="@id/tv_last_modified">
 
         <ImageButton
             android:id="@+id/btn_share_archive"
