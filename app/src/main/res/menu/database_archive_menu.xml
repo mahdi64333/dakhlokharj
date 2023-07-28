@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_archive_current_database"
-        android:title="@string/archive_current_database"
+        android:id="@+id/action_new_archive"
+        android:title="@string/new_archive"
         app:showAsAction="collapseActionView" />
     <item
         android:id="@+id/action_import_database_from_file"

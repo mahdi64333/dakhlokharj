@@ -9,11 +9,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
+import java.io.File
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+    const val FILES_DIR_PROVIDER = "FILES_DIR_PROVIDER"
 
     @Singleton
     @Provides
@@ -32,4 +35,11 @@ object AppModule {
     fun provideWorkManager(
         @ApplicationContext app: Context,
     ): WorkManager = WorkManager.getInstance(app)
+
+    @Singleton
+    @Provides
+    @Named(FILES_DIR_PROVIDER)
+    fun providesFilesDir(
+        @ApplicationContext app: Context,
+    ): File = app.filesDir
 }

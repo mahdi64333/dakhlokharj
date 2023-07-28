@@ -37,7 +37,7 @@ class DatabaseManagerFragment :
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
-                    R.id.action_archive_current_database -> {
+                    R.id.action_new_archive -> {
                         showArchiveCurrentDatabaseDialog()
                         true
                     }
@@ -70,7 +70,7 @@ class DatabaseManagerFragment :
                 getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                     val alias = validateAndGetDatabaseAliasDialog(databaseAliasDialogBinding)
                     if (alias != null) {
-                        archiveCurrentDatabase(alias)
+                        newDatabaseArchive(alias)
                         dismiss()
                     }
                 }
@@ -93,8 +93,8 @@ class DatabaseManagerFragment :
         return if (errorFlag) null else aliasText
     }
 
-    private fun archiveCurrentDatabase(alias: String) {
-        viewModel.archiveCurrentDatabase(requireContext().filesDir, alias)
+    private fun newDatabaseArchive(alias: String) {
+        viewModel.newDatabaseArchive(alias)
     }
 
     private fun importDatabase() {
