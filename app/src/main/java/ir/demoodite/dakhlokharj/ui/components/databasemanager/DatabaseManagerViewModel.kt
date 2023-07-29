@@ -65,7 +65,7 @@ class DatabaseManagerViewModel @Inject constructor(
         dbArchiveFileObserver.startWatching()
         _dbArchiveFileStateFlow.combine(currentDbFileStateFlow) { dbArchiveFiles, currentDbFile ->
             _allDbFilesStateFlow.update {
-                dbArchiveFiles.plus(currentDbFile).sortedBy { it.lastModified() }
+                dbArchiveFiles.plus(currentDbFile).sortedByDescending { it.lastModified() }
             }
         }.launchIn(viewModelScope)
     }
