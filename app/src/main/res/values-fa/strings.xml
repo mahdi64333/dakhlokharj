@@ -137,4 +137,5 @@
     <string name="archive_name_hint">نام آرشیو</string>
     <string name="archive_active_status_active">وضعیت: فعال</string>
     <string name="archive_active_status_inactive">وضعیت: غیرفعال</string>
+    <string name="last_modified_template">آخرین تغییر: %1$s</string>
 </resources>

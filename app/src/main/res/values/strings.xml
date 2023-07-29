@@ -148,4 +148,5 @@
     <string name="archive_name_hint">Archive name</string>
     <string name="archive_active_status_inactive">Status: inactive</string>
     <string name="archive_active_status_active">Status: active</string>
+    <string name="last_modified_template">Last modified: %1$s</string>
 </resources>

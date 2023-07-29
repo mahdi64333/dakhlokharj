@@ -24,14 +24,26 @@ class DatabaseManagerViewModel @Inject constructor(
     private val archiveDir = File(filesDir, "archive").also {
         if (!it.exists()) it.mkdir()
     }
-    val dbArchiveFileStateFlow =
-        MutableStateFlow<List<File>>(archiveDir.listFiles()?.toList() ?: listOf())
+    private val _currentDbFileStateFlow = MutableStateFlow<File>(dataRepository.dbFile)
+    private val currentDbFileStateFlow get() = _currentDbFileStateFlow.asStateFlow()
+    val currentDbFile get() = currentDbFileStateFlow.value
+    private val _dbArchiveFileStateFlow =
+        MutableStateFlow<List<File>>(archiveDir.listFiles()?.toList() ?: emptyList())
 
     @Suppress("DEPRECATION")
     private val dbArchiveFileObserver = object : FileObserver(archiveDir.absolutePath) {
         override fun onEvent(event: Int, path: String?) {
-            dbArchiveFileStateFlow.update {
-                archiveDir.listFiles()?.toList() ?: listOf()
+            _dbArchiveFileStateFlow.update {
+                archiveDir.listFiles()?.toList() ?: emptyList()
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private val currentDbFileObserver = object : FileObserver(currentDbFile.absolutePath) {
+        override fun onEvent(event: Int, path: String?) {
+            _currentDbFileStateFlow.update {
+                currentDbFile
             }
         }
     }
@@ -44,7 +56,19 @@ class DatabaseManagerViewModel @Inject constructor(
             )
         }
     }
-    private val currentDbAlias get() = currentDbAliasStateFlow.value
+    val currentDbAlias get() = currentDbAliasStateFlow.value
+    private val _allDbFilesStateFlow = MutableStateFlow<List<File>>(emptyList())
+    val allDbFilesStateFlow get() = _allDbFilesStateFlow.asStateFlow()
+
+    init {
+        currentDbFileObserver.startWatching()
+        dbArchiveFileObserver.startWatching()
+        _dbArchiveFileStateFlow.combine(currentDbFileStateFlow) { dbArchiveFiles, currentDbFile ->
+            _allDbFilesStateFlow.update {
+                dbArchiveFiles.plus(currentDbFile).sortedBy { it.lastModified() }
+            }
+        }.launchIn(viewModelScope)
+    }
 
     fun newDatabaseArchive(newDatabaseArchiveAlias: String) {
         // Saving the previous database archive
@@ -60,7 +84,7 @@ class DatabaseManagerViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val previousDbAlias = currentDbAlias.ifEmpty { "default" }
 
-            val savedArchivesNames = dbArchiveFileStateFlow.value.map {
+            val savedArchivesNames = _dbArchiveFileStateFlow.value.map {
                 it.nameWithoutExtension
             }
 

@@ -10,11 +10,10 @@
         android:id="@+id/layout_archive_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         android:minHeight="?attr/listPreferredItemHeight"
-        android:padding="@dimen/s"
+        android:paddingHorizontal="@dimen/s"
         app:layout_constraintTop_toTopOf="parent">
 
 
@@ -23,6 +22,7 @@
             style="?attr/textInputFilledDenseStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="invisible"
             app:boxBackgroundColor="@android:color/transparent"
             app:endIconDrawable="@drawable/round_check_24"
             app:endIconMode="custom"
@@ -44,16 +44,26 @@
                 tools:text="University" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/tv_archive_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/m"
-            android:textAlignment="viewStart"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
-            app:layout_constraintBaseline_toBaselineOf="@id/textInputLayout_archive_name"
-            app:layout_constraintStart_toStartOf="@id/layout_archive_name"
-            tools:text="University" />
+        <FrameLayout
+            android:id="@+id/layout_archive_name_label"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="@dimen/editable_label_margin_bottom"
+            android:background="?attr/selectableItemBackground"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_archive_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/m"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                tools:text="University" />
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
