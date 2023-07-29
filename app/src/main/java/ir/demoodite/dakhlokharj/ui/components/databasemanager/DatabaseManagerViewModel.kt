@@ -74,7 +74,7 @@ class DatabaseManagerViewModel @Inject constructor(
         // Saving the previous database archive
         saveDb(dataRepository.dbFile, archiveDir)
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             settingsDataStore.setCurrentDbAlias(newDatabaseArchiveAlias)
             dataRepository.clearAllTables()
         }
