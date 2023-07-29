@@ -4,86 +4,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="@dimen/s">
+    android:padding="@dimen/s">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_archive_name"
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout_archive_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        android:minHeight="?attr/listPreferredItemHeight"
-        android:paddingHorizontal="@dimen/s"
-        app:layout_constraintTop_toTopOf="parent">
+        app:boxBackgroundMode="filled"
+        app:boxStrokeWidth="0dp"
+        app:endIconDrawable="@drawable/round_check_24"
+        app:endIconMode="none"
+        app:endIconTint="@color/green_add"
+        app:layout_constraintTop_toTopOf="parent"
+        app:placeholderText="@string/archive_name_hint">
 
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout_archive_name"
-            style="?attr/textInputFilledDenseStyle"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textInputEditText_archive_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="invisible"
-            app:boxBackgroundColor="@android:color/transparent"
-            app:endIconDrawable="@drawable/round_check_24"
-            app:endIconMode="custom"
-            app:endIconTint="@color/green_add"
-            app:errorEnabled="true"
-            app:hintAnimationEnabled="false"
-            app:hintEnabled="false"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/textInputEditText_archive_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/archive_name_hint"
-                android:imeOptions="actionDone"
-                android:inputType="textPersonName"
-                android:paddingBottom="@dimen/l"
-                android:textAlignment="viewStart"
-                tools:text="University" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <FrameLayout
-            android:id="@+id/layout_archive_name_label"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/editable_label_margin_bottom"
-            android:background="?attr/selectableItemBackground"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/tv_archive_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="@dimen/m"
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                tools:text="University" />
-        </FrameLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <TextView
-        android:id="@+id/tv_last_modified"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/m"
-        android:paddingVertical="@dimen/xxs"
-        android:textAppearance="?attr/textAppearanceLabelSmall"
-        app:layout_constraintTop_toBottomOf="@id/layout_archive_name"
-        tools:text="Last modified: 2023/7/28 17:48" />
+            android:background="@android:color/transparent"
+            android:cursorVisible="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:imeOptions="actionDone"
+            android:inputType="textPersonName"
+            tools:text="University" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_options"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/xs"
         android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/m"
-        android:paddingVertical="@dimen/xs"
-        app:layout_constraintTop_toBottomOf="@id/tv_last_modified">
+        android:padding="@dimen/xs"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayout_archive_name">
 
         <ImageButton
             android:id="@+id/btn_share_archive"
@@ -95,7 +51,7 @@
             android:contentDescription="@string/share_archive"
             android:src="@drawable/round_share_24"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_active_archive"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
@@ -108,7 +64,7 @@
             android:contentDescription="@string/save_archive"
             android:src="@drawable/round_save_alt_24"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/btn_share_archive"
+            app:layout_constraintEnd_toStartOf="@id/btn_share_archive"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
@@ -121,8 +77,20 @@
             android:contentDescription="@string/delete_archive"
             android:src="@drawable/round_delete_forever_24"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/btn_save_archive"
+            app:layout_constraintEnd_toStartOf="@id/btn_save_archive"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_last_modified"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/s"
+            android:layout_marginVertical="@dimen/xs"
+            android:textAppearance="?attr/textAppearanceLabelMedium"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_delete_archive"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Last modified:\n2023/7/28 17:48" />
 
         <ImageButton
             android:id="@+id/btn_active_archive"

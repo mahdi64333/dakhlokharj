@@ -1,13 +1,13 @@
 package ir.demoodite.dakhlokharj.ui.components.databasemanager
 
 import android.text.InputFilter
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.core.content.ContextCompat
-import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import com.google.android.material.textfield.TextInputLayout
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.ItemArchivedDatabaseBinding
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
@@ -37,18 +37,14 @@ class DatabaseArchiveListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        when (holder) {
-            activeArchiveFileViewHolderPair.viewHolder -> {
-                Log.i(javaClass.name, "Active viewHolder went out")
-                holder.deactivate()
-                activeArchiveFileViewHolderPair.viewHolder = null
-            }
-            editingProgressFileViewHolderPair.viewHolder -> {
-                Log.i(javaClass.name, "Editing viewHolder went out")
-                editingAlias = holder.editingAlias
-                holder.stopEditing()
-                editingProgressFileViewHolderPair.viewHolder = null
-            }
+        if (holder == activeArchiveFileViewHolderPair.viewHolder) {
+            holder.deactivate()
+            activeArchiveFileViewHolderPair.viewHolder = null
+        }
+        if (holder == editingProgressFileViewHolderPair.viewHolder) {
+            editingAlias = holder.editingAlias
+            holder.stopEditing()
+            editingProgressFileViewHolderPair.viewHolder = null
         }
 
         holder.bind(
@@ -70,27 +66,26 @@ class DatabaseArchiveListAdapter(
             },
         )
 
-        when (getItem(position).nameWithoutExtension) {
-            activeArchiveFileViewHolderPair.file?.nameWithoutExtension -> {
-                Log.i(javaClass.name, "Active viewHolder came in")
-                holder.activate()
-                activeArchiveFileViewHolderPair.viewHolder = holder
-            }
-            editingProgressFileViewHolderPair.file?.nameWithoutExtension -> {
-                Log.i(javaClass.name, "Editing viewHolder came in")
-                holder.startEditing(editingAlias)
-                editingProgressFileViewHolderPair.viewHolder = holder
-            }
+        if (getItem(position).nameWithoutExtension == activeArchiveFileViewHolderPair.file?.nameWithoutExtension) {
+            holder.activate()
+            activeArchiveFileViewHolderPair.viewHolder = holder
+        }
+        if (getItem(position).nameWithoutExtension == editingProgressFileViewHolderPair.file?.nameWithoutExtension) {
+            holder.startEditing(editingAlias)
+            editingProgressFileViewHolderPair.viewHolder = holder
         }
     }
 
-    fun stopEditing() {
+    private fun stopEditing() {
         editingProgressFileViewHolderPair.viewHolder?.stopEditing()
     }
 
     class ViewHolder(private val binding: ItemArchivedDatabaseBinding) :
         androidx.recyclerview.widget.RecyclerView.ViewHolder(binding.root) {
         private val context get() = binding.root.context
+        private val dpUnit = UiUtil.dpToPixel(context, 1)
+        lateinit var alias: String
+        lateinit var renameCallback: (newName: String) -> Unit
         val editingAlias get() = binding.textInputEditTextArchiveName.text.toString().trim()
 
         init {
@@ -109,8 +104,9 @@ class DatabaseArchiveListAdapter(
             renameCallback: (newName: String) -> Unit,
             onStartEditing: () -> Unit,
         ) {
+            this.alias = alias
+            this.renameCallback = renameCallback
             binding.apply {
-                tvArchiveName.text = alias
                 textInputEditTextArchiveName.setText(alias)
                 tvLastModified.text = context.getString(
                     R.string.last_modified_template, LocaleHelper.formatLocalizedDate(
@@ -130,16 +126,15 @@ class DatabaseArchiveListAdapter(
                     activeArchiveOnClickListener()
                     activate()
                 }
-                textInputLayoutArchiveName.setEndIconOnClickListener {
-                    validateAndGetFilename()?.let {
-                        renameCallback(it)
-                    }
-                }
-                layoutArchiveNameLabel.setOnLongClickListener {
+                textInputEditTextArchiveName.setOnLongClickListener {
                     onStartEditing()
                     startEditing()
+                    it.requestFocus()
+                    UiUtil.showKeyboard(it)
+                    (it as EditText).setSelection(it.length())
                     true
                 }
+                textInputEditTextArchiveName.error = null
             }
         }
 
@@ -150,7 +145,7 @@ class DatabaseArchiveListAdapter(
 
             if (filename.isEmpty()) {
                 binding.textInputLayoutArchiveName.error = context.getString(R.string.its_empty)
-                UiUtil.removeErrorOnTextChange(binding.textInputEditTextArchiveName)
+                UiUtil.removeErrorOnTextChange(binding.textInputEditTextArchiveName, false)
                 errorFlag = true
             }
 
@@ -171,15 +166,36 @@ class DatabaseArchiveListAdapter(
         }
 
         fun startEditing(editingText: String? = null) {
-            binding.textInputLayoutArchiveName.isInvisible = false
-            binding.layoutArchiveNameLabel.isInvisible = true
-            binding.textInputEditTextArchiveName.setText(editingText ?: binding.tvArchiveName.text)
+            binding.textInputLayoutArchiveName.apply {
+                boxStrokeWidth = dpUnit
+                endIconMode = TextInputLayout.END_ICON_CUSTOM
+                setEndIconOnClickListener {
+                    validateAndGetFilename()?.let {
+                        stopEditing()
+                        renameCallback(it)
+                    }
+                }
+            }
+            binding.textInputEditTextArchiveName.apply {
+                setText(editingText ?: alias)
+                isFocusable = true
+                isFocusableInTouchMode = true
+                isCursorVisible = true
+            }
         }
 
         fun stopEditing() {
-            binding.textInputLayoutArchiveName.isInvisible = true
-            binding.layoutArchiveNameLabel.isInvisible = false
-            binding.textInputEditTextArchiveName.setText(binding.tvArchiveName.text)
+            binding.textInputLayoutArchiveName.apply {
+                boxStrokeWidth = 0
+                endIconMode = TextInputLayout.END_ICON_NONE
+            }
+            binding.textInputEditTextArchiveName.apply {
+                setText(alias)
+                UiUtil.hideKeyboard(this)
+                isFocusable = false
+                isFocusableInTouchMode = false
+                isCursorVisible = false
+            }
         }
     }
 

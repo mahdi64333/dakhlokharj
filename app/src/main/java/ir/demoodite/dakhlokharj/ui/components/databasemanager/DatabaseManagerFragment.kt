@@ -77,9 +77,8 @@ class DatabaseManagerFragment :
             MaterialDividerItemDecoration(
                 requireContext(),
                 MaterialDividerItemDecoration.VERTICAL
-            ).apply {
-                isLastItemDecorated = false
-            })
+            )
+        )
     }
 
     private fun setupMenuProvider() {
