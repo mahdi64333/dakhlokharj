@@ -16,7 +16,7 @@ import saman.zamani.persiandate.PersianDate
 import java.io.File
 
 class DatabaseArchiveListAdapter(
-    var activeArchiveAlias: String,
+    activeArchiveAlias: String,
     activeArchiveFile: File,
     private val shareOnClickListener: (File) -> Unit,
     private val saveOnClickListener: (File) -> Unit,
@@ -28,6 +28,13 @@ class DatabaseArchiveListAdapter(
 ) {
     private var activeArchiveFileViewHolderPair = FileViewHolderPair(activeArchiveFile, null)
     private var editingProgressFileViewHolderPair = FileViewHolderPair(null, null)
+    var activeArchiveAlias = activeArchiveAlias
+        set(value) {
+            field = value
+            activeArchiveFileViewHolderPair.viewHolder?.let {
+                it.alias = value
+            }
+        }
     private var editingAlias: String? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -84,7 +91,11 @@ class DatabaseArchiveListAdapter(
         androidx.recyclerview.widget.RecyclerView.ViewHolder(binding.root) {
         private val context get() = binding.root.context
         private val dpUnit = UiUtil.dpToPixel(context, 1)
-        lateinit var alias: String
+        var alias: String = ""
+            set(value) {
+                field = value
+                binding.textInputEditTextArchiveName.setText(alias)
+            }
         lateinit var renameCallback: (newName: String) -> Unit
         val editingAlias get() = binding.textInputEditTextArchiveName.text.toString().trim()
 
@@ -107,7 +118,6 @@ class DatabaseArchiveListAdapter(
             this.alias = alias
             this.renameCallback = renameCallback
             binding.apply {
-                textInputEditTextArchiveName.setText(alias)
                 tvLastModified.text = context.getString(
                     R.string.last_modified_template, LocaleHelper.formatLocalizedDate(
                         PersianDate(lastModified)
