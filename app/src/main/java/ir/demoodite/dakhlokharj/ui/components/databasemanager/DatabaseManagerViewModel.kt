@@ -24,7 +24,7 @@ class DatabaseManagerViewModel @Inject constructor(
     private val archiveDir = File(filesDir, "archive").also {
         if (!it.exists()) it.mkdir()
     }
-    private val _currentDbFileStateFlow = MutableStateFlow<File>(dataRepository.dbFile)
+    private val _currentDbFileStateFlow = MutableStateFlow(dataRepository.dbFile)
     private val currentDbFileStateFlow get() = _currentDbFileStateFlow.asStateFlow()
     val currentDbFile get() = currentDbFileStateFlow.value
     private val _dbArchiveFileStateFlow =
@@ -72,7 +72,7 @@ class DatabaseManagerViewModel @Inject constructor(
 
     fun newDatabaseArchive(newDatabaseArchiveAlias: String) {
         // Saving the previous database archive
-        saveDb(dataRepository.dbFile, archiveDir)
+        archiveCurrentDb()
 
         viewModelScope.launch(Dispatchers.IO) {
             settingsDataStore.setCurrentDbAlias(newDatabaseArchiveAlias)
@@ -80,7 +80,7 @@ class DatabaseManagerViewModel @Inject constructor(
         }
     }
 
-    private fun saveDb(dbFile: File, archiveDir: File) {
+    private fun archiveCurrentDb() {
         viewModelScope.launch(Dispatchers.IO) {
             val previousDbAlias = currentDbAlias.ifEmpty { "default" }
 
@@ -103,7 +103,14 @@ class DatabaseManagerViewModel @Inject constructor(
             }
 
             val archivedDbFile = File(archiveDir, "${dbFileName}.db")
-            archivedDbFile.writeBytes(dbFile.readBytes())
+            archivedDbFile.writeBytes(dataRepository.dbFile.readBytes())
         }
+    }
+
+    fun activateArchive(archiveDbFile: File) {
+        archiveCurrentDb()
+
+        dataRepository.dbFile.writeBytes(archiveDbFile.readBytes())
+        archiveDbFile.delete()
     }
 }

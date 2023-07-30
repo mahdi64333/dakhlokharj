@@ -69,7 +69,7 @@ class DatabaseManagerFragment :
             shareOnClickListener = { TODO() },
             saveOnClickListener = { TODO() },
             deleteOnClickListener = { TODO() },
-            activeArchiveOnClickListener = { TODO() },
+            activeArchiveOnClickListener = { viewModel.activateArchive(it) },
             newFilenameCallback = { file, newName -> TODO() },
         )
         binding.rvArchives.layoutManager = LinearLayoutManager(requireContext())
