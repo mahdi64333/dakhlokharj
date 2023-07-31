@@ -17,6 +17,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ConsumerDao {
     @Query(
+        "SELECT * FROM $consumersTableName"
+    )
+    fun getAll(): Flow<List<Consumer>>
+
+    @Query(
         "SELECT $residentName FROM $purchasesTableName " +
                 "LEFT JOIN $consumersTableName ON $purchaseId = $consumedProductId " +
                 "LEFT JOIN $residentsTableName ON $consumerResidentId = $residentId " +

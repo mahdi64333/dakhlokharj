@@ -24,6 +24,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PurchaseDao {
     @Query(
+        "SELECT * FROM $purchasesTableName"
+    )
+    fun getAll(): Flow<List<Purchase>>
+
+    @Query(
         "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
                 "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
                 "FROM $purchasesTableName " +
@@ -139,6 +144,9 @@ interface PurchaseDao {
 
     @Insert
     suspend fun insert(purchase: Purchase): Long
+
+    @Insert
+    suspend fun insert(purchases: List<Purchase>)
 
     @Delete
     suspend fun delete(purchase: Purchase)

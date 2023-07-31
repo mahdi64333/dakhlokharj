@@ -24,6 +24,11 @@ object AppModule {
         @ApplicationContext app: Context,
     ): DataRepository = DataRepository.getDatabase(app)
 
+    @Provides
+    fun provideDatabaseImporter(
+        @ApplicationContext app: Context,
+    ): DataRepository.Companion.DatabaseImporter = DataRepository.Companion.DatabaseImporter(app)
+
     @Singleton
     @Provides
     fun provideSettingsDataStore(

@@ -56,7 +56,7 @@ class DatabaseManagerFragment :
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.currentDbAliasStateFlow.collectLatest {
                     val adapter = binding.rvArchives.adapter as DatabaseArchiveListAdapter
-                    adapter.activeArchiveAlias = it
+                    adapter.activeArchiveAlias = it.ifEmpty { getString(R.string.app_name) }
                 }
             }
         }
@@ -68,9 +68,9 @@ class DatabaseManagerFragment :
             activeArchiveFile = viewModel.currentDbFile,
             shareOnClickListener = { TODO() },
             saveOnClickListener = { TODO() },
-            deleteOnClickListener = { TODO() },
+            deleteOnClickListener = { viewModel.deleteArchive(it) },
             activeArchiveOnClickListener = { viewModel.activateArchive(it) },
-            newFilenameCallback = { file, newName -> TODO() },
+            newFilenameCallback = { file, newName -> viewModel.renameArchive(file, newName) },
         )
         binding.rvArchives.layoutManager = LinearLayoutManager(requireContext())
         binding.rvArchives.addItemDecoration(

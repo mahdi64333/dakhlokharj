@@ -39,7 +39,7 @@ interface ResidentDao {
                 "   ON $residentsTableName.$residentId = $purchasesTableName.$purchaseBuyerId " +
                 "   GROUP BY $residentId" +
                 "), " +
-        "debts AS " +
+                "debts AS " +
                 "(" +
                 "   SELECT $residentId, SUM(splitPrice) AS debt " +
                 "   FROM $residentsTableName " +
@@ -57,7 +57,7 @@ interface ResidentDao {
                 "   ON $consumersTableName.$consumedProductId = splitPrices.$purchaseId " +
                 "   GROUP BY $residentId" +
                 ") " +
-        " SELECT $residentsTableName.$residentName, credits.credit AS credit, debts.debt AS debt " +
+                " SELECT $residentsTableName.$residentName, credits.credit AS credit, debts.debt AS debt " +
                 "FROM $residentsTableName, credits, debts " +
                 "WHERE $residentActive = 1 " +
                 "AND credits.$residentId = $residentsTableName.$residentId " +
@@ -104,6 +104,9 @@ interface ResidentDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(resident: Resident): Long
+
+    @Insert
+    suspend fun insert(residents: List<Resident>)
 
     @Update(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(resident: Resident): Int

@@ -20,6 +20,7 @@ class DatabaseManagerViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     private val settingsDataStore: SettingsDataStore,
     @Named(AppModule.FILES_DIR_PROVIDER) private val filesDir: File,
+    private val databaseImporter: DataRepository.Companion.DatabaseImporter,
 ) : ViewModel() {
     private val archiveDir = File(filesDir, "archive").also {
         if (!it.exists()) it.mkdir()
@@ -71,46 +72,68 @@ class DatabaseManagerViewModel @Inject constructor(
     }
 
     fun newDatabaseArchive(newDatabaseArchiveAlias: String) {
-        // Saving the previous database archive
-        archiveCurrentDb()
-
         viewModelScope.launch(Dispatchers.IO) {
+            archiveCurrentDb()
+
             settingsDataStore.setCurrentDbAlias(newDatabaseArchiveAlias)
             dataRepository.clearAllTables()
         }
     }
 
     private fun archiveCurrentDb() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val previousDbAlias = currentDbAlias.ifEmpty { "default" }
+        val currentDbAlias = currentDbAlias.ifEmpty { "default" }
+        val newArchiveFilename = createUniqueArchiveFilename(currentDbAlias)
+        val newArchiveFile = File(archiveDir, "${newArchiveFilename}.db")
+        newArchiveFile.writeBytes(dataRepository.dbFile.readBytes())
+    }
 
-            val savedArchivesNames = _dbArchiveFileStateFlow.value.map {
-                it.nameWithoutExtension
-            }
+    private fun createUniqueArchiveFilename(alias: String): String {
+        val savedArchivesNames = _dbArchiveFileStateFlow.value.map {
+            it.nameWithoutExtension
+        }
 
-            val possibleNamesRegex = """${previousDbAlias}(_\d+)?\$""".toRegex()
-            val takenFileNames = savedArchivesNames.filter {
-                possibleNamesRegex matches it
-            }.sorted()
+        val possibleNamesRegex = """${alias}(_\d+)?\$""".toRegex()
+        val takenFileNames = savedArchivesNames.filter {
+            possibleNamesRegex matches it
+        }.sorted()
 
-            val dbFileName = if (takenFileNames.isEmpty()) {
-                previousDbAlias
-            } else {
-                val suffixNumberRegex = """(?<=_)\d+\$""".toRegex()
-                val suffixNumber =
-                    suffixNumberRegex.find(takenFileNames.last())?.value?.toIntOrNull() ?: 0
-                "${previousDbAlias}_${suffixNumber}"
-            }
-
-            val archivedDbFile = File(archiveDir, "${dbFileName}.db")
-            archivedDbFile.writeBytes(dataRepository.dbFile.readBytes())
+        return if (takenFileNames.isEmpty()) {
+            alias
+        } else {
+            val suffixNumberRegex = """(?<=_)\d+\$""".toRegex()
+            val suffixNumber =
+                suffixNumberRegex.find(takenFileNames.last())?.value?.toIntOrNull() ?: 0
+            "${alias}_${suffixNumber}"
         }
     }
 
-    fun activateArchive(archiveDbFile: File) {
-        archiveCurrentDb()
+    fun activateArchive(archiveFile: File) {
+        viewModelScope.launch(Dispatchers.IO) {
+            archiveCurrentDb()
+            settingsDataStore.setCurrentDbAlias(archiveFile.nameWithoutExtension)
+            databaseImporter.importDb(archiveFile)
+            archiveFile.delete()
+        }
+    }
 
-        dataRepository.dbFile.writeBytes(archiveDbFile.readBytes())
-        archiveDbFile.delete()
+    fun renameArchive(archiveFile: File, newName: String) {
+        if (archiveFile.absolutePath == currentDbFile.absolutePath) {
+            viewModelScope.launch {
+                settingsDataStore.setCurrentDbAlias(newName)
+            }
+        } else {
+            archiveFile.renameTo(File(archiveDir, createUniqueArchiveFilename(newName)))
+        }
+    }
+
+    fun deleteArchive(archiveFile: File) {
+        if (archiveFile.absolutePath == currentDbFile.absolutePath) {
+            viewModelScope.launch(Dispatchers.IO) {
+                dataRepository.clearAllTables()
+                settingsDataStore.setCurrentDbAlias("")
+            }
+        } else {
+            archiveFile.delete()
+        }
     }
 }

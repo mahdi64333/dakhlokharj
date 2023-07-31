@@ -10,6 +10,7 @@ import ir.demoodite.dakhlokharj.data.room.dao.ResidentDao
 import ir.demoodite.dakhlokharj.data.room.models.Consumer
 import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import ir.demoodite.dakhlokharj.data.room.models.Resident
+import kotlinx.coroutines.flow.first
 import java.io.File
 
 @Database(
@@ -35,6 +36,7 @@ abstract class DataRepository : RoomDatabase() {
     companion object {
         // Database info
         private const val databaseName = "dakhlokharj.db"
+        private const val tempDatabaseName = "temp.db"
 
         // Residents table keys
         const val residentsTableName = "residents"
@@ -61,17 +63,48 @@ abstract class DataRepository : RoomDatabase() {
 
         fun getDatabase(context: Context): DataRepository {
             return INSTANCE ?: synchronized(this) {
-                INSTANCE = Room.databaseBuilder(
-                    context.applicationContext,
-                    DataRepository::class.java,
-                    databaseName
-                )
-                    .fallbackToDestructiveMigration()
-                    .build()
-                    .also {
-                        it.dbFile = context.getDatabasePath(databaseName)
-                    }
+                INSTANCE = getDatabaseBuilder(context, databaseName).build().also {
+                    it.dbFile = context.getDatabasePath(databaseName)
+                }
                 return INSTANCE!!
+            }
+        }
+
+        private fun getDatabaseBuilder(
+            context: Context,
+            databaseName: String,
+        ): Builder<DataRepository> {
+            return Room.databaseBuilder(
+                context.applicationContext,
+                DataRepository::class.java,
+                databaseName
+            )
+                .fallbackToDestructiveMigration()
+                .setJournalMode(JournalMode.TRUNCATE)
+        }
+
+        class DatabaseImporter(context: Context) {
+            private val tempDatabaseBuilder = getDatabaseBuilder(context, tempDatabaseName)
+            private val tempDatabaseFile = context.getDatabasePath(tempDatabaseName)
+            private val database = getDatabase(context)
+
+            suspend fun importDb(file: File): Boolean {
+                return try {
+                    val tempDatabase = tempDatabaseBuilder.createFromFile(file).build()
+
+                    database.clearAllTables()
+                    database.residentDao.insert(tempDatabase.residentDao.getAll().first())
+                    database.purchaseDao.insert(tempDatabase.purchaseDao.getAll().first())
+                    database.consumerDao.insert(tempDatabase.consumerDao.getAll().first())
+
+                    tempDatabase.close()
+                    tempDatabaseFile.delete()
+
+                    true
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    false
+                }
             }
         }
     }
