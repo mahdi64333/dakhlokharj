@@ -45,7 +45,7 @@ class DatabaseManagerFragment :
     private fun startDataCollection() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.allDbFilesStateFlow.collectLatest {
+                viewModel.allDbArchivesStateFlow.collectLatest {
                     val adapter = binding.rvArchives.adapter as DatabaseArchiveListAdapter
                     adapter.submitList(it)
                 }
@@ -65,7 +65,6 @@ class DatabaseManagerFragment :
     private fun setupDatabaseArchiveUi() {
         binding.rvArchives.adapter = DatabaseArchiveListAdapter(
             activeArchiveAlias = viewModel.currentDbAlias,
-            activeArchiveFile = viewModel.currentDbFile,
             shareOnClickListener = { TODO() },
             saveOnClickListener = { TODO() },
             deleteOnClickListener = { viewModel.deleteArchive(it) },

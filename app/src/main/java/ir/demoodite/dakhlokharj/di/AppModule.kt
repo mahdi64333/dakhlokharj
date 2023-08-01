@@ -17,6 +17,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
     const val FILES_DIR_PROVIDER = "FILES_DIR_PROVIDER"
+    const val CACHE_DIR_PROVIDER = "CACHE_DIR_PROVIDER"
 
     @Singleton
     @Provides
@@ -47,4 +48,11 @@ object AppModule {
     fun providesFilesDir(
         @ApplicationContext app: Context,
     ): File = app.filesDir
+
+    @Singleton
+    @Provides
+    @Named(CACHE_DIR_PROVIDER)
+    fun providesCacheDir(
+        @ApplicationContext app: Context,
+    ): File = app.cacheDir
 }

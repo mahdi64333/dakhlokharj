@@ -20,32 +20,28 @@ class DatabaseManagerViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     private val settingsDataStore: SettingsDataStore,
     @Named(AppModule.FILES_DIR_PROVIDER) private val filesDir: File,
+    @Named(AppModule.CACHE_DIR_PROVIDER) private val cacheDir: File,
     private val databaseImporter: DataRepository.Companion.DatabaseImporter,
 ) : ViewModel() {
     private val archiveDir = File(filesDir, "archive").also {
         if (!it.exists()) it.mkdir()
     }
-    private val _currentDbFileStateFlow = MutableStateFlow(dataRepository.dbFile)
-    private val currentDbFileStateFlow get() = _currentDbFileStateFlow.asStateFlow()
-    val currentDbFile get() = currentDbFileStateFlow.value
-    private val _dbArchiveFileStateFlow =
-        MutableStateFlow<List<File>>(archiveDir.listFiles()?.toList() ?: emptyList())
+    val currentDbFile get() = dataRepository.dbFile
+    private val _allDbArchivesStateFlow =
+        MutableStateFlow<List<Pair<File, String>>>(emptyList())
+    val allDbArchivesStateFlow get() = _allDbArchivesStateFlow.asStateFlow()
 
     @Suppress("DEPRECATION")
     private val dbArchiveFileObserver = object : FileObserver(archiveDir.absolutePath) {
         override fun onEvent(event: Int, path: String?) {
-            _dbArchiveFileStateFlow.update {
-                archiveDir.listFiles()?.toList() ?: emptyList()
-            }
+            updateFilesList()
         }
     }
 
     @Suppress("DEPRECATION")
     private val currentDbFileObserver = object : FileObserver(currentDbFile.absolutePath) {
         override fun onEvent(event: Int, path: String?) {
-            _currentDbFileStateFlow.update {
-                currentDbFile
-            }
+            updateFilesList()
         }
     }
     val currentDbAliasStateFlow by lazy {
@@ -58,17 +54,36 @@ class DatabaseManagerViewModel @Inject constructor(
         }
     }
     val currentDbAlias get() = currentDbAliasStateFlow.value
-    private val _allDbFilesStateFlow = MutableStateFlow<List<File>>(emptyList())
-    val allDbFilesStateFlow get() = _allDbFilesStateFlow.asStateFlow()
 
     init {
+        startFileObservers()
+        viewModelScope.launch {
+            currentDbAliasStateFlow.collectLatest {
+                updateFilesList()
+            }
+        }
+    }
+
+    private fun updateFilesList() {
+        val archivedFilesWithAlias = archiveDir.listFiles()?.map {
+            Pair(it, it.nameWithoutExtension)
+        } ?: emptyList()
+        val currentDbWithAlias = Pair(dataRepository.dbFile, currentDbAlias)
+
+        _allDbArchivesStateFlow.update {
+            listOf(currentDbWithAlias).plus(archivedFilesWithAlias)
+                .sortedByDescending { it.first.lastModified() }
+        }
+    }
+
+    private fun startFileObservers() {
         currentDbFileObserver.startWatching()
         dbArchiveFileObserver.startWatching()
-        _dbArchiveFileStateFlow.combine(currentDbFileStateFlow) { dbArchiveFiles, currentDbFile ->
-            _allDbFilesStateFlow.update {
-                listOf(currentDbFile).plus(dbArchiveFiles).sortedByDescending { it.lastModified() }
-            }
-        }.launchIn(viewModelScope)
+    }
+
+    private fun stopFileObservers() {
+        currentDbFileObserver.stopWatching()
+        dbArchiveFileObserver.stopWatching()
     }
 
     fun newDatabaseArchive(newDatabaseArchiveAlias: String) {
@@ -88,8 +103,8 @@ class DatabaseManagerViewModel @Inject constructor(
     }
 
     private fun createUniqueArchiveFilename(alias: String): String {
-        val savedArchivesNames = _dbArchiveFileStateFlow.value.map {
-            it.nameWithoutExtension
+        val savedArchivesNames = _allDbArchivesStateFlow.value.map {
+            it.second
         }
 
         val possibleNamesRegex = """${alias}(_\d+)?\$""".toRegex()
@@ -109,10 +124,14 @@ class DatabaseManagerViewModel @Inject constructor(
 
     fun activateArchive(archiveFile: File) {
         viewModelScope.launch(Dispatchers.IO) {
+            stopFileObservers()
             archiveCurrentDb()
+            val cacheDbFile = File(cacheDir, "cache_db_file.db")
+            archiveFile.renameTo(cacheDbFile)
+            databaseImporter.importDb(cacheDbFile)
+            cacheDbFile.delete()
             settingsDataStore.setCurrentDbAlias(archiveFile.nameWithoutExtension)
-            databaseImporter.importDb(archiveFile)
-            archiveFile.delete()
+            startFileObservers()
         }
     }
 

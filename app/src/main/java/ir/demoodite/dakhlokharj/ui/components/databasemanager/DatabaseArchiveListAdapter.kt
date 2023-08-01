@@ -16,25 +16,17 @@ import saman.zamani.persiandate.PersianDate
 import java.io.File
 
 class DatabaseArchiveListAdapter(
-    activeArchiveAlias: String,
-    activeArchiveFile: File,
+    var activeArchiveAlias: String,
     private val shareOnClickListener: (File) -> Unit,
     private val saveOnClickListener: (File) -> Unit,
     private val deleteOnClickListener: (File) -> Unit,
     private val activeArchiveOnClickListener: (File) -> Unit,
     private val newFilenameCallback: (File, newName: String) -> Unit,
-) : ListAdapter<File, DatabaseArchiveListAdapter.ViewHolder>(
+) : ListAdapter<Pair<File, String>, DatabaseArchiveListAdapter.ViewHolder>(
     diffCallback
 ) {
-    private var activeArchiveFileViewHolderPair = FileViewHolderPair(activeArchiveFile, null)
-    private var editingProgressFileViewHolderPair = FileViewHolderPair(null, null)
-    var activeArchiveAlias = activeArchiveAlias
-        set(value) {
-            field = value
-            activeArchiveFileViewHolderPair.viewHolder?.let {
-                it.alias = value
-            }
-        }
+    private var activeArchiveViewHolder: ViewHolder? = null
+    private var editingViewHolder: ViewHolder? = null
     private var editingAlias: String? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -43,55 +35,62 @@ class DatabaseArchiveListAdapter(
         )
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (holder == activeArchiveFileViewHolderPair.viewHolder) {
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+
+        if (holder == activeArchiveViewHolder) {
             holder.deactivate()
-            activeArchiveFileViewHolderPair.viewHolder = null
+            activeArchiveViewHolder = null
         }
-        if (holder == editingProgressFileViewHolderPair.viewHolder) {
+
+        if (holder == editingViewHolder) {
             editingAlias = holder.editingAlias
             holder.stopEditing()
-            editingProgressFileViewHolderPair.viewHolder = null
-        }
-
-        holder.bind(
-            alias = if (getItem(position) === activeArchiveFileViewHolderPair.file) activeArchiveAlias
-            else getItem(position).nameWithoutExtension,
-            lastModified = getItem(position).lastModified(),
-            shareOnClickListener = { shareOnClickListener(getItem(position)) },
-            saveOnClickListener = { saveOnClickListener(getItem(position)) },
-            deleteOnClickListener = { deleteOnClickListener(getItem(position)) },
-            activeArchiveOnClickListener = {
-                activeArchiveFileViewHolderPair.viewHolder?.deactivate()
-                activeArchiveFileViewHolderPair = FileViewHolderPair(getItem(position), holder)
-                activeArchiveOnClickListener(getItem(position))
-            },
-            renameCallback = { newFilenameCallback(getItem(position), it) },
-            onStartEditing = {
-                stopEditing()
-                editingProgressFileViewHolderPair = FileViewHolderPair(getItem(position), holder)
-            },
-        )
-
-        if (getItem(position).nameWithoutExtension == activeArchiveFileViewHolderPair.file?.nameWithoutExtension) {
-            holder.activate()
-            activeArchiveFileViewHolderPair.viewHolder = holder
-        }
-        if (getItem(position).nameWithoutExtension == editingProgressFileViewHolderPair.file?.nameWithoutExtension) {
-            holder.startEditing(editingAlias)
-            editingProgressFileViewHolderPair.viewHolder = holder
+            editingViewHolder = null
         }
     }
 
-    private fun stopEditing() {
-        editingProgressFileViewHolderPair.viewHolder?.stopEditing()
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(
+            alias = getItem(position).second,
+            lastModified = getItem(position).first.lastModified(),
+            shareOnClickListener = { shareOnClickListener(getItem(position).first) },
+            saveOnClickListener = { saveOnClickListener(getItem(position).first) },
+            deleteOnClickListener = { deleteOnClickListener(getItem(position).first) },
+            activeArchiveOnClickListener = {
+                activeArchiveViewHolder?.deactivate()
+                activeArchiveOnClickListener(getItem(position).first)
+                activeArchiveViewHolder = holder
+            },
+            renameCallback = { newFilenameCallback(getItem(position).first, it) },
+            onStartEditing = {
+                stopEditing()
+                editingViewHolder = holder
+                editingAlias = getItem(position).second
+            },
+        )
+
+        if (getItem(position).second == activeArchiveAlias) {
+            holder.activate()
+            activeArchiveViewHolder = holder
+        }
+        if (getItem(position).second == editingAlias) {
+            holder.startEditing(editingAlias)
+            editingViewHolder = holder
+        }
+    }
+
+    fun stopEditing() {
+        editingViewHolder?.stopEditing()
+        editingAlias = null
+        editingViewHolder = null
     }
 
     class ViewHolder(private val binding: ItemArchivedDatabaseBinding) :
         androidx.recyclerview.widget.RecyclerView.ViewHolder(binding.root) {
         private val context get() = binding.root.context
         private val dpUnit = UiUtil.dpToPixel(context, 1)
-        var alias: String = ""
+        private var alias: String = ""
             set(value) {
                 field = value
                 binding.textInputEditTextArchiveName.setText(alias)
@@ -134,7 +133,6 @@ class DatabaseArchiveListAdapter(
                 }
                 btnActiveArchive.setOnClickListener {
                     activeArchiveOnClickListener()
-                    activate()
                 }
                 textInputEditTextArchiveName.setOnLongClickListener {
                     onStartEditing()
@@ -210,26 +208,21 @@ class DatabaseArchiveListAdapter(
     }
 
     companion object {
-        private val diffCallback = object : DiffUtil.ItemCallback<File>() {
+        private val diffCallback = object : DiffUtil.ItemCallback<Pair<File, String>>() {
             override fun areItemsTheSame(
-                oldItem: File,
-                newItem: File,
+                oldItem: Pair<File, String>,
+                newItem: Pair<File, String>,
             ): Boolean {
                 return oldItem === newItem
             }
 
             override fun areContentsTheSame(
-                oldItem: File,
-                newItem: File,
+                oldItem: Pair<File, String>,
+                newItem: Pair<File, String>,
             ): Boolean {
-                return oldItem.nameWithoutExtension == newItem.nameWithoutExtension && oldItem.lastModified() == newItem.lastModified()
+                return oldItem.second == newItem.second && oldItem.first.lastModified() == newItem.first.lastModified()
             }
 
         }
     }
-
-    data class FileViewHolderPair(
-        var file: File?,
-        var viewHolder: ViewHolder?,
-    )
 }
