@@ -107,7 +107,7 @@ class DatabaseManagerViewModel @Inject constructor(
             it.second
         }
 
-        val possibleNamesRegex = """${alias}(_\d+)?\$""".toRegex()
+        val possibleNamesRegex = """$alias( \(\d+\))?\$""".toRegex()
         val takenFileNames = savedArchivesNames.filter {
             possibleNamesRegex matches it
         }.sorted()
@@ -115,7 +115,7 @@ class DatabaseManagerViewModel @Inject constructor(
         return if (takenFileNames.isEmpty()) {
             alias
         } else {
-            val suffixNumberRegex = """(?<=_)\d+\$""".toRegex()
+            val suffixNumberRegex = """(?<= \()\d+(?=\)\$)""".toRegex()
             val suffixNumber =
                 suffixNumberRegex.find(takenFileNames.last())?.value?.toIntOrNull() ?: 0
             "${alias}_${suffixNumber}"
