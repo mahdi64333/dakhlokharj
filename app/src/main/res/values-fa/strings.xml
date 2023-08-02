@@ -138,4 +138,5 @@
     <string name="archive_active_status_active">وضعیت: فعال</string>
     <string name="archive_active_status_inactive">وضعیت: غیرفعال</string>
     <string name="last_modified_template">آخرین تغییر:\n%1$s</string>
+    <string name="saved_successfully_in">محل ذخیره‌سازی: %1$s</string>
 </resources>

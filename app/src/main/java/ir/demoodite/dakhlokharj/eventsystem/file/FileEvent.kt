@@ -1,8 +1,8 @@
 package ir.demoodite.dakhlokharj.eventsystem.file
 
-import android.net.Uri
+import java.io.File
 
 data class FileEvent(
     val type: FileEventType,
-    val uri: Uri,
+    val file: File,
 )
