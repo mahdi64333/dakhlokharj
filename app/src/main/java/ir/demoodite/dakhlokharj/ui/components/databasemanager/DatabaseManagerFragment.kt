@@ -19,9 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.FragmentDatabaseManagerBinding
 import ir.demoodite.dakhlokharj.databinding.ViewDialogDatabaseAliasBinding
-import ir.demoodite.dakhlokharj.eventsystem.file.FileEvent
 import ir.demoodite.dakhlokharj.eventsystem.file.FileEventChannel
-import ir.demoodite.dakhlokharj.eventsystem.file.FileEventType
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
@@ -72,8 +70,8 @@ class DatabaseManagerFragment :
             saveOnClickListener = {
                 lifecycleScope.launch {
                     FileEventChannel.getSender().send(
-                        FileEvent(
-                            FileEventType.SAVE_FILE,
+                        FileEventChannel.FileEvent(
+                            FileEventChannel.FileEventType.SAVE_FILE,
                             it,
                         )
                     )

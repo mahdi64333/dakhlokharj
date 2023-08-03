@@ -19,7 +19,6 @@ import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.databinding.ActivityMainBinding
 import ir.demoodite.dakhlokharj.eventsystem.file.FileEventChannel
-import ir.demoodite.dakhlokharj.eventsystem.file.FileEventType
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -65,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             FileEventChannel.getReceiver().collectLatest {
                 when (it.type) {
-                    FileEventType.SAVE_FILE -> saveFile(it.file)
+                    FileEventChannel.FileEventType.SAVE_FILE -> saveFile(it.file)
                 }
             }
         }
