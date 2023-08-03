@@ -66,7 +66,16 @@ class DatabaseManagerFragment :
     private fun setupDatabaseArchiveUi() {
         binding.rvArchives.adapter = DatabaseArchiveListAdapter(
             activeArchiveAlias = viewModel.currentDbAlias,
-            shareOnClickListener = { TODO() },
+            shareOnClickListener = {
+                lifecycleScope.launch {
+                    FileEventChannel.getSender().send(
+                        FileEventChannel.FileEvent(
+                            FileEventChannel.FileEventType.SHARE_FILE,
+                            it,
+                        )
+                    )
+                }
+            },
             saveOnClickListener = {
                 lifecycleScope.launch {
                     FileEventChannel.getSender().send(

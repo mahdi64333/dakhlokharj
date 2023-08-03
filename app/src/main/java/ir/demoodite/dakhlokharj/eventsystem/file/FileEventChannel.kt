@@ -34,5 +34,6 @@ object FileEventChannel {
 
     enum class FileEventType {
         SAVE_FILE,
+        SHARE_FILE,
     }
 }

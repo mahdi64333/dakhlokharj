@@ -8,6 +8,7 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.core.view.isGone
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -65,6 +66,7 @@ class MainActivity : AppCompatActivity() {
             FileEventChannel.getReceiver().collectLatest {
                 when (it.type) {
                     FileEventChannel.FileEventType.SAVE_FILE -> saveFile(it.file)
+                    FileEventChannel.FileEventType.SHARE_FILE -> shareFile(it.file)
                 }
             }
         }
@@ -103,6 +105,21 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.LENGTH_LONG
             ).show()
         }
+        pendingFile = null
+    }
+
+    private fun shareFile(file: File) {
+        val sharingCacheDir = File(cacheDir, "sharing").also { if (!it.exists()) it.mkdir() }
+        val sharingFile = File(sharingCacheDir, file.name)
+        sharingFile.outputStream().use {
+            it.write(file.readBytes())
+        }
+        val fileUri = FileProvider.getUriForFile(this, "$packageName.FileProvider", sharingFile)
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.type = "application/*"
+        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+        startActivity(shareIntent)
+        sharingFile.deleteOnExit()
     }
 
     private fun setupLanguageSettingDataCollection() {
