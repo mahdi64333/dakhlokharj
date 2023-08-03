@@ -1,12 +1,17 @@
 package ir.demoodite.dakhlokharj.ui.components.databasemanager
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputFilter
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.FileProvider
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -15,20 +20,30 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.divider.MaterialDividerItemDecoration
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.FragmentDatabaseManagerBinding
 import ir.demoodite.dakhlokharj.databinding.ViewDialogDatabaseAliasBinding
-import ir.demoodite.dakhlokharj.eventsystem.file.FileEventChannel
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 @AndroidEntryPoint
 class DatabaseManagerFragment :
     BaseFragment<FragmentDatabaseManagerBinding>(FragmentDatabaseManagerBinding::inflate) {
     private val viewModel: DatabaseManagerViewModel by viewModels()
+    private val createAndSaveFileActivityResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let {
+                    saveFileToUri(it)
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +56,66 @@ class DatabaseManagerFragment :
 
         setupMenuProvider()
         setupDatabaseArchiveUi()
+    }
+
+    private fun saveFile(file: File) {
+        val pendingFile = File(requireContext().cacheDir, "saving.db")
+        pendingFile.outputStream().use {
+            it.write(file.readBytes())
+        }
+
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/x-sqlite3"
+            putExtra(Intent.EXTRA_TITLE, file.name)
+        }
+
+        createAndSaveFileActivityResultLauncher.launch(intent)
+    }
+
+    private fun saveFileToUri(uri: Uri) {
+        try {
+            requireContext().contentResolver.openFileDescriptor(uri, "w")?.use {
+                FileOutputStream(it.fileDescriptor).use { outputStream ->
+                    val pendingFile = File(requireContext().cacheDir, "saving.db")
+                    outputStream.write(pendingFile.readBytes())
+                    Snackbar.make(
+                        binding.root,
+                        getString(
+                            R.string.saved_successfully
+                        ),
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                    pendingFile.deleteOnExit()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Snackbar.make(
+                binding.root,
+                getString(R.string.operation_failed),
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun shareFile(file: File) {
+        val sharingCacheDir =
+            File(requireContext().cacheDir, "sharing").also { if (!it.exists()) it.mkdir() }
+        val sharingFile = File(sharingCacheDir, file.name)
+        sharingFile.outputStream().use {
+            it.write(file.readBytes())
+        }
+        val fileUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.FileProvider",
+            sharingFile
+        )
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.type = "application/*"
+        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+        startActivity(shareIntent)
+        sharingFile.deleteOnExit()
     }
 
     private fun startDataCollection() {
@@ -66,26 +141,8 @@ class DatabaseManagerFragment :
     private fun setupDatabaseArchiveUi() {
         binding.rvArchives.adapter = DatabaseArchiveListAdapter(
             activeArchiveAlias = viewModel.currentDbAlias,
-            shareOnClickListener = {
-                lifecycleScope.launch {
-                    FileEventChannel.getSender().send(
-                        FileEventChannel.FileEvent(
-                            FileEventChannel.FileEventType.SHARE_FILE,
-                            it,
-                        )
-                    )
-                }
-            },
-            saveOnClickListener = {
-                lifecycleScope.launch {
-                    FileEventChannel.getSender().send(
-                        FileEventChannel.FileEvent(
-                            FileEventChannel.FileEventType.SAVE_FILE,
-                            it,
-                        )
-                    )
-                }
-            },
+            shareOnClickListener = { shareFile(it) },
+            saveOnClickListener = { saveFile(it) },
             deleteOnClickListener = { viewModel.deleteArchive(it) },
             activeArchiveOnClickListener = { viewModel.activateArchive(it) },
             newFilenameCallback = { file, newName -> viewModel.renameArchive(file, newName) },
