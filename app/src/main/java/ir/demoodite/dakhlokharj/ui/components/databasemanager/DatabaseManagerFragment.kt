@@ -114,8 +114,7 @@ class DatabaseManagerFragment :
             requireContext().contentResolver.openFileDescriptor(uri, "r")?.use {
                 FileInputStream(it.fileDescriptor).use { inputStream ->
                     val archiveDir = File(
-                        requireContext().filesDir,
-                        "archive"
+                        requireContext().filesDir, "archive"
                     ).also { if (!it.exists()) it.mkdir() }
                     val importingFile = File(archiveDir, "$alias.db")
                     importingFile.outputStream().write(inputStream.readBytes())
@@ -273,6 +272,13 @@ class DatabaseManagerFragment :
         val openIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/*"
+            putExtra(
+                Intent.EXTRA_MIME_TYPES, arrayOf(
+                    "application/octet-stream",
+                    "application/x-sqlite3",
+                    "application/vnd.sqlite3",
+                )
+            )
         }
 
         importFileActivityResultLauncher.launch(openIntent)
