@@ -150,4 +150,5 @@
     <string name="archive_active_status_active">Status: active</string>
     <string name="last_modified_template">Last modified:\n%1$s</string>
     <string name="saved_successfully_in">Saved in: %1$s</string>
+    <string name="imported_successfully">Imported successfully</string>
 </resources>

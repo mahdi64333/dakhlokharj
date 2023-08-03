@@ -30,6 +30,7 @@ import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 
 @AndroidEntryPoint
@@ -39,8 +40,16 @@ class DatabaseManagerFragment :
     private val createAndSaveFileActivityResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                result.data?.data?.let {
-                    saveFileToUri(it)
+                result.data?.data?.let { uri ->
+                    saveFileToUri(uri)
+                }
+            }
+        }
+    private val importFileActivityResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    showImportArchiveDatabaseDialog(uri)
                 }
             }
         }
@@ -49,73 +58,6 @@ class DatabaseManagerFragment :
         super.onCreate(savedInstanceState)
 
         startDataCollection()
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        setupMenuProvider()
-        setupDatabaseArchiveUi()
-    }
-
-    private fun saveFile(file: File) {
-        val pendingFile = File(requireContext().cacheDir, "saving.db")
-        pendingFile.outputStream().use {
-            it.write(file.readBytes())
-        }
-
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/x-sqlite3"
-            putExtra(Intent.EXTRA_TITLE, file.name)
-        }
-
-        createAndSaveFileActivityResultLauncher.launch(intent)
-    }
-
-    private fun saveFileToUri(uri: Uri) {
-        try {
-            requireContext().contentResolver.openFileDescriptor(uri, "w")?.use {
-                FileOutputStream(it.fileDescriptor).use { outputStream ->
-                    val pendingFile = File(requireContext().cacheDir, "saving.db")
-                    outputStream.write(pendingFile.readBytes())
-                    Snackbar.make(
-                        binding.root,
-                        getString(
-                            R.string.saved_successfully
-                        ),
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                    pendingFile.deleteOnExit()
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Snackbar.make(
-                binding.root,
-                getString(R.string.operation_failed),
-                Snackbar.LENGTH_LONG
-            ).show()
-        }
-    }
-
-    private fun shareFile(file: File) {
-        val sharingCacheDir =
-            File(requireContext().cacheDir, "sharing").also { if (!it.exists()) it.mkdir() }
-        val sharingFile = File(sharingCacheDir, file.name)
-        sharingFile.outputStream().use {
-            it.write(file.readBytes())
-        }
-        val fileUri = FileProvider.getUriForFile(
-            requireContext(),
-            "${requireContext().packageName}.FileProvider",
-            sharingFile
-        )
-        val shareIntent = Intent(Intent.ACTION_SEND)
-        shareIntent.type = "application/*"
-        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
-        startActivity(shareIntent)
-        sharingFile.deleteOnExit()
     }
 
     private fun startDataCollection() {
@@ -135,6 +77,60 @@ class DatabaseManagerFragment :
                     adapter.activeArchiveAlias = it.ifEmpty { getString(R.string.app_name) }
                 }
             }
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupMenuProvider()
+        setupDatabaseArchiveUi()
+    }
+
+    private fun saveFileToUri(uri: Uri) {
+        try {
+            requireContext().contentResolver.openFileDescriptor(uri, "w")?.use {
+                FileOutputStream(it.fileDescriptor).use { outputStream ->
+                    val pendingFile = File(requireContext().cacheDir, "saving.db")
+                    outputStream.write(pendingFile.readBytes())
+                    Snackbar.make(
+                        binding.root, getString(
+                            R.string.saved_successfully
+                        ), Snackbar.LENGTH_LONG
+                    ).show()
+                    pendingFile.deleteOnExit()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Snackbar.make(
+                binding.root, getString(R.string.operation_failed), Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun importFileFromUri(uri: Uri, alias: String) {
+        try {
+            requireContext().contentResolver.openFileDescriptor(uri, "r")?.use {
+                FileInputStream(it.fileDescriptor).use { inputStream ->
+                    val archiveDir = File(
+                        requireContext().filesDir,
+                        "archive"
+                    ).also { if (!it.exists()) it.mkdir() }
+                    val importingFile = File(archiveDir, "$alias.db")
+                    importingFile.outputStream().write(inputStream.readBytes())
+                    Snackbar.make(
+                        binding.root, getString(
+                            R.string.imported_successfully
+                        ), Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Snackbar.make(
+                binding.root, getString(R.string.operation_failed), Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -164,7 +160,7 @@ class DatabaseManagerFragment :
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_new_archive -> {
-                        showArchiveCurrentDatabaseDialog()
+                        showNewArchiveDatabaseDialog()
                         true
                     }
                     R.id.action_import_database_from_file -> {
@@ -177,7 +173,7 @@ class DatabaseManagerFragment :
         }, viewLifecycleOwner, Lifecycle.State.STARTED)
     }
 
-    private fun showArchiveCurrentDatabaseDialog() {
+    private fun showNewArchiveDatabaseDialog() {
         val databaseAliasDialogBinding =
             ViewDialogDatabaseAliasBinding.inflate(layoutInflater, null, false)
         databaseAliasDialogBinding.textInputEditTextDatabaseAlias.filters = arrayOf(
@@ -194,7 +190,31 @@ class DatabaseManagerFragment :
                 getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                     val alias = validateAndGetDatabaseAliasDialog(databaseAliasDialogBinding)
                     if (alias != null) {
-                        newDatabaseArchive(alias)
+                        viewModel.newDatabaseArchive(alias)
+                        dismiss()
+                    }
+                }
+            }
+    }
+
+    private fun showImportArchiveDatabaseDialog(uri: Uri) {
+        val databaseAliasDialogBinding =
+            ViewDialogDatabaseAliasBinding.inflate(layoutInflater, null, false)
+        databaseAliasDialogBinding.textInputEditTextDatabaseAlias.filters = arrayOf(
+            InputFilter.LengthFilter(24), FilenameInputFilter()
+        )
+
+        MaterialAlertDialogBuilder(
+            requireContext()
+        ).setTitle(getString(R.string.database_alias))
+            .setMessage(getString(R.string.please_enter_database_alias))
+            .setView(databaseAliasDialogBinding.root)
+            .setPositiveButton(getString(R.string.confirm), null)
+            .setNegativeButton(getString(R.string.cancel), null).show().apply {
+                getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    val alias = validateAndGetDatabaseAliasDialog(databaseAliasDialogBinding)
+                    if (alias != null) {
+                        importFileFromUri(uri, alias)
                         dismiss()
                     }
                 }
@@ -217,11 +237,44 @@ class DatabaseManagerFragment :
         return if (errorFlag) null else aliasText
     }
 
-    private fun newDatabaseArchive(alias: String) {
-        viewModel.newDatabaseArchive(alias)
+    private fun shareFile(file: File) {
+        val sharingCacheDir =
+            File(requireContext().cacheDir, "sharing").also { if (!it.exists()) it.mkdir() }
+        val sharingFile = File(sharingCacheDir, file.name)
+        sharingFile.outputStream().use {
+            it.write(file.readBytes())
+        }
+        val fileUri = FileProvider.getUriForFile(
+            requireContext(), "${requireContext().packageName}.FileProvider", sharingFile
+        )
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.type = "application/*"
+        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+        startActivity(shareIntent)
+        sharingFile.deleteOnExit()
+    }
+
+    private fun saveFile(file: File) {
+        val pendingFile = File(requireContext().cacheDir, "saving.db")
+        pendingFile.outputStream().use {
+            it.write(file.readBytes())
+        }
+
+        val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/x-sqlite3"
+            putExtra(Intent.EXTRA_TITLE, file.name)
+        }
+
+        createAndSaveFileActivityResultLauncher.launch(saveIntent)
     }
 
     private fun importDatabase() {
-        TODO()
+        val openIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/*"
+        }
+
+        importFileActivityResultLauncher.launch(openIntent)
     }
 }
