@@ -111,8 +111,8 @@ class DatabaseManagerFragment :
 
     private fun importFileFromUri(uri: Uri, alias: String) {
         try {
-            requireContext().contentResolver.openFileDescriptor(uri, "r")?.use {
-                FileInputStream(it.fileDescriptor).use { inputStream ->
+            requireContext().contentResolver.openFileDescriptor(uri, "r")?.use { fileDescriptor ->
+                FileInputStream(fileDescriptor.fileDescriptor).use { inputStream ->
                     val archiveDir = File(
                         requireContext().filesDir, "archive"
                     ).also { if (!it.exists()) it.mkdir() }
@@ -136,8 +136,8 @@ class DatabaseManagerFragment :
     private fun setupDatabaseArchiveUi() {
         binding.rvArchives.adapter = DatabaseArchiveListAdapter(
             activeArchiveAlias = viewModel.currentDbAlias,
-            shareOnClickListener = { shareFile(it) },
-            saveOnClickListener = { saveFile(it) },
+            shareOnClickListener = { file, alias -> shareFile(file, alias) },
+            saveOnClickListener = { file, alias -> saveFile(file, alias) },
             deleteOnClickListener = { viewModel.deleteArchive(it) },
             activeArchiveOnClickListener = { viewModel.activateArchive(it) },
             newFilenameCallback = { file, newName -> viewModel.renameArchive(file, newName) },
@@ -236,10 +236,10 @@ class DatabaseManagerFragment :
         return if (errorFlag) null else aliasText
     }
 
-    private fun shareFile(file: File) {
+    private fun shareFile(file: File, alias: String) {
         val sharingCacheDir =
             File(requireContext().cacheDir, "sharing").also { if (!it.exists()) it.mkdir() }
-        val sharingFile = File(sharingCacheDir, file.name)
+        val sharingFile = File(sharingCacheDir, "$alias.dakhlokharj")
         sharingFile.outputStream().use {
             it.write(file.readBytes())
         }
@@ -253,7 +253,7 @@ class DatabaseManagerFragment :
         sharingFile.deleteOnExit()
     }
 
-    private fun saveFile(file: File) {
+    private fun saveFile(file: File, alias: String) {
         val pendingFile = File(requireContext().cacheDir, "saving.db")
         pendingFile.outputStream().use {
             it.write(file.readBytes())
@@ -262,7 +262,7 @@ class DatabaseManagerFragment :
         val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/x-sqlite3"
-            putExtra(Intent.EXTRA_TITLE, file.name)
+            putExtra(Intent.EXTRA_TITLE, "$alias.dakhlokharj")
         }
 
         createAndSaveFileActivityResultLauncher.launch(saveIntent)

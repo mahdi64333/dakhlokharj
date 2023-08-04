@@ -17,8 +17,8 @@ import java.io.File
 
 class DatabaseArchiveListAdapter(
     var activeArchiveAlias: String,
-    private val shareOnClickListener: (File) -> Unit,
-    private val saveOnClickListener: (File) -> Unit,
+    private val shareOnClickListener: (File, String) -> Unit,
+    private val saveOnClickListener: (File, String) -> Unit,
     private val deleteOnClickListener: (File) -> Unit,
     private val activeArchiveOnClickListener: (File) -> Unit,
     private val newFilenameCallback: (File, newName: String) -> Unit,
@@ -54,8 +54,18 @@ class DatabaseArchiveListAdapter(
         holder.bind(
             alias = getItem(position).second,
             lastModified = getItem(position).first.lastModified(),
-            shareOnClickListener = { shareOnClickListener(getItem(position).first) },
-            saveOnClickListener = { saveOnClickListener(getItem(position).first) },
+            shareOnClickListener = {
+                shareOnClickListener(
+                    getItem(position).first,
+                    getItem(position).second
+                )
+            },
+            saveOnClickListener = {
+                saveOnClickListener(
+                    getItem(position).first,
+                    getItem(position).second
+                )
+            },
             deleteOnClickListener = { deleteOnClickListener(getItem(position).first) },
             activeArchiveOnClickListener = {
                 activeArchiveViewHolder?.deactivate()
