@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/s">
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout_archive_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:boxBackgroundMode="filled"
+        app:boxStrokeWidth="0dp"
+        app:endIconDrawable="@drawable/round_check_24"
+        app:endIconMode="none"
+        app:endIconTint="@color/green_add"
+        app:layout_constraintTop_toTopOf="parent"
+        app:placeholderText="@string/archive_name_hint">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textInputEditText_archive_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:cursorVisible="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:imeOptions="actionDone"
+            android:inputType="textPersonName"
+            tools:text="University" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/xs"
+        android:orientation="horizontal"
+        android:padding="@dimen/xs"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayout_archive_name">
+
+        <ImageButton
+            android:id="@+id/btn_share_archive"
+            android:layout_width="@dimen/database_backup_button_size"
+            android:layout_height="@dimen/database_backup_button_size"
+            android:layout_marginEnd="@dimen/s"
+            android:adjustViewBounds="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/share_archive"
+            android:src="@drawable/round_share_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_active_archive"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_save_archive"
+            android:layout_width="@dimen/database_backup_button_size"
+            android:layout_height="@dimen/database_backup_button_size"
+            android:layout_marginEnd="@dimen/s"
+            android:adjustViewBounds="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/save_archive"
+            android:src="@drawable/round_save_alt_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_share_archive"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_delete_archive"
+            android:layout_width="@dimen/database_backup_button_size"
+            android:layout_height="@dimen/database_backup_button_size"
+            android:layout_marginEnd="@dimen/s"
+            android:adjustViewBounds="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/delete_archive"
+            android:src="@drawable/round_delete_forever_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_save_archive"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_last_modified"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/s"
+            android:layout_marginVertical="@dimen/xs"
+            android:textAppearance="?attr/textAppearanceLabelMedium"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_delete_archive"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Last modified:\n2023/7/28 17:48" />
+
+        <ImageButton
+            android:id="@+id/btn_active_archive"
+            android:layout_width="@dimen/database_backup_button_size"
+            android:layout_height="@dimen/database_backup_button_size"
+            android:adjustViewBounds="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/archive_active_status_inactive"
+            android:src="@drawable/round_check_circle_32"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/semitransparent_gray" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

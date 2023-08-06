@@ -44,6 +44,13 @@ object UiUtil {
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
+    fun showKeyboard(view: View) {
+        val inputMethodManager =
+            view.context.getSystemService(Context.INPUT_METHOD_SERVICE)
+                    as InputMethodManager
+        inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+    }
+
     private fun isNightModeOn(resources: Resources): Boolean {
         val nightModeFlags = resources.configuration.uiMode and
                 Configuration.UI_MODE_NIGHT_MASK
@@ -62,7 +69,7 @@ object UiUtil {
         }
     }
 
-    private fun dpToPixel(context: Context, dp: Int): Int {
+    fun dpToPixel(context: Context, dp: Int): Int {
         return (dp * context.resources.displayMetrics.density).toInt()
     }
 

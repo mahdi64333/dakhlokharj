@@ -126,4 +126,19 @@
     <string name="no_data_to_show">داده‌ای برای نمایش یافت نشد</string>
     <string name="min_price_is_larger_than_max">حداقل قیمت نباید بزرگ‌تر از حداکثر باشد</string>
     <string name="date_input_hint">--------</string>
+    <string name="database_archive">آرشیو پایگاه داده</string>
+    <string name="new_archive">آرشیو جدید</string>
+    <string name="import_database_from_file">وارد کردن پایگاه داده از فایل</string>
+    <string name="please_enter_database_alias">لطفا نام مستعاری برای پایگاه داده‌ی خود وارد کنید</string>
+    <string name="database_alias">نام پایگاه داده</string>
+    <string name="share_archive">اشتراک‌گذاری آرشیو</string>
+    <string name="save_archive">ذخیره‌سازی آرشیو</string>
+    <string name="delete_archive">حذف آرشیو</string>
+    <string name="archive_name_hint">نام آرشیو</string>
+    <string name="archive_active_status_active">وضعیت: فعال</string>
+    <string name="archive_active_status_inactive">وضعیت: غیرفعال</string>
+    <string name="last_modified_template">آخرین تغییر:\n%1$s</string>
+    <string name="saved_successfully_in">محل ذخیره‌سازی: %1$s</string>
+    <string name="imported_successfully">با موفقیت اضافه شد</string>
+    <string name="invalid_database_file">فایل دریافت شده معتبر نمی‌باشد!</string>
 </resources>

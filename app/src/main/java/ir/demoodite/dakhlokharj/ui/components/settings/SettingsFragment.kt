@@ -2,7 +2,9 @@ package ir.demoodite.dakhlokharj.ui.components.settings
 
 import android.os.Bundle
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.preference.ListPreference
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
@@ -32,6 +34,14 @@ class SettingsFragment() : PreferenceFragmentCompat() {
             it.entryValues = OrderBy.values().map { orderBy ->
                 orderBy.name
             }.toTypedArray()
+        }
+        findPreference<Preference>("database_manager")?.let {
+            it.setOnPreferenceClickListener {
+                val action =
+                    SettingsFragmentDirections.actionSettingsFragmentToDatabaseManagerFragment()
+                findNavController().navigate(action)
+                true
+            }
         }
     }
 }

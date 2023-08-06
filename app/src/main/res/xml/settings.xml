@@ -15,4 +15,9 @@
         app:allowDividerBelow="true"
         app:iconSpaceReserved="false"
         app:useSimpleSummaryProvider="true" />
+
+    <Preference
+        android:key="database_manager"
+        android:title="@string/database_archive"
+        app:iconSpaceReserved="false" />
 </PreferenceScreen>

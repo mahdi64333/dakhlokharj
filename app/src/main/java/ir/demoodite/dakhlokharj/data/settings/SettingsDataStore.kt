@@ -21,6 +21,7 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
     companion object {
         val LANGUAGE_KEY = stringPreferencesKey("language")
         val ORDER_BY_KEY = stringPreferencesKey("order_by")
+        val CURRENT_DB_ALIAS = stringPreferencesKey("current_db_alias")
     }
 
     override fun putString(key: String?, value: String?) {
@@ -89,6 +90,28 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
             }
             .map { preferences ->
                 preferences[ORDER_BY_KEY] ?: "TIME_DESC"
+            }
+    }
+
+
+    suspend fun setCurrentDbAlias(currentDbAlias: String) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[CURRENT_DB_ALIAS] = currentDbAlias
+        }
+    }
+
+    fun getCurrentDbAliasFlow(): Flow<String> {
+        return context.settingsDataStore.data
+            .catch {
+                if (it is IOException) {
+                    it.printStackTrace()
+                    emit(emptyPreferences())
+                } else {
+                    throw it
+                }
+            }
+            .map { preferences ->
+                preferences[CURRENT_DB_ALIAS] ?: ""
             }
     }
 }

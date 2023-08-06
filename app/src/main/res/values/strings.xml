@@ -137,4 +137,19 @@
     <string name="min_price_is_larger_than_max">Minimum shouldn\'t be larger than maximum</string>
     <string name="date_input_hint">yyyymmdd</string>
     <string name="date_input_mask" translatable="false">####/##/##</string>
+    <string name="database_archive">Database archive</string>
+    <string name="new_archive">New archive</string>
+    <string name="import_database_from_file">Import database from file</string>
+    <string name="please_enter_database_alias">Please enter an alias for your database</string>
+    <string name="database_alias">Database alias</string>
+    <string name="share_archive">Share archive</string>
+    <string name="save_archive">Save archive</string>
+    <string name="delete_archive">Delete archive</string>
+    <string name="archive_name_hint">Archive name</string>
+    <string name="archive_active_status_inactive">Status: inactive</string>
+    <string name="archive_active_status_active">Status: active</string>
+    <string name="last_modified_template">Last modified:\n%1$s</string>
+    <string name="saved_successfully_in">Saved in: %1$s</string>
+    <string name="imported_successfully">Imported successfully</string>
+    <string name="invalid_database_file">The given file is not valid!</string>
 </resources>
