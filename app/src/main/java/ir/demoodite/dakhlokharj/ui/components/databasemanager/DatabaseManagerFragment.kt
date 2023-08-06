@@ -20,18 +20,17 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.divider.MaterialDividerItemDecoration
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.FragmentDatabaseManagerBinding
 import ir.demoodite.dakhlokharj.databinding.ViewDialogDatabaseAliasBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
+import ir.demoodite.dakhlokharj.ui.components.mainactivity.MainActivity
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
 
 @AndroidEntryPoint
 class DatabaseManagerFragment :
@@ -49,7 +48,7 @@ class DatabaseManagerFragment :
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.data?.let { uri ->
-                    showImportArchiveDatabaseDialog(uri)
+                    validateDbAndShowImportArchiveDatabaseDialog(uri)
                 }
             }
         }
@@ -90,54 +89,21 @@ class DatabaseManagerFragment :
     private fun saveFileToUri(uri: Uri) {
         try {
             requireContext().contentResolver.openFileDescriptor(uri, "w")?.use {
-                FileOutputStream(it.fileDescriptor).use { outputStream ->
-                    val pendingFile = File(requireContext().cacheDir, "saving.db")
-                    outputStream.write(pendingFile.readBytes())
-                    Snackbar.make(
-                        binding.root, getString(
-                            R.string.saved_successfully
-                        ), Snackbar.LENGTH_LONG
-                    ).show()
-                    pendingFile.deleteOnExit()
-                }
+                viewModel.savePendingFileToFileDescriptor(it.fileDescriptor)
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Snackbar.make(
-                binding.root, getString(R.string.operation_failed), Snackbar.LENGTH_LONG
-            ).show()
-        }
-    }
-
-    private fun importFileFromUri(uri: Uri, alias: String) {
-        try {
-            requireContext().contentResolver.openFileDescriptor(uri, "r")?.use { fileDescriptor ->
-                FileInputStream(fileDescriptor.fileDescriptor).use { inputStream ->
-                    val archiveDir = File(
-                        requireContext().filesDir, "archive"
-                    ).also { if (!it.exists()) it.mkdir() }
-                    val importingFile = File(archiveDir, "$alias.db")
-                    importingFile.outputStream().write(inputStream.readBytes())
-                    Snackbar.make(
-                        binding.root, getString(
-                            R.string.imported_successfully
-                        ), Snackbar.LENGTH_LONG
-                    ).show()
-                }
+            lifecycleScope.launch {
+                MainActivity.sendMessage(R.string.operation_failed)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Snackbar.make(
-                binding.root, getString(R.string.operation_failed), Snackbar.LENGTH_LONG
-            ).show()
         }
     }
 
     private fun setupDatabaseArchiveUi() {
         binding.rvArchives.adapter = DatabaseArchiveListAdapter(
             activeArchiveAlias = viewModel.currentDbAlias,
-            shareOnClickListener = { file, alias -> shareFile(file, alias) },
-            saveOnClickListener = { file, alias -> saveFile(file, alias) },
+            shareOnClickListener = { file, alias -> launchShareFileIntent(file, alias) },
+            saveOnClickListener = { file, alias -> launchSaveFileIntent(file, alias) },
             deleteOnClickListener = { viewModel.deleteArchive(it) },
             activeArchiveOnClickListener = { viewModel.activateArchive(it) },
             newFilenameCallback = { file, newName -> viewModel.renameArchive(file, newName) },
@@ -163,7 +129,7 @@ class DatabaseManagerFragment :
                         true
                     }
                     R.id.action_import_database_from_file -> {
-                        importDatabase()
+                        launceImportDatabaseIntent()
                         true
                     }
                     else -> false
@@ -187,7 +153,8 @@ class DatabaseManagerFragment :
             .setPositiveButton(getString(R.string.confirm), null)
             .setNegativeButton(getString(R.string.cancel), null).show().apply {
                 getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                    val alias = validateAndGetDatabaseAliasDialog(databaseAliasDialogBinding)
+                    val alias =
+                        validateAndGetDatabaseAliasFromDialogBinding(databaseAliasDialogBinding)
                     if (alias != null) {
                         viewModel.newDatabaseArchive(alias)
                         dismiss()
@@ -196,31 +163,50 @@ class DatabaseManagerFragment :
             }
     }
 
-    private fun showImportArchiveDatabaseDialog(uri: Uri) {
-        val databaseAliasDialogBinding =
-            ViewDialogDatabaseAliasBinding.inflate(layoutInflater, null, false)
-        databaseAliasDialogBinding.textInputEditTextDatabaseAlias.filters = arrayOf(
-            InputFilter.LengthFilter(24), FilenameInputFilter()
-        )
+    private fun validateDbAndShowImportArchiveDatabaseDialog(uri: Uri) {
+        try {
+            requireContext().contentResolver.openFileDescriptor(uri, "r")?.use {
+                FileInputStream(it.fileDescriptor).use { inputStream ->
+                    viewModel.importInputStreamToCacheDir(inputStream)
+                    lifecycleScope.launch {
+                        if (viewModel.validateImportingDatabase()) {
+                            val databaseAliasDialogBinding =
+                                ViewDialogDatabaseAliasBinding.inflate(layoutInflater, null, false)
+                            databaseAliasDialogBinding.textInputEditTextDatabaseAlias.filters =
+                                arrayOf(
+                                    InputFilter.LengthFilter(24), FilenameInputFilter()
+                                )
 
-        MaterialAlertDialogBuilder(
-            requireContext()
-        ).setTitle(getString(R.string.database_alias))
-            .setMessage(getString(R.string.please_enter_database_alias))
-            .setView(databaseAliasDialogBinding.root)
-            .setPositiveButton(getString(R.string.confirm), null)
-            .setNegativeButton(getString(R.string.cancel), null).show().apply {
-                getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                    val alias = validateAndGetDatabaseAliasDialog(databaseAliasDialogBinding)
-                    if (alias != null) {
-                        importFileFromUri(uri, alias)
-                        dismiss()
+                            MaterialAlertDialogBuilder(
+                                requireContext()
+                            ).setTitle(getString(R.string.database_alias))
+                                .setMessage(getString(R.string.please_enter_database_alias))
+                                .setView(databaseAliasDialogBinding.root)
+                                .setPositiveButton(getString(R.string.confirm), null)
+                                .setNegativeButton(getString(R.string.cancel), null).show().apply {
+                                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                                        val alias = validateAndGetDatabaseAliasFromDialogBinding(
+                                            databaseAliasDialogBinding
+                                        )
+                                        if (alias != null) {
+                                            viewModel.applyTempDatabaseImport(alias)
+                                            dismiss()
+                                        }
+                                    }
+                                }
+                        }
                     }
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            lifecycleScope.launch {
+                MainActivity.sendMessage(R.string.operation_failed)
+            }
+        }
     }
 
-    private fun validateAndGetDatabaseAliasDialog(
+    private fun validateAndGetDatabaseAliasFromDialogBinding(
         databaseAliasBinding: ViewDialogDatabaseAliasBinding,
     ): String? {
         var errorFlag = false
@@ -236,7 +222,7 @@ class DatabaseManagerFragment :
         return if (errorFlag) null else aliasText
     }
 
-    private fun shareFile(file: File, alias: String) {
+    private fun launchShareFileIntent(file: File, alias: String) {
         val sharingCacheDir =
             File(requireContext().cacheDir, "sharing").also { if (!it.exists()) it.mkdir() }
         val sharingFile = File(sharingCacheDir, "$alias.dakhlokharj")
@@ -253,7 +239,7 @@ class DatabaseManagerFragment :
         sharingFile.deleteOnExit()
     }
 
-    private fun saveFile(file: File, alias: String) {
+    private fun launchSaveFileIntent(file: File, alias: String) {
         val pendingFile = File(requireContext().cacheDir, "saving.db")
         pendingFile.outputStream().use {
             it.write(file.readBytes())
@@ -268,7 +254,7 @@ class DatabaseManagerFragment :
         createAndSaveFileActivityResultLauncher.launch(saveIntent)
     }
 
-    private fun importDatabase() {
+    private fun launceImportDatabaseIntent() {
         val openIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/*"

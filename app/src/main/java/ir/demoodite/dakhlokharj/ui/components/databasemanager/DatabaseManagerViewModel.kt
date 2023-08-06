@@ -4,14 +4,19 @@ import android.os.FileObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.di.AppModule
+import ir.demoodite.dakhlokharj.ui.components.mainactivity.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.io.FileDescriptor
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -27,8 +32,7 @@ class DatabaseManagerViewModel @Inject constructor(
         if (!it.exists()) it.mkdir()
     }
     val currentDbFile get() = dataRepository.dbFile
-    private val _allDbArchivesStateFlow =
-        MutableStateFlow<List<Pair<File, String>>>(emptyList())
+    private val _allDbArchivesStateFlow = MutableStateFlow<List<Pair<File, String>>>(emptyList())
     val allDbArchivesStateFlow get() = _allDbArchivesStateFlow.asStateFlow()
 
     @Suppress("DEPRECATION")
@@ -54,6 +58,7 @@ class DatabaseManagerViewModel @Inject constructor(
         }
     }
     val currentDbAlias get() = currentDbAliasStateFlow.value
+    private val tempImportingFileFilename = "importing_temp.db"
 
     init {
         startFileObservers()
@@ -153,6 +158,59 @@ class DatabaseManagerViewModel @Inject constructor(
             }
         } else {
             archiveFile.delete()
+        }
+    }
+
+    fun savePendingFileToFileDescriptor(fileDescriptor: FileDescriptor) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                FileOutputStream(fileDescriptor).use { outputStream ->
+                    val pendingFile = File(cacheDir, "saving.db")
+                    outputStream.write(pendingFile.readBytes())
+                    MainActivity.sendMessage(R.string.saved_successfully)
+                    pendingFile.deleteOnExit()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                MainActivity.sendMessage(R.string.operation_failed)
+            }
+        }
+    }
+
+    fun importInputStreamToCacheDir(inputStream: FileInputStream) {
+        val tempFile = File(cacheDir, tempImportingFileFilename)
+        tempFile.writeBytes(inputStream.readBytes())
+    }
+
+    suspend fun validateImportingDatabase(): Boolean {
+        return try {
+            val tempFile = File(cacheDir, tempImportingFileFilename)
+            if (databaseImporter.isDatabaseValid(tempFile)) {
+                true
+            } else {
+                MainActivity.sendError(R.string.invalid_database_file)
+                false
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            MainActivity.sendMessage(R.string.operation_failed)
+            false
+        }
+    }
+
+    fun applyTempDatabaseImport(alias: String) {
+        try {
+            val tempFile = File(cacheDir, tempImportingFileFilename)
+            val importingFile = File(archiveDir, "$alias.db")
+            importingFile.writeBytes(tempFile.readBytes())
+            viewModelScope.launch {
+                MainActivity.sendMessage(R.string.imported_successfully)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            viewModelScope.launch {
+                MainActivity.sendMessage(R.string.operation_failed)
+            }
         }
     }
 }

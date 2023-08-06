@@ -140,4 +140,5 @@
     <string name="last_modified_template">آخرین تغییر:\n%1$s</string>
     <string name="saved_successfully_in">محل ذخیره‌سازی: %1$s</string>
     <string name="imported_successfully">با موفقیت اضافه شد</string>
+    <string name="invalid_database_file">فایل دریافت شده معتبر نمی‌باشد!</string>
 </resources>
