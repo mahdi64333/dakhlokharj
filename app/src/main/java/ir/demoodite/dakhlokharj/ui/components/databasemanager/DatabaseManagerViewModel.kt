@@ -9,10 +9,8 @@ import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.di.AppModule
 import ir.demoodite.dakhlokharj.ui.components.mainactivity.MainActivity
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.FileDescriptor
 import java.io.FileInputStream
@@ -84,6 +82,7 @@ class DatabaseManagerViewModel @Inject constructor(
     private fun startFileObservers() {
         currentDbFileObserver.startWatching()
         dbArchiveFileObserver.startWatching()
+        updateFilesList()
     }
 
     private fun stopFileObservers() {
@@ -129,6 +128,7 @@ class DatabaseManagerViewModel @Inject constructor(
 
     fun activateArchive(archiveFile: File) {
         viewModelScope.launch(Dispatchers.IO) {
+            MainActivity.startLoading()
             stopFileObservers()
             archiveCurrentDb()
             val cacheDbFile = File(cacheDir, "cache_db_file.db")
@@ -137,6 +137,7 @@ class DatabaseManagerViewModel @Inject constructor(
             cacheDbFile.delete()
             settingsDataStore.setCurrentDbAlias(archiveFile.nameWithoutExtension)
             startFileObservers()
+            MainActivity.stopLoading()
         }
     }
 

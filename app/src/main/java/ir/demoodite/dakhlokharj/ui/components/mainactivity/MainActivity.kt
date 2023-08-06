@@ -20,15 +20,9 @@ import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.databinding.ActivityMainBinding
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -66,10 +60,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun listenForUiFeedbackRequests() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                getUiFeedbackReceiver().collectLatest { (type, messageResId) ->
+                val loadingAlertDialog =
+                    SweetAlertDialog(this@MainActivity, SweetAlertDialog.PROGRESS_TYPE)
+                getUiFeedbackReceiver().debounce(100).collectLatest { (type, messageResId) ->
                     when (type) {
                         FeedbackType.ERROR_DIALOG -> {
                             UiUtil.setSweetAlertDialogNightMode(resources)
@@ -88,11 +85,11 @@ class MainActivity : AppCompatActivity() {
                         }
                         FeedbackType.SNACKBAR -> {
                             Snackbar.make(
-                                binding.root,
-                                messageResId,
-                                Snackbar.LENGTH_LONG
+                                binding.root, messageResId, Snackbar.LENGTH_LONG
                             ).show()
                         }
+                        FeedbackType.START_LOADING -> loadingAlertDialog.show()
+                        FeedbackType.STOP_LOADING -> loadingAlertDialog.dismiss()
                     }
                 }
             }
@@ -107,8 +104,7 @@ class MainActivity : AppCompatActivity() {
             R.id.homeFragment,
         )
         appBarConfiguration = AppBarConfiguration(
-            rootDestinations,
-            binding.drawerLayout
+            rootDestinations, binding.drawerLayout
         )
 
 
@@ -188,8 +184,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        suspend fun startLoading() {
+            withContext(Dispatchers.Main) {
+                getUiFeedbackChannel().send(Pair(FeedbackType.START_LOADING, 0))
+            }
+        }
+
+        suspend fun stopLoading() {
+            withContext(Dispatchers.Main) {
+                getUiFeedbackChannel().send(Pair(FeedbackType.STOP_LOADING, 0))
+            }
+        }
+
         enum class FeedbackType {
-            ERROR_DIALOG, SNACKBAR,
+            ERROR_DIALOG, SNACKBAR, START_LOADING, STOP_LOADING,
         }
     }
 }

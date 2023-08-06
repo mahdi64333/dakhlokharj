@@ -142,6 +142,7 @@ class DatabaseArchiveListAdapter(
                     deleteOnClickListener()
                 }
                 btnActiveArchive.setOnClickListener {
+                    activate()
                     activeArchiveOnClickListener()
                 }
                 textInputEditTextArchiveName.setOnLongClickListener {
