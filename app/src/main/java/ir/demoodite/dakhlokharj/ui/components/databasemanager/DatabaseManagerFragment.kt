@@ -28,7 +28,10 @@ import ir.demoodite.dakhlokharj.databinding.ViewDialogDatabaseAliasBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.mainactivity.MainActivity
 import ir.demoodite.dakhlokharj.utils.UiUtil
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
@@ -80,6 +83,16 @@ class DatabaseManagerFragment :
                 viewModel.currentDbAliasStateFlow.collectLatest {
                     val adapter = binding.rvArchives.adapter as DatabaseArchiveListAdapter
                     adapter.activeArchiveAlias = it.ifEmpty { getString(R.string.app_name) }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                importChannelReceiver.collectLatest { (event, uri) ->
+                    if (event == ImportEvents.IMPORT) {
+                        validateDbAndShowImportArchiveDatabaseDialog(uri)
+                    }
                 }
             }
         }
@@ -274,5 +287,33 @@ class DatabaseManagerFragment :
         }
 
         importFileActivityResultLauncher.launch(openIntent)
+    }
+
+    companion object EventChannel {
+        @Volatile
+        private var IMPORT_CHANNEL_INSTANCE: Channel<Pair<ImportEvents, Uri>>? = null
+
+        private val importChannel: Channel<Pair<ImportEvents, Uri>>
+            get() {
+                return IMPORT_CHANNEL_INSTANCE ?: synchronized(this) {
+                    if (IMPORT_CHANNEL_INSTANCE == null) {
+                        IMPORT_CHANNEL_INSTANCE = Channel()
+                    }
+                    IMPORT_CHANNEL_INSTANCE!!
+                }
+            }
+
+        private val importChannelReceiver: Flow<Pair<ImportEvents, Uri>>
+            get() {
+                return importChannel.receiveAsFlow()
+            }
+
+        suspend fun importArchiveFromUri(uri: Uri) {
+            importChannel.send(Pair(ImportEvents.IMPORT, uri))
+        }
+
+        enum class ImportEvents {
+            IMPORT
+        }
     }
 }

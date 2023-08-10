@@ -21,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.databinding.ActivityMainBinding
+import ir.demoodite.dakhlokharj.ui.components.databasemanager.DatabaseManagerFragment
 import ir.demoodite.dakhlokharj.ui.components.databasemanager.DatabaseManagerFragmentArgs
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
@@ -174,13 +175,16 @@ class MainActivity : AppCompatActivity() {
                 && sqliteMimeTypes.contains(contentResolver.getType(intentData))
             ) {
                 if (navController.currentDestination?.id == R.id.databaseManagerFragment) {
-                    navController.popBackStack()
+                    lifecycleScope.launch {
+                        DatabaseManagerFragment.importArchiveFromUri(intentData)
+                    }
+                } else {
+                    val args =
+                        DatabaseManagerFragmentArgs.Builder()
+                            .setImportingArchiveUri(intentData)
+                            .build()
+                    navController.navigate(R.id.databaseManagerFragment, args.toBundle())
                 }
-                val args =
-                    DatabaseManagerFragmentArgs.Builder()
-                        .setImportingArchiveUri(intentData)
-                        .build()
-                navController.navigate(R.id.databaseManagerFragment, args.toBundle())
             }
         }
     }
