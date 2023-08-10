@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_homeFragment_to_filterPurchasesFragment"
             app:destination="@id/filterPurchasesFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_databaseManagerFragment"
+            app:destination="@id/databaseManagerFragment" />
     </fragment>
     <fragment
         android:id="@+id/manageResidentsFragment"
@@ -41,5 +44,11 @@
         android:id="@+id/databaseManagerFragment"
         android:name="ir.demoodite.dakhlokharj.ui.components.databasemanager.DatabaseManagerFragment"
         android:label="@string/database_archive"
-        tools:layout="@layout/fragment_database_manager" />
+        tools:layout="@layout/fragment_database_manager">
+        <argument
+            android:name="importingArchiveUri"
+            android:defaultValue="@null"
+            app:argType="android.net.Uri"
+            app:nullable="true" />
+    </fragment>
 </navigation>

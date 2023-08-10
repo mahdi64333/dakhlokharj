@@ -1,5 +1,6 @@
 package ir.demoodite.dakhlokharj.ui.components.mainactivity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
@@ -20,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.databinding.ActivityMainBinding
+import ir.demoodite.dakhlokharj.ui.components.databasemanager.DatabaseManagerFragmentArgs
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.*
@@ -37,6 +39,10 @@ class MainActivity : AppCompatActivity() {
         (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
     }
     private lateinit var appBarConfiguration: AppBarConfiguration
+    private val fileSchemes = listOf("file", "content")
+    private val sqliteMimeTypes = listOf(
+        "application/octet-stream", "application/x-sqlite3", "application/vnd.sqlite3"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +54,15 @@ class MainActivity : AppCompatActivity() {
         listenForUiFeedbackRequests()
         setupNavigation()
         handleDrawerBackPressed()
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        intent?.let {
+            handleIntent(intent)
+        }
     }
 
     private fun setupLanguageSettingDataCollection() {
@@ -106,8 +121,7 @@ class MainActivity : AppCompatActivity() {
             R.id.homeFragment,
         )
         appBarConfiguration = AppBarConfiguration(
-            rootDestinations,
-            binding.drawerLayout
+            rootDestinations, binding.drawerLayout
         )
 
 
@@ -151,6 +165,24 @@ class MainActivity : AppCompatActivity() {
             override fun onDrawerStateChanged(newState: Int) {}
 
         })
+    }
+
+    private fun handleIntent(intent: Intent) {
+        intent.data?.let { intentData ->
+            if (intent.action == Intent.ACTION_VIEW
+                && fileSchemes.contains(intent.data?.scheme)
+                && sqliteMimeTypes.contains(contentResolver.getType(intentData))
+            ) {
+                if (navController.currentDestination?.id == R.id.databaseManagerFragment) {
+                    navController.popBackStack()
+                }
+                val args =
+                    DatabaseManagerFragmentArgs.Builder()
+                        .setImportingArchiveUri(intentData)
+                        .build()
+                navController.navigate(R.id.databaseManagerFragment, args.toBundle())
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

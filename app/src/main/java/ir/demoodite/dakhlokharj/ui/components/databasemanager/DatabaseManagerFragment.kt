@@ -17,6 +17,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -57,6 +58,11 @@ class DatabaseManagerFragment :
         super.onCreate(savedInstanceState)
 
         startDataCollection()
+        val args: DatabaseManagerFragmentArgs by navArgs()
+
+        args.importingArchiveUri?.let {
+            validateDbAndShowImportArchiveDatabaseDialog(it)
+        }
     }
 
     private fun startDataCollection() {

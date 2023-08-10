@@ -163,7 +163,7 @@ class DatabaseManagerViewModel @Inject constructor(
     }
 
     fun savePendingFileToFileDescriptor(fileDescriptor: FileDescriptor) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 FileOutputStream(fileDescriptor).use { outputStream ->
                     val pendingFile = File(cacheDir, "saving.db")
