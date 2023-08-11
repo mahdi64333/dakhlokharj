@@ -15,6 +15,7 @@ import java.io.File
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -30,7 +31,8 @@ class DatabaseManagerViewModel @Inject constructor(
         if (!it.exists()) it.mkdir()
     }
     val currentDbFile get() = dataRepository.dbFile
-    private val _allDbArchivesStateFlow = MutableStateFlow<List<Pair<File, String>>>(emptyList())
+    private val _allDbArchivesStateFlow =
+        MutableStateFlow<List<DatabaseArchiveListAdapter.DatabaseArchive>>(emptyList())
     val allDbArchivesStateFlow get() = _allDbArchivesStateFlow.asStateFlow()
 
     @Suppress("DEPRECATION")
@@ -46,6 +48,7 @@ class DatabaseManagerViewModel @Inject constructor(
             updateFilesList()
         }
     }
+    val fileListUpdateLock = AtomicBoolean(false)
     val currentDbAliasStateFlow by lazy {
         runBlocking {
             settingsDataStore.getCurrentDbAliasFlow().stateIn(
@@ -60,22 +63,21 @@ class DatabaseManagerViewModel @Inject constructor(
 
     init {
         startFileObservers()
-        viewModelScope.launch {
-            currentDbAliasStateFlow.collectLatest {
-                updateFilesList()
-            }
-        }
     }
 
     private fun updateFilesList() {
+        if (fileListUpdateLock.get()) {
+            return
+        }
         val archivedFilesWithAlias = archiveDir.listFiles()?.map {
-            Pair(it, it.nameWithoutExtension)
+            DatabaseArchiveListAdapter.DatabaseArchive(it.nameWithoutExtension, it)
         } ?: emptyList()
-        val currentDbWithAlias = Pair(dataRepository.dbFile, currentDbAlias)
+        val currentArchive =
+            DatabaseArchiveListAdapter.DatabaseArchive(currentDbAlias, dataRepository.dbFile)
 
         _allDbArchivesStateFlow.update {
-            listOf(currentDbWithAlias).plus(archivedFilesWithAlias)
-                .sortedByDescending { it.first.lastModified() }
+            listOf(currentArchive).plus(archivedFilesWithAlias)
+                .sortedByDescending { it.file.lastModified() }
         }
     }
 
@@ -83,11 +85,6 @@ class DatabaseManagerViewModel @Inject constructor(
         currentDbFileObserver.startWatching()
         dbArchiveFileObserver.startWatching()
         updateFilesList()
-    }
-
-    private fun stopFileObservers() {
-        currentDbFileObserver.stopWatching()
-        dbArchiveFileObserver.stopWatching()
     }
 
     fun newDatabaseArchive(newDatabaseArchiveAlias: String) {
@@ -107,14 +104,10 @@ class DatabaseManagerViewModel @Inject constructor(
     }
 
     private fun createUniqueArchiveFilename(alias: String): String {
-        val savedArchivesNames = _allDbArchivesStateFlow.value.map {
-            it.second
-        }
-
         val possibleNamesRegex = """$alias( \(\d+\))?\$""".toRegex()
-        val takenFileNames = savedArchivesNames.filter {
-            possibleNamesRegex matches it
-        }.sorted()
+        val takenFileNames = _allDbArchivesStateFlow.value.filter {
+            possibleNamesRegex matches it.alias
+        }.map { it.alias }.sorted()
 
         return if (takenFileNames.isEmpty()) {
             alias
@@ -129,14 +122,15 @@ class DatabaseManagerViewModel @Inject constructor(
     fun activateArchive(archiveFile: File) {
         viewModelScope.launch(Dispatchers.IO) {
             MainActivity.startLoading()
-            stopFileObservers()
+            fileListUpdateLock.set(true)
+            settingsDataStore.setCurrentDbAlias(archiveFile.nameWithoutExtension)
             archiveCurrentDb()
             val cacheDbFile = File(cacheDir, "cache_db_file.db")
             archiveFile.renameTo(cacheDbFile)
             databaseImporter.importDb(cacheDbFile)
             cacheDbFile.delete()
-            settingsDataStore.setCurrentDbAlias(archiveFile.nameWithoutExtension)
-            startFileObservers()
+            fileListUpdateLock.set(false)
+            updateFilesList()
             MainActivity.stopLoading()
         }
     }

@@ -122,23 +122,28 @@ class DatabaseManagerFragment :
     private fun setupDatabaseArchiveUi() {
         binding.rvArchives.adapter = DatabaseArchiveListAdapter(
             activeArchiveAlias = viewModel.currentDbAlias,
-            shareOnClickListener = { file, alias ->
+            shareOnClickListener = {
                 stopEditing()
-                launchShareFileIntent(file, alias)
+                launchShareFileIntent(it.file, it.alias)
             },
-            saveOnClickListener = { file, alias ->
+            saveOnClickListener = {
                 stopEditing()
-                launchSaveFileIntent(file, alias)
+                launchSaveFileIntent(it.file, it.alias)
             },
             deleteOnClickListener = {
                 stopEditing()
-                showDeleteArchiveDialog(it)
+                showDeleteArchiveDialog(it.file)
             },
             activeArchiveOnClickListener = {
                 stopEditing()
-                viewModel.activateArchive(it)
+                viewModel.activateArchive(it.file)
             },
-            newFilenameCallback = { file, newName -> viewModel.renameArchive(file, newName) },
+            newFilenameCallback = { archive, newName ->
+                viewModel.renameArchive(
+                    archive.file,
+                    newName
+                )
+            },
         )
         binding.rvArchives.layoutManager = LinearLayoutManager(requireContext())
         binding.rvArchives.addItemDecoration(

@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace 'ir.demoodite.dakhlokharj'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "ir.demoodite.dakhlokharj"
         minSdk 22
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -75,7 +75,7 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
     // Settings
-    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
 
     // PersianDate
     implementation 'com.github.samanzamani:PersianDate:1.5.4'

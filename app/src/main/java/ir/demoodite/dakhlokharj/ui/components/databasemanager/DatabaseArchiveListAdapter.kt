@@ -7,6 +7,7 @@ import android.widget.EditText
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputLayout
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.ItemArchivedDatabaseBinding
@@ -17,12 +18,12 @@ import java.io.File
 
 class DatabaseArchiveListAdapter(
     var activeArchiveAlias: String,
-    private val shareOnClickListener: (File, String) -> Unit,
-    private val saveOnClickListener: (File, String) -> Unit,
-    private val deleteOnClickListener: (File) -> Unit,
-    private val activeArchiveOnClickListener: (File) -> Unit,
-    private val newFilenameCallback: (File, newName: String) -> Unit,
-) : ListAdapter<Pair<File, String>, DatabaseArchiveListAdapter.ViewHolder>(
+    private val shareOnClickListener: (DatabaseArchive) -> Unit,
+    private val saveOnClickListener: (DatabaseArchive) -> Unit,
+    private val deleteOnClickListener: (DatabaseArchive) -> Unit,
+    private val activeArchiveOnClickListener: (DatabaseArchive) -> Unit,
+    private val newFilenameCallback: (DatabaseArchive, newName: String) -> Unit,
+) : ListAdapter<DatabaseArchiveListAdapter.DatabaseArchive, DatabaseArchiveListAdapter.ViewHolder>(
     diffCallback
 ) {
     private var activeArchiveViewHolder: ViewHolder? = null
@@ -52,40 +53,30 @@ class DatabaseArchiveListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(
-            alias = getItem(position).second,
-            lastModified = getItem(position).first.lastModified(),
-            shareOnClickListener = {
-                shareOnClickListener(
-                    getItem(position).first,
-                    getItem(position).second
-                )
-            },
-            saveOnClickListener = {
-                saveOnClickListener(
-                    getItem(position).first,
-                    getItem(position).second
-                )
-            },
-            deleteOnClickListener = { deleteOnClickListener(getItem(position).first) },
+            alias = getItem(position).alias,
+            lastModified = getItem(position).file.lastModified(),
+            isActive = getItem(position).alias == activeArchiveAlias,
+            isEditing = getItem(position).alias == editingAlias,
+            shareOnClickListener = { shareOnClickListener(getItem(position)) },
+            saveOnClickListener = { saveOnClickListener(getItem(position)) },
+            deleteOnClickListener = { deleteOnClickListener(getItem(position)) },
             activeArchiveOnClickListener = {
                 activeArchiveViewHolder?.deactivate()
-                activeArchiveOnClickListener(getItem(position).first)
+                activeArchiveOnClickListener(getItem(position))
                 activeArchiveViewHolder = holder
             },
-            renameCallback = { newFilenameCallback(getItem(position).first, it) },
+            renameCallback = { newFilenameCallback(getItem(position), it) },
             onStartEditing = {
                 stopEditing()
                 editingViewHolder = holder
-                editingAlias = getItem(position).second
+                editingAlias = getItem(position).alias
             },
         )
 
-        if (getItem(position).second == activeArchiveAlias) {
-            holder.activate()
+        if (getItem(position).alias == activeArchiveAlias) {
             activeArchiveViewHolder = holder
         }
-        if (getItem(position).second == editingAlias) {
-            holder.startEditing(editingAlias)
+        if (getItem(position).alias == editingAlias) {
             editingViewHolder = holder
         }
     }
@@ -96,11 +87,27 @@ class DatabaseArchiveListAdapter(
         editingViewHolder = null
     }
 
+    data class DatabaseArchive(
+        var alias: String,
+        var file: File,
+    ) {
+        override fun equals(other: Any?) = (other is DatabaseArchive)
+                && this.alias == other.alias
+                && this.file.absolutePath == other.file.absolutePath
+                && this.file.lastModified() == other.file.lastModified()
+
+        override fun hashCode(): Int {
+            var result = alias.hashCode()
+            result = 31 * result + file.hashCode()
+            return result
+        }
+    }
+
     class ViewHolder(private val binding: ItemArchivedDatabaseBinding) :
-        androidx.recyclerview.widget.RecyclerView.ViewHolder(binding.root) {
+        RecyclerView.ViewHolder(binding.root) {
         private val context get() = binding.root.context
         private val dpUnit = UiUtil.dpToPixel(context, 1)
-        private var alias: String = ""
+        var alias: String = ""
             set(value) {
                 field = value
                 binding.textInputEditTextArchiveName.setText(alias)
@@ -117,6 +124,8 @@ class DatabaseArchiveListAdapter(
         fun bind(
             alias: String,
             lastModified: Long,
+            isActive: Boolean,
+            isEditing: Boolean,
             shareOnClickListener: () -> Unit,
             saveOnClickListener: () -> Unit,
             deleteOnClickListener: () -> Unit,
@@ -126,6 +135,16 @@ class DatabaseArchiveListAdapter(
         ) {
             this.alias = alias
             this.renameCallback = renameCallback
+            if (isActive) {
+                activate()
+            } else {
+                deactivate()
+            }
+            if (isEditing) {
+                startEditing()
+            } else {
+                stopEditing()
+            }
             binding.apply {
                 tvLastModified.text = context.getString(
                     R.string.last_modified_template, LocaleHelper.formatLocalizedDate(
@@ -171,7 +190,7 @@ class DatabaseArchiveListAdapter(
             return if (errorFlag) null else filename
         }
 
-        fun activate() {
+        private fun activate() {
             binding.btnActiveArchive.isEnabled = false
             val colorGreen = ContextCompat.getColor(context, R.color.green_add)
             binding.btnActiveArchive.drawable.setTint(colorGreen)
@@ -184,7 +203,7 @@ class DatabaseArchiveListAdapter(
             binding.btnActiveArchive.drawable.setTint(colorSemitransparentGray)
         }
 
-        fun startEditing(editingText: String? = null) {
+        private fun startEditing(editingText: String? = null) {
             binding.textInputLayoutArchiveName.apply {
                 boxStrokeWidth = dpUnit
                 endIconMode = TextInputLayout.END_ICON_CUSTOM
@@ -219,19 +238,19 @@ class DatabaseArchiveListAdapter(
     }
 
     companion object {
-        private val diffCallback = object : DiffUtil.ItemCallback<Pair<File, String>>() {
+        private val diffCallback = object : DiffUtil.ItemCallback<DatabaseArchive>() {
             override fun areItemsTheSame(
-                oldItem: Pair<File, String>,
-                newItem: Pair<File, String>,
+                oldItem: DatabaseArchive,
+                newItem: DatabaseArchive,
             ): Boolean {
                 return oldItem === newItem
             }
 
             override fun areContentsTheSame(
-                oldItem: Pair<File, String>,
-                newItem: Pair<File, String>,
+                oldItem: DatabaseArchive,
+                newItem: DatabaseArchive,
             ): Boolean {
-                return oldItem.second == newItem.second && oldItem.first.lastModified() == newItem.first.lastModified()
+                return oldItem == newItem
             }
 
         }

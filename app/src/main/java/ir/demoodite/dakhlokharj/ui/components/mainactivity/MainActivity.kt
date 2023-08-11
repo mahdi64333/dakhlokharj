@@ -198,12 +198,7 @@ class MainActivity : AppCompatActivity() {
         private var INSTANCE: Channel<Pair<FeedbackType, Int>>? = null
 
         private fun getUiFeedbackReceiver(): Flow<Pair<FeedbackType, Int>> {
-            return INSTANCE?.receiveAsFlow() ?: synchronized(this) {
-                if (INSTANCE == null) {
-                    INSTANCE = Channel()
-                }
-                INSTANCE!!.receiveAsFlow()
-            }
+            return getUiFeedbackChannel().receiveAsFlow()
         }
 
         private fun getUiFeedbackChannel(): Channel<Pair<FeedbackType, Int>> {
