@@ -122,10 +122,22 @@ class DatabaseManagerFragment :
     private fun setupDatabaseArchiveUi() {
         binding.rvArchives.adapter = DatabaseArchiveListAdapter(
             activeArchiveAlias = viewModel.currentDbAlias,
-            shareOnClickListener = { file, alias -> launchShareFileIntent(file, alias) },
-            saveOnClickListener = { file, alias -> launchSaveFileIntent(file, alias) },
-            deleteOnClickListener = { showDeleteArchiveDialog(it) },
-            activeArchiveOnClickListener = { viewModel.activateArchive(it) },
+            shareOnClickListener = { file, alias ->
+                stopEditing()
+                launchShareFileIntent(file, alias)
+            },
+            saveOnClickListener = { file, alias ->
+                stopEditing()
+                launchSaveFileIntent(file, alias)
+            },
+            deleteOnClickListener = {
+                stopEditing()
+                showDeleteArchiveDialog(it)
+            },
+            activeArchiveOnClickListener = {
+                stopEditing()
+                viewModel.activateArchive(it)
+            },
             newFilenameCallback = { file, newName -> viewModel.renameArchive(file, newName) },
         )
         binding.rvArchives.layoutManager = LinearLayoutManager(requireContext())
@@ -159,6 +171,7 @@ class DatabaseManagerFragment :
     }
 
     private fun showNewArchiveDatabaseDialog() {
+        stopEditing()
         val databaseAliasDialogBinding =
             ViewDialogDatabaseAliasBinding.inflate(layoutInflater, null, false)
         databaseAliasDialogBinding.textInputEditTextDatabaseAlias.filters = arrayOf(
@@ -185,6 +198,7 @@ class DatabaseManagerFragment :
 
     private fun validateDbAndShowImportArchiveDatabaseDialog(uri: Uri) {
         try {
+            stopEditing()
             requireContext().contentResolver.openFileDescriptor(uri, "r")?.use {
                 FileInputStream(it.fileDescriptor).use { inputStream ->
                     viewModel.importInputStreamToCacheDir(inputStream)
@@ -243,6 +257,7 @@ class DatabaseManagerFragment :
     }
 
     private fun showDeleteArchiveDialog(archive: File) {
+        stopEditing()
         UiUtil.setSweetAlertDialogNightMode(resources)
         SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE).apply {
             contentText = getString(R.string.are_you_sure_to_delete_archive)
@@ -304,6 +319,11 @@ class DatabaseManagerFragment :
         }
 
         importFileActivityResultLauncher.launch(openIntent)
+    }
+
+    private fun stopEditing() {
+        val adapter = binding.rvArchives.adapter as DatabaseArchiveListAdapter
+        adapter.stopEditing()
     }
 
     companion object EventChannel {
