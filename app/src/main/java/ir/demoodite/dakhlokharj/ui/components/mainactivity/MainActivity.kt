@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
                                 setConfirmClickListener { dismiss() }
                                 show()
                                 getButton(SweetAlertDialog.BUTTON_CONFIRM).apply {
-                                    UiUtil.fixSweetAlertDialogButtons(this)
+                                    UiUtil.fixSweetAlertDialogButton(this)
                                 }
                             }
                         }

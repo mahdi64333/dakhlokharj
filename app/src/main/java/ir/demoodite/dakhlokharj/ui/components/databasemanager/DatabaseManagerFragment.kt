@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
@@ -123,7 +124,7 @@ class DatabaseManagerFragment :
             activeArchiveAlias = viewModel.currentDbAlias,
             shareOnClickListener = { file, alias -> launchShareFileIntent(file, alias) },
             saveOnClickListener = { file, alias -> launchSaveFileIntent(file, alias) },
-            deleteOnClickListener = { viewModel.deleteArchive(it) },
+            deleteOnClickListener = { showDeleteArchiveDialog(it) },
             activeArchiveOnClickListener = { viewModel.activateArchive(it) },
             newFilenameCallback = { file, newName -> viewModel.renameArchive(file, newName) },
         )
@@ -239,6 +240,22 @@ class DatabaseManagerFragment :
         }
 
         return if (errorFlag) null else aliasText
+    }
+
+    private fun showDeleteArchiveDialog(archive: File) {
+        UiUtil.setSweetAlertDialogNightMode(resources)
+        SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE).apply {
+            contentText = getString(R.string.are_you_sure_to_delete_archive)
+            confirmText = getString(R.string.confirm)
+            setConfirmClickListener {
+                viewModel.deleteArchive(archive)
+                dismiss()
+            }
+            cancelText = getString(R.string.cancel)
+            show()
+            UiUtil.fixSweetAlertDialogButton(getButton(SweetAlertDialog.BUTTON_CONFIRM))
+            UiUtil.fixSweetAlertDialogButton(getButton(SweetAlertDialog.BUTTON_CANCEL))
+        }
     }
 
     private fun launchShareFileIntent(file: File, alias: String) {

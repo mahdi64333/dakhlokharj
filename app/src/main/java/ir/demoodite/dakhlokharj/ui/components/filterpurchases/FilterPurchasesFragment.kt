@@ -139,8 +139,8 @@ class FilterPurchasesFragment :
                                 dismiss()
                             }
                             show()
-                            UiUtil.fixSweetAlertDialogButtons(getButton(SweetAlertDialog.BUTTON_CONFIRM))
-                            UiUtil.fixSweetAlertDialogButtons(getButton(SweetAlertDialog.BUTTON_CANCEL))
+                            UiUtil.fixSweetAlertDialogButton(getButton(SweetAlertDialog.BUTTON_CONFIRM))
+                            UiUtil.fixSweetAlertDialogButton(getButton(SweetAlertDialog.BUTTON_CANCEL))
                         }
 
                         true

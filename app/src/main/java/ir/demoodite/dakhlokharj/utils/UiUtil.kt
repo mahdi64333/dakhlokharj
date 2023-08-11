@@ -61,7 +61,7 @@ object UiUtil {
         SweetAlertDialog.DARK_STYLE = isNightModeOn(resources)
     }
 
-    fun fixSweetAlertDialogButtons(button: Button) {
+    fun fixSweetAlertDialogButton(button: Button) {
         val margin = dpToPixel(button.context, DIALOG_BUTTONS_MARGIN)
         button.setPadding(0)
         button.updateLayoutParams<ViewGroup.MarginLayoutParams> {
