@@ -26,7 +26,9 @@ class DatabaseArchiveListAdapter(
 ) : ListAdapter<DatabaseArchiveListAdapter.DatabaseArchive, DatabaseArchiveListAdapter.ViewHolder>(
     diffCallback
 ) {
+    private var activeArchivePosition = RecyclerView.NO_POSITION
     private var activeArchiveViewHolder: ViewHolder? = null
+    private var editingArchivePosition = RecyclerView.NO_POSITION
     private var editingViewHolder: ViewHolder? = null
     private var editingAlias: String? = null
 
@@ -40,6 +42,7 @@ class DatabaseArchiveListAdapter(
         super.onViewRecycled(holder)
 
         if (holder == activeArchiveViewHolder) {
+            activeArchiveAlias = holder.editingAlias
             holder.deactivate()
             activeArchiveViewHolder = null
         }
@@ -55,28 +58,34 @@ class DatabaseArchiveListAdapter(
         holder.bind(
             alias = getItem(position).alias,
             lastModified = getItem(position).file.lastModified(),
-            isActive = getItem(position).alias == activeArchiveAlias,
-            isEditing = getItem(position).alias == editingAlias,
+            isActive = holder.adapterPosition == activeArchivePosition,
+            isEditing = holder.adapterPosition == editingArchivePosition,
+            editingText = editingAlias,
             shareOnClickListener = { shareOnClickListener(getItem(position)) },
             saveOnClickListener = { saveOnClickListener(getItem(position)) },
             deleteOnClickListener = { deleteOnClickListener(getItem(position)) },
-            activeArchiveOnClickListener = {
+            activateArchiveOnClickListener = {
                 activeArchiveViewHolder?.deactivate()
                 activeArchiveOnClickListener(getItem(position))
+                activeArchivePosition = holder.adapterPosition
                 activeArchiveViewHolder = holder
             },
-            renameCallback = { newFilenameCallback(getItem(position), it) },
+            renameCallback = {
+                newFilenameCallback(getItem(position), it)
+                editingAlias = null
+            },
             onStartEditing = {
                 stopEditing()
+                editingAlias = null
+                editingArchivePosition = holder.adapterPosition
                 editingViewHolder = holder
-                editingAlias = getItem(position).alias
             },
         )
 
-        if (getItem(position).alias == activeArchiveAlias) {
+        if (holder.adapterPosition == activeArchivePosition) {
             activeArchiveViewHolder = holder
         }
-        if (getItem(position).alias == editingAlias) {
+        if (holder.adapterPosition == editingArchivePosition) {
             editingViewHolder = holder
         }
     }
@@ -91,10 +100,8 @@ class DatabaseArchiveListAdapter(
         var alias: String,
         var file: File,
     ) {
-        override fun equals(other: Any?) = (other is DatabaseArchive)
-                && this.alias == other.alias
-                && this.file.absolutePath == other.file.absolutePath
-                && this.file.lastModified() == other.file.lastModified()
+        override fun equals(other: Any?) =
+            (other is DatabaseArchive) && this.alias == other.alias && this.file.absolutePath == other.file.absolutePath && this.file.lastModified() == other.file.lastModified()
 
         override fun hashCode(): Int {
             var result = alias.hashCode()
@@ -126,10 +133,11 @@ class DatabaseArchiveListAdapter(
             lastModified: Long,
             isActive: Boolean,
             isEditing: Boolean,
+            editingText: String?,
             shareOnClickListener: () -> Unit,
             saveOnClickListener: () -> Unit,
             deleteOnClickListener: () -> Unit,
-            activeArchiveOnClickListener: () -> Unit,
+            activateArchiveOnClickListener: () -> Unit,
             renameCallback: (newName: String) -> Unit,
             onStartEditing: () -> Unit,
         ) {
@@ -141,7 +149,7 @@ class DatabaseArchiveListAdapter(
                 deactivate()
             }
             if (isEditing) {
-                startEditing()
+                startEditing(editingText)
             } else {
                 stopEditing()
             }
@@ -162,7 +170,7 @@ class DatabaseArchiveListAdapter(
                 }
                 btnActiveArchive.setOnClickListener {
                     activate()
-                    activeArchiveOnClickListener()
+                    activateArchiveOnClickListener()
                 }
                 textInputEditTextArchiveName.setOnLongClickListener {
                     onStartEditing()
