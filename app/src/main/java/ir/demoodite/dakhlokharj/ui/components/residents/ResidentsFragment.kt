@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.models.Resident
@@ -20,7 +19,6 @@ import ir.demoodite.dakhlokharj.databinding.FragmentResidentsBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -83,7 +81,7 @@ class ResidentsFragment :
     }
 
     private fun insertEditingResident(resident: Resident) {
-        (binding.rvResidents.adapter as ResidentsListAdapter).endEditing()
+        (binding.rvResidents.adapter as ResidentsListAdapter).stopEditing()
         viewModel.insertResident(resident)
         binding.textInputEditTextResidentName.setText("")
     }
@@ -110,21 +108,8 @@ class ResidentsFragment :
                 resident.active = active
                 viewModel.updateResident(resident)
             }
-            onNameChangedListener = { resident, newName, editText, viewHolder ->
+            onNameChangedListener = { resident, newName ->
                 resident.name = newName
-                lifecycleScope.launch {
-                    viewModel.residentNameEditErrorResChannel.first {
-                        if (it == null) {
-                            UiUtil.hideKeyboard(editText)
-                            viewHolder.setEditing(false)
-                        } else {
-                            val textInputLayout = editText.parent.parent as TextInputLayout
-                            textInputLayout.error = getString(it)
-                            UiUtil.removeErrorOnTextChange(editText)
-                        }
-                        true
-                    }
-                }
                 viewModel.updateResident(resident)
             }
         }
@@ -154,7 +139,7 @@ class ResidentsFragment :
                 val residents = LinkedList(residentsAdapter.currentList)
                 val residentPosition = viewHolder.adapterPosition
                 val resident = residents[residentPosition]
-                residentsAdapter.endEditing()
+                residentsAdapter.stopEditing()
                 residents.removeAt(residentPosition)
                 residentsAdapter.submitList(residents)
 
