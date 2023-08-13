@@ -95,6 +95,8 @@
     <string name="application_language">Language</string>
     <string name="persian">Persian</string>
     <string name="english">English</string>
+    <string name="persian_untranslated" translatable="false">فارسی</string>
+    <string name="english_untranslated" translatable="false">English</string>
     <string-array name="languages">
         <item>Persian</item>
         <item>English</item>

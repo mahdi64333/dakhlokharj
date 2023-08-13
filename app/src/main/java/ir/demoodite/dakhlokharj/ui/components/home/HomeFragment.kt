@@ -33,6 +33,7 @@ import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.*
@@ -51,6 +52,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        showLanguageSelectionIfFirstLaunch()
         setupRecyclerView()
         setupFab()
         setupOptionsMenu()
@@ -112,6 +114,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    private fun showLanguageSelectionIfFirstLaunch() {
+        runBlocking {
+            if (viewModel.noLanguageSelected()) {
+                val action = HomeFragmentDirections.actionHomeFragmentToLanguageSelectionFragment()
+                findNavController().navigate(action)
+            }
         }
     }
 

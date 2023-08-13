@@ -50,7 +50,7 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
         }
     }
 
-    private suspend fun setLanguage(language: String) {
+    suspend fun setLanguage(language: String) {
         context.settingsDataStore.edit { preferences ->
             preferences[LANGUAGE_KEY] = language
         }
@@ -67,7 +67,7 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
                 }
             }
             .map { preferences ->
-                preferences[LANGUAGE_KEY] ?: "EN"
+                preferences[LANGUAGE_KEY] ?: ""
             }
     }
 

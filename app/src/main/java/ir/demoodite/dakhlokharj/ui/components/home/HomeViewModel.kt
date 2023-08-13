@@ -81,4 +81,10 @@ class HomeViewModel @Inject constructor(
             settingsDataStore.setOrderBy(orderBy.name)
         }
     }
+
+    fun noLanguageSelected(): Boolean {
+        return runBlocking {
+            settingsDataStore.getLanguageFlow().first().isEmpty()
+        }
+    }
 }

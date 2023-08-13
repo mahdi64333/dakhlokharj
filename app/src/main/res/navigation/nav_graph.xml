@@ -16,6 +16,11 @@
         <action
             android:id="@+id/action_homeFragment_to_databaseManagerFragment"
             app:destination="@id/databaseManagerFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_languageSelectionFragment"
+            app:destination="@id/languageSelectionFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/manageResidentsFragment"
@@ -50,5 +55,20 @@
             android:defaultValue="@null"
             app:argType="android.net.Uri"
             app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/languageSelectionFragment"
+        android:name="ir.demoodite.dakhlokharj.ui.components.languageselection.LanguageSelectionFragment"
+        android:label="fragment_language_selection"
+        tools:layout="@layout/fragment_language_selection">
+        <action
+            android:id="@+id/action_languageSelectionFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/languageSelectionFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="fullScreen"
+            app:argType="boolean"
+            android:defaultValue="true" />
     </fragment>
 </navigation>
