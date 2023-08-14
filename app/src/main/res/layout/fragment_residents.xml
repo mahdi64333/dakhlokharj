@@ -10,35 +10,42 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout_resident_name"
+        <FrameLayout
+            android:id="@+id/layout_resident_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/screen_padding"
-            android:inputType="textPersonName"
-            app:endIconDrawable="@drawable/baseline_add_circle_24"
-            app:endIconMode="custom"
-            app:endIconTint="@color/green_add"
-            app:errorEnabled="true"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/textInputEditText_resident_name"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout_resident_name"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:autofillHints="name"
-                android:hint="@string/resident_name_hint"
-                android:imeOptions="actionDone"
-                android:singleLine="true" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/screen_padding"
+                android:layout_marginTop="@dimen/screen_padding"
+                android:inputType="textPersonName"
+                app:endIconDrawable="@drawable/baseline_add_circle_24"
+                app:endIconMode="custom"
+                app:endIconTint="@color/green_add"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textInputEditText_resident_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="name"
+                    android:hint="@string/resident_name_hint"
+                    android:imeOptions="actionDone"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </FrameLayout>
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_residents"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textInputLayout_resident_name"
+            app:layout_constraintTop_toBottomOf="@id/layout_resident_name"
             tools:itemCount="4"
             tools:listitem="@layout/item_resident" />
 
@@ -51,6 +58,6 @@
             android:text="@string/no_residents_found"
             android:textAppearance="?attr/textAppearanceLabelMedium"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/textInputLayout_resident_name" />
+            app:layout_constraintTop_toTopOf="@id/rv_residents" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -160,4 +160,16 @@
     <string name="showcase_delete_purchase">
         برای حذف خرید، آن را کنار بکشید
     </string>
+    <string name="showcase_resident_input">
+        از این‌جا می‌توانید ساکنین جدید اضافه کنید
+    </string>
+    <string name="showcase_resident_name_edit">
+        برای تغییر نام ساکن، انگشت خود را روی نام نگه دارید
+    </string>
+    <string name="showcase_delete_resident">
+        برای حذف ساکن، آن را کنار بکشید
+    </string>
+    <string name="showcase_active_resident">
+        فقط خرید‌های ساکنین فعال در صفحه‌ی اصلی نمایش داده می‌شوند
+    </string>
 </resources>
