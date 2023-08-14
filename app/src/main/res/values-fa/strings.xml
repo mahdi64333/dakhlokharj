@@ -142,4 +142,22 @@
     <string name="imported_successfully">با موفقیت اضافه شد</string>
     <string name="invalid_database_file">فایل دریافت شده معتبر نمی‌باشد!</string>
     <string name="are_you_sure_to_delete_archive">آیا از قصد حذف این آرشیو اطمینان دارید؟</string>
+    <string name="showcase_resident_adding">
+        قبل از هر چیز، اطلاعات افرادی که کنار یکدیگر زندگی می‌کنند را
+        از طریق منوی «مدیریت ساکنین» وارد کنید
+    </string>
+    <string name="showcase_add_purchase">
+        از این‌جا می‌توانید خرید‌ها را اضافه کنید\n
+        مصرف‌کنندگان، هزینه را تقسیم و به خریدار پرداخت می‌کنند
+    </string>
+    <string name="showcase_product">بستنی</string>
+    <string name="showcase_price">60000</string>
+    <string name="showcase_resident">احمد</string>
+    <string name="showcase_purchase">
+        وسط آیتم خرید، اسم خریدار نوشته شده\n
+        با زدن روی هر خرید، می‌توانید لیست مصرف‌کننده‌ها را ببینید
+    </string>
+    <string name="showcase_delete_purchase">
+        برای حذف خرید، آن را کنار بکشید
+    </string>
 </resources>

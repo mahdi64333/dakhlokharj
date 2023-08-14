@@ -6,6 +6,7 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
@@ -23,11 +24,16 @@ import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.databinding.ActivityMainBinding
 import ir.demoodite.dakhlokharj.ui.components.databasemanager.DatabaseManagerFragment
 import ir.demoodite.dakhlokharj.ui.components.databasemanager.DatabaseManagerFragmentArgs
+import ir.demoodite.dakhlokharj.ui.components.home.HomeFragment
+import ir.demoodite.dakhlokharj.ui.showcase.ShowcaseStatus
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import smartdevelop.ir.eram.showcaseviewlib.GuideView
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
+import smartdevelop.ir.eram.showcaseviewlib.config.PointerType
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -56,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         handleDrawerBackPressed()
         handleIntent(intent)
+        showShowcaseIfNotShown()
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -170,9 +177,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleIntent(intent: Intent) {
         intent.data?.let { intentData ->
-            if (intent.action == Intent.ACTION_VIEW
-                && fileSchemes.contains(intent.data?.scheme)
-                && sqliteMimeTypes.contains(contentResolver.getType(intentData))
+            if (intent.action == Intent.ACTION_VIEW && fileSchemes.contains(intent.data?.scheme) && sqliteMimeTypes.contains(
+                    contentResolver.getType(intentData)
+                )
             ) {
                 if (navController.currentDestination?.id == R.id.databaseManagerFragment) {
                     lifecycleScope.launch {
@@ -180,12 +187,35 @@ class MainActivity : AppCompatActivity() {
                     }
                 } else {
                     val args =
-                        DatabaseManagerFragmentArgs.Builder()
-                            .setImportingArchiveUri(intentData)
+                        DatabaseManagerFragmentArgs.Builder().setImportingArchiveUri(intentData)
                             .build()
                     navController.navigate(R.id.databaseManagerFragment, args.toBundle())
                 }
             }
+        }
+    }
+
+    private fun showShowcaseIfNotShown() {
+        val showcaseStatus = ShowcaseStatus(this)
+
+        if (navController.currentDestination?.id == R.id.homeFragment && !showcaseStatus.isShowcaseShown(
+                ShowcaseStatus.Screen.HOME
+            )
+        ) {
+            GuideView.Builder(this)
+                .setContentText(getString(R.string.showcase_resident_adding))
+                .setDismissType(DismissType.anywhere)
+                .setTargetView(binding.toolbar.getChildAt(1))
+                .setPointerType(PointerType.arrow)
+                .setContentTypeFace(ResourcesCompat.getFont(this, R.font.iran_sans))
+                .setContentTextSize(15)
+                .setGuideListener {
+                    lifecycleScope.launch {
+                        HomeFragment.startShowcase()
+                    }
+                }
+                .build()
+                .show()
         }
     }
 

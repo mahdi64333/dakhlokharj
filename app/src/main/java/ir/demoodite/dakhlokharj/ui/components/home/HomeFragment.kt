@@ -1,19 +1,20 @@
 package ir.demoodite.dakhlokharj.ui.components.home
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.animation.AnimationUtils
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.MenuProvider
-import androidx.core.view.isVisible
-import androidx.core.view.setPadding
+import androidx.core.view.*
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,12 +29,20 @@ import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
 import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.addpurchase.AddPurchaseBottomSheetFragment
+import ir.demoodite.dakhlokharj.ui.showcase.ShowcaseStatus
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import saman.zamani.persiandate.PersianDate
+import smartdevelop.ir.eram.showcaseviewlib.GuideView
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
+import smartdevelop.ir.eram.showcaseviewlib.config.PointerType
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.*
@@ -73,6 +82,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     updateOrderMenuItemIcon(OrderBy.valueOf(it))
                 }
+            }
+        }
+
+        lifecycleScope.launch {
+            getShowcaseFeedbackReceiver().collectLatest {
+                showShowcase()
             }
         }
     }
@@ -198,6 +213,78 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private fun showShowcase() {
+        val showcaseStatus = ShowcaseStatus(requireContext())
+        val adapter = binding.rvPurchases.adapter as PurchasesListAdapter
+
+        binding.rvPurchases.itemAnimator = null
+        if (viewModel.purchasesStateFlow.value.isEmpty()) {
+            adapter.submitList(
+                listOf(
+                    DetailedPurchase(
+                        purchaseId = 0,
+                        purchaseProduct = getString(R.string.showcase_product),
+                        purchasePrice = getString(R.string.showcase_price).toLong(),
+                        purchaseTime = PersianDate().time,
+                        purchaseBuyerId = 0,
+                        buyerName = getString(R.string.showcase_resident)
+                    )
+                )
+            )
+            binding.tvNoData.isGone = true
+        }
+
+        GuideView.Builder(requireActivity())
+            .setContentText(getString(R.string.showcase_add_purchase))
+            .setDismissType(DismissType.anywhere)
+            .setTargetView(binding.fabAddPurchase)
+            .setPointerType(PointerType.arrow)
+            .setContentTypeFace(ResourcesCompat.getFont(requireContext(), R.font.iran_sans))
+            .setContentTextSize(15)
+            .setGuideListener {
+                val purchaseSwipeShowcase = GuideView.Builder(requireActivity())
+                    .setContentText(getString(R.string.showcase_delete_purchase))
+                    .setDismissType(DismissType.anywhere)
+                    .setTargetView(binding.rvPurchases[0])
+                    .setPointerType(PointerType.arrow)
+                    .setContentTypeFace(ResourcesCompat.getFont(requireContext(), R.font.iran_sans))
+                    .setContentTextSize(15)
+                    .setGuideListener {
+                        if (viewModel.purchasesStateFlow.value.isEmpty()) {
+                            adapter.submitList(emptyList()) {
+                                binding.rvPurchases.itemAnimator = DefaultItemAnimator()
+                                binding.tvNoData.isGone = false
+                            }
+                        } else {
+                            binding.rvPurchases[0].clearAnimation()
+                        }
+                        showcaseStatus.recordShowcaseEnd(ShowcaseStatus.Screen.HOME)
+                    }
+                    .build()
+
+                GuideView.Builder(requireActivity())
+                    .setContentText(getString(R.string.showcase_purchase))
+                    .setDismissType(DismissType.anywhere)
+                    .setTargetView(binding.rvPurchases[0])
+                    .setPointerType(PointerType.arrow)
+                    .setContentTypeFace(ResourcesCompat.getFont(requireContext(), R.font.iran_sans))
+                    .setContentTextSize(15)
+                    .setGuideListener {
+                        val swipeAnimation =
+                            AnimationUtils.loadAnimation(requireContext(), R.anim.move_to_side)
+                        swipeAnimation.isFillEnabled = true
+                        swipeAnimation.fillAfter = true
+                        binding.rvPurchases[0].startAnimation(swipeAnimation)
+                        purchaseSwipeShowcase.show()
+                    }
+                    .build()
+                    .show()
+            }
+            .build()
+            .show()
+    }
+
     private fun setupOptionsMenu() {
         requireActivity().addMenuProvider(
             object : MenuProvider {
@@ -237,5 +324,31 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                 }
             }, viewLifecycleOwner, Lifecycle.State.STARTED
         )
+    }
+
+    companion object UiFeedbackChannel {
+        @Volatile
+        private var SHOWCASE_INSTANCE: Channel<ShowcaseFeedbackType>? = null
+
+        private fun getShowcaseFeedbackReceiver(): Flow<ShowcaseFeedbackType> {
+            return getShowcaseFeedbackChannel().receiveAsFlow()
+        }
+
+        private fun getShowcaseFeedbackChannel(): Channel<ShowcaseFeedbackType> {
+            return SHOWCASE_INSTANCE ?: synchronized(this) {
+                if (SHOWCASE_INSTANCE == null) {
+                    SHOWCASE_INSTANCE = Channel()
+                }
+                SHOWCASE_INSTANCE!!
+            }
+        }
+
+        suspend fun startShowcase() {
+            getShowcaseFeedbackChannel().send(ShowcaseFeedbackType.START_HOME_SHOWCASE)
+        }
+
+        enum class ShowcaseFeedbackType {
+            START_HOME_SHOWCASE,
+        }
     }
 }

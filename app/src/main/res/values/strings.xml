@@ -155,4 +155,22 @@
     <string name="imported_successfully">Imported successfully</string>
     <string name="invalid_database_file">The given file is not valid!</string>
     <string name="are_you_sure_to_delete_archive">Are you sure to delete this archive?</string>
+    <string name="showcase_resident_adding">
+        Before anything, add the information of the people who live together
+        from the \"Manage residents\" menu
+    </string>
+    <string name="showcase_add_purchase">
+        From here you can add purchases\n
+        The consumers split the cost and must pay to the buyer
+    </string>
+    <string name="showcase_product">Ice cream</string>
+    <string name="showcase_price">22</string>
+    <string name="showcase_resident">Tommy</string>
+    <string name="showcase_purchase">
+        The buyer name is written in the middle of purchase items\n
+        By clicking any purchase you can see the list of consumers
+    </string>
+    <string name="showcase_delete_purchase">
+        Swipe to delete purchase
+    </string>
 </resources>

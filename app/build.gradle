@@ -87,6 +87,9 @@ dependencies {
     implementation files('libs/MaskedEditText-debug.aar')
     implementation 'com.github.umeriqbal97:CommaSeparatedEditText:1.0.5'
 
+    // Showcase
+    implementation 'com.github.mreram:showcaseview:1.4.1'
+
     // Tests
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
