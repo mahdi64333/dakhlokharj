@@ -17,7 +17,7 @@ import ir.demoodite.dakhlokharj.data.room.models.Resident
 import kotlinx.coroutines.flow.first
 import java.io.File
 
-private const val DATABASE_VERSION = 4
+private const val DATABASE_VERSION = 5
 
 @Database(
     entities = [
@@ -48,6 +48,7 @@ abstract class DataRepository : RoomDatabase() {
         const val residentId = "residentId"
         const val residentName = "residentName"
         const val residentActive = "residentActive"
+        const val residentDeleted = "residentDeleted"
 
         // Receipts table keys
         const val purchasesTableName = "purchases"

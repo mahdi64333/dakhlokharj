@@ -25,7 +25,7 @@ class FilterPurchasesViewModel @Inject constructor(
     private var purchasesCollectionJobs: MutableList<Job?> =
         MutableList(_purchasesStateFlows.size) { null }
     val residentsStateFlow: StateFlow<List<Resident>> by lazy {
-        dataRepository.residentDao.getAll().stateIn(
+        dataRepository.residentDao.getAllNonDeleted().stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
             listOf()

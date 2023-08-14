@@ -149,7 +149,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             UiUtil.setSweetAlertDialogNightMode(resources)
             lifecycleScope.launch {
                 val consumers =
-                    DataRepository.getDatabase(requireContext()).consumerDao.getConsumerNamesOfPurchase(
+                    DataRepository.getDatabase(requireContext()).consumerDao.getConsumerResidentsOfPurchase(
                         it.purchaseId
                     ).first()
                 UiUtil.createConsumersSweetAlertDialog(requireContext(), consumers).apply {

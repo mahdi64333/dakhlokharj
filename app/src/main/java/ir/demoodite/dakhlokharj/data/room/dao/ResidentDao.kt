@@ -10,6 +10,7 @@ import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasePrice
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseTime
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasesTableName
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentActive
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentDeleted
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentId
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentName
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentsTableName
@@ -24,9 +25,17 @@ interface ResidentDao {
     )
     fun getAll(): Flow<List<Resident>>
 
+
     @Query(
         "SELECT * FROM $residentsTableName " +
-                "WHERE $residentActive = 1"
+                "WHERE $residentDeleted = 0"
+    )
+    fun getAllNonDeleted(): Flow<List<Resident>>
+
+    @Query(
+        "SELECT * FROM $residentsTableName " +
+                "WHERE $residentActive = 1 " +
+                "AND $residentDeleted = 0"
     )
     fun getAllActive(): Flow<List<Resident>>
 
@@ -60,6 +69,7 @@ interface ResidentDao {
                 " SELECT $residentsTableName.$residentName, credits.credit AS credit, debts.debt AS debt " +
                 "FROM $residentsTableName, credits, debts " +
                 "WHERE $residentActive = 1 " +
+                "AND $residentDeleted = 0 " +
                 "AND credits.$residentId = $residentsTableName.$residentId " +
                 "AND debts.$residentId = $residentsTableName.$residentId"
     )
@@ -97,10 +107,27 @@ interface ResidentDao {
                 " SELECT $residentsTableName.$residentName, credits.credit AS credit, debts.debt AS debt " +
                 "FROM $residentsTableName, credits, debts " +
                 "WHERE $residentActive = 1 " +
+                "AND $residentDeleted = 0 " +
                 "AND credits.$residentId = $residentsTableName.$residentId " +
                 "AND debts.$residentId = $residentsTableName.$residentId"
     )
     fun getAllSummariesBetween(startTime: Long, endTime: Long): Flow<List<ResidentSummery>>
+
+    @Query(
+        "SELECT EXISTS  (" +
+                "SELECT * FROM $residentsTableName " +
+                "WHERE $residentDeleted = 0 " +
+                "AND $residentName = :name" +
+                ")"
+    )
+    suspend fun isNameTaken(name: String): Boolean
+
+    @Query(
+        "UPDATE $residentsTableName " +
+                "SET $residentDeleted = 1 ,$residentActive = 0 " +
+                "WHERE $residentId = :id"
+    )
+    suspend fun delete(id: Long)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(resident: Resident): Long
@@ -110,7 +137,4 @@ interface ResidentDao {
 
     @Update(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(resident: Resident): Int
-
-    @Delete
-    suspend fun delete(resident: Resident)
 }

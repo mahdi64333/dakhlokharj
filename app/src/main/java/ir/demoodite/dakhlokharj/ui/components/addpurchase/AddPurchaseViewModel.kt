@@ -16,7 +16,7 @@ class AddPurchaseViewModel @Inject constructor(
     private val dataRepository: DataRepository,
 ) : ViewModel() {
     private val residentsStateFlow: StateFlow<List<Resident>> by lazy {
-        dataRepository.residentDao.getAll().stateIn(
+        dataRepository.residentDao.getAllNonDeleted().stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
             listOf()

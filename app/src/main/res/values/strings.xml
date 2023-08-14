@@ -185,4 +185,5 @@
     <string name="showcase_delete_resident">
         Swipe to delete resident
     </string>
+    <string name="deleted">deleted</string>
 </resources>

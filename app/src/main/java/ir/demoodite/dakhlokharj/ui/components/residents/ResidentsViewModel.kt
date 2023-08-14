@@ -11,7 +11,6 @@ import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.models.Resident
 import ir.demoodite.dakhlokharj.data.room.workers.DeleteResidentWorker
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -23,7 +22,7 @@ class ResidentsViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     private val workManager: WorkManager,
 ) : ViewModel() {
-    val residentsStateFlow = dataRepository.residentDao.getAll().stateIn(
+    val residentsStateFlow = dataRepository.residentDao.getAllNonDeleted().stateIn(
         viewModelScope,
         SharingStarted.Lazily,
         listOf()
@@ -35,9 +34,9 @@ class ResidentsViewModel @Inject constructor(
 
     fun insertResident(resident: Resident) {
         viewModelScope.launch {
-            val id = dataRepository.residentDao.insert(resident)
-            if (id <= 0) {
-                delay(2000)
+            if (!dataRepository.residentDao.isNameTaken(resident.name)) {
+                dataRepository.residentDao.insert(resident)
+            } else {
                 _residentNameInputErrorResChannel.send(R.string.duplicate)
             }
         }
@@ -45,11 +44,10 @@ class ResidentsViewModel @Inject constructor(
 
     fun updateResident(resident: Resident) {
         viewModelScope.launch {
-            val rowsAffected = dataRepository.residentDao.update(resident)
-            if (rowsAffected <= 0) {
-                _residentNameEditErrorResChannel.send(R.string.duplicate)
+            if (!dataRepository.residentDao.isNameTaken(resident.name)) {
+                dataRepository.residentDao.update(resident)
             } else {
-                _residentNameEditErrorResChannel.send(null)
+                _residentNameEditErrorResChannel.send(R.string.duplicate)
             }
         }
     }

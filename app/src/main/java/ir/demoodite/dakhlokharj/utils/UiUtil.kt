@@ -18,6 +18,7 @@ import androidx.core.widget.addTextChangedListener
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.textfield.TextInputLayout
 import ir.demoodite.dakhlokharj.R
+import ir.demoodite.dakhlokharj.data.room.models.Resident
 
 
 object UiUtil {
@@ -75,13 +76,20 @@ object UiUtil {
 
     fun createConsumersSweetAlertDialog(
         context: Context,
-        consumers: List<String>,
+        consumers: List<Resident>,
     ): SweetAlertDialog {
         return SweetAlertDialog(context, SweetAlertDialog.NORMAL_TYPE).apply {
+            val consumerNames = consumers.map {
+                if (it.deleted) {
+                    "${it.name} (${context.getString(R.string.deleted)})"
+                } else {
+                    it.name
+                }
+            }
             titleText = context.getString(R.string.consumers)
             val listView = ListView(context)
             val arrayAdapter = ArrayAdapter(
-                context, android.R.layout.simple_list_item_1, consumers
+                context, android.R.layout.simple_list_item_1, consumerNames
             )
             listView.adapter = arrayAdapter
             listView.selector = ColorDrawable(Color.TRANSPARENT)
