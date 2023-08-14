@@ -173,4 +173,16 @@
     <string name="showcase_delete_purchase">
         Swipe to delete purchase
     </string>
+    <string name="showcase_resident_input">
+        From here you can add residents
+    </string>
+    <string name="showcase_resident_name_edit">
+        You can change the resident name by holding it
+    </string>
+    <string name="showcase_active_resident">
+        Only active resident purchases are shown in the home screen
+    </string>
+    <string name="showcase_delete_resident">
+        Swipe to delete resident
+    </string>
 </resources>

@@ -19,6 +19,7 @@ class ShowcaseStatus(context: Context) {
 
     enum class Screen {
         HOME,
+        RESIDENTS,
     }
 
     companion object {
