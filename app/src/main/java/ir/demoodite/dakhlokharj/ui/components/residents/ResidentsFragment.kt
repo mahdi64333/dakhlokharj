@@ -1,7 +1,6 @@
 package ir.demoodite.dakhlokharj.ui.components.residents
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.core.content.res.ResourcesCompat
@@ -208,7 +207,6 @@ class ResidentsFragment :
             .setPointerType(PointerType.arrow)
             .setContentTypeFace(ResourcesCompat.getFont(requireContext(), R.font.iran_sans))
             .setContentTextSize(15).setGuideListener {
-                Log.d("fuck", adapter.currentList.toString())
                 val itemResidentBinding = ItemResidentBinding.bind(binding.rvResidents[0])
                 itemResidentBinding.textInputEditTextResidentName.performLongClick()
                 UiUtil.hideKeyboard(itemResidentBinding.textInputEditTextResidentName)

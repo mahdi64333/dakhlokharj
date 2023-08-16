@@ -50,7 +50,7 @@ import java.util.*
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
     private val viewModel: HomeViewModel by viewModels()
-    private lateinit var orderMenuItem: MenuItem
+    private var orderMenuItem: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +67,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         setupOptionsMenu()
     }
 
+    override fun onStop() {
+        super.onStop()
+
+        orderMenuItem = null
+    }
 
     private fun startDataCollection() {
         lifecycleScope.launch {
@@ -93,42 +98,27 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun updatePurchasesUi(detailedPurchases: List<DetailedPurchase>) {
-        val purchasesListAdapter =
-            binding.rvPurchases.adapter as PurchasesListAdapter
+        val purchasesListAdapter = binding.rvPurchases.adapter as PurchasesListAdapter
         purchasesListAdapter.submitList(detailedPurchases)
         binding.tvNoData.isVisible = detailedPurchases.isEmpty()
     }
 
     private fun updateOrderMenuItemIcon(orderBy: OrderBy) {
-        try {
+        orderMenuItem?.let { menuItem ->
             when (orderBy) {
-                OrderBy.TIME_ASC -> orderMenuItem.icon =
-                    ResourcesCompat.getDrawable(
-                        resources,
-                        R.drawable.ic_order_time_asc,
-                        requireContext().theme
-                    )
-                OrderBy.TIME_DESC -> orderMenuItem.icon =
-                    ResourcesCompat.getDrawable(
-                        resources,
-                        R.drawable.ic_order_time_desc,
-                        requireContext().theme
-                    )
-                OrderBy.PRICE_ASC -> orderMenuItem.icon =
-                    ResourcesCompat.getDrawable(
-                        resources,
-                        R.drawable.ic_order_price_asc,
-                        requireContext().theme
-                    )
-                OrderBy.PRICE_DESC -> orderMenuItem.icon =
-                    ResourcesCompat.getDrawable(
-                        resources,
-                        R.drawable.ic_order_price_desc,
-                        requireContext().theme
-                    )
+                OrderBy.TIME_ASC -> menuItem.icon = ResourcesCompat.getDrawable(
+                    resources, R.drawable.ic_order_time_asc, requireContext().theme
+                )
+                OrderBy.TIME_DESC -> menuItem.icon = ResourcesCompat.getDrawable(
+                    resources, R.drawable.ic_order_time_desc, requireContext().theme
+                )
+                OrderBy.PRICE_ASC -> menuItem.icon = ResourcesCompat.getDrawable(
+                    resources, R.drawable.ic_order_price_asc, requireContext().theme
+                )
+                OrderBy.PRICE_DESC -> menuItem.icon = ResourcesCompat.getDrawable(
+                    resources, R.drawable.ic_order_price_desc, requireContext().theme
+                )
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 
@@ -142,8 +132,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun setupRecyclerView() {
-        val decimalFormat =
-            NumberFormat.getInstance(LocaleHelper.currentLocale) as DecimalFormat
+        val decimalFormat = NumberFormat.getInstance(LocaleHelper.currentLocale) as DecimalFormat
         decimalFormat.applyPattern("#,###")
         val adapter = PurchasesListAdapter(decimalFormat) {
             UiUtil.setSweetAlertDialogNightMode(resources)
@@ -237,20 +226,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
         GuideView.Builder(requireActivity())
             .setContentText(getString(R.string.showcase_add_purchase))
-            .setDismissType(DismissType.anywhere)
-            .setTargetView(binding.fabAddPurchase)
+            .setDismissType(DismissType.anywhere).setTargetView(binding.fabAddPurchase)
             .setPointerType(PointerType.arrow)
             .setContentTypeFace(ResourcesCompat.getFont(requireContext(), R.font.iran_sans))
-            .setContentTextSize(15)
-            .setGuideListener {
+            .setContentTextSize(15).setGuideListener {
                 val purchaseSwipeShowcase = GuideView.Builder(requireActivity())
                     .setContentText(getString(R.string.showcase_delete_purchase))
-                    .setDismissType(DismissType.anywhere)
-                    .setTargetView(binding.rvPurchases[0])
+                    .setDismissType(DismissType.anywhere).setTargetView(binding.rvPurchases[0])
                     .setPointerType(PointerType.arrow)
                     .setContentTypeFace(ResourcesCompat.getFont(requireContext(), R.font.iran_sans))
-                    .setContentTextSize(15)
-                    .setGuideListener {
+                    .setContentTextSize(15).setGuideListener {
                         if (viewModel.purchasesStateFlow.value.isEmpty()) {
                             adapter.submitList(emptyList()) {
                                 binding.rvPurchases.itemAnimator = DefaultItemAnimator()
@@ -260,29 +245,22 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                             binding.rvPurchases[0].clearAnimation()
                         }
                         showcaseStatus.recordShowcaseEnd(ShowcaseStatus.Screen.HOME)
-                    }
-                    .build()
+                    }.build()
 
                 GuideView.Builder(requireActivity())
                     .setContentText(getString(R.string.showcase_purchase))
-                    .setDismissType(DismissType.anywhere)
-                    .setTargetView(binding.rvPurchases[0])
+                    .setDismissType(DismissType.anywhere).setTargetView(binding.rvPurchases[0])
                     .setPointerType(PointerType.arrow)
                     .setContentTypeFace(ResourcesCompat.getFont(requireContext(), R.font.iran_sans))
-                    .setContentTextSize(15)
-                    .setGuideListener {
+                    .setContentTextSize(15).setGuideListener {
                         val swipeAnimation =
                             AnimationUtils.loadAnimation(requireContext(), R.anim.move_to_side)
                         swipeAnimation.isFillEnabled = true
                         swipeAnimation.fillAfter = true
                         binding.rvPurchases[0].startAnimation(swipeAnimation)
                         purchaseSwipeShowcase.show()
-                    }
-                    .build()
-                    .show()
-            }
-            .build()
-            .show()
+                    }.build().show()
+            }.build().show()
     }
 
     private fun setupOptionsMenu() {
@@ -291,6 +269,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                 override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                     menuInflater.inflate(R.menu.home_menu, menu)
                     orderMenuItem = menu.findItem(R.id.menu_order_by)
+                    updateOrderMenuItemIcon(OrderBy.valueOf(viewModel.orderStateFlow.value))
                 }
 
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
