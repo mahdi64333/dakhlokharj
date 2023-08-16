@@ -69,12 +69,12 @@ abstract class BasePurchaseFilteringFragment<T : ViewBinding>(
         }
     }
 
-    private fun updateFilteredPurchasesUi(purchases: List<DetailedPurchase>, priceSum: Long) {
+    private fun updateFilteredPurchasesUi(purchases: List<DetailedPurchase>, priceSum: Double) {
         val filteredPurchasesListAdapter =
             filteredPurchasesRecyclerView.adapter as PurchasesListAdapter
         filteredPurchasesListAdapter.submitList(purchases)
         tvPurchasesPriceSum.text =
-            getString(R.string.purchases_sum, decimalFormat.format(priceSum))
+            getString(R.string.purchases_sum, LocaleHelper.localizePrice(decimalFormat, priceSum))
         tvNoData.isVisible = purchases.isEmpty()
     }
 

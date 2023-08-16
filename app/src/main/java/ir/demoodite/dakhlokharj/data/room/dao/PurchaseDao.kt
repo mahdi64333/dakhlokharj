@@ -104,7 +104,10 @@ interface PurchaseDao {
                 "AND $purchasePrice BETWEEN :minPrice AND :maxPrice " +
                 "ORDER BY $purchaseTime DESC"
     )
-    fun getAllDetailedPurchasesByPrice(minPrice: Long, maxPrice: Long): Flow<List<DetailedPurchase>>
+    fun getAllDetailedPurchasesByPrice(
+        minPrice: Double,
+        maxPrice: Double,
+    ): Flow<List<DetailedPurchase>>
 
     @Query(
         "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.models.ResidentSummery
 import ir.demoodite.dakhlokharj.databinding.ItemSummeryBinding
+import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import java.text.DecimalFormat
 
 class ResidentSummariesListAdapter(
@@ -38,14 +39,14 @@ class ResidentSummariesListAdapter(
         @SuppressLint("SetTextI18n")
         fun bind(residentSummery: ResidentSummery, decimalFormat: DecimalFormat) {
             binding.tvResidentName.text = residentSummery.residentName
-            val formattedCredit = decimalFormat.format(residentSummery.credit)
+            val formattedCredit = LocaleHelper.localizePrice(decimalFormat, residentSummery.credit)
             binding.tvCredit.text =
                 binding.root.context.getString(R.string.price_template, formattedCredit)
-            val formattedDebt = decimalFormat.format(residentSummery.debt)
+            val formattedDebt = LocaleHelper.localizePrice(decimalFormat, residentSummery.debt)
             binding.tvDebt.text =
                 binding.root.context.getString(R.string.price_template, formattedDebt)
             val balance = residentSummery.credit - residentSummery.debt
-            val formattedBalance = decimalFormat.format(balance)
+            val formattedBalance = LocaleHelper.localizePrice(decimalFormat, balance)
             val balanceWithSuffix =
                 binding.root.context.getString(R.string.price_template, formattedBalance)
             binding.tvBalance.apply {

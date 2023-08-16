@@ -52,9 +52,8 @@ class PurchasesListAdapter(
             binding.tvPurchaseDatetime.text = LocaleHelper.formatLocalizedDate(purchaseDate)
             binding.tvPurchasePrice.text = binding.root.context.getString(
                 R.string.price_template,
-                decimalFormat.format(detailedPurchase.purchasePrice)
+                LocaleHelper.localizePrice(decimalFormat, detailedPurchase.purchasePrice)
             )
-
         }
     }
 

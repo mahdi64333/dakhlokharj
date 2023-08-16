@@ -47,7 +47,7 @@ class AddPurchaseBottomSheetFragment :
         viewModel.savedPurchaseInfo.apply {
             product = binding.textInputEditTextProductName.text.toString()
             val priceText = binding.textInputEditTextProductPrice.getTextWithoutCommas()
-            price = if (priceText.isNotEmpty()) priceText.toLong() else -1
+            price = if (priceText.isNotEmpty()) priceText.toDouble() else -1.0
             val buyer =
                 viewModel.activeResidents.find { it.name == binding.autoCompleteTextViewProductBuyer.text.toString() }
             buyerId = buyer?.id ?: -1
@@ -188,7 +188,7 @@ class AddPurchaseBottomSheetFragment :
         var errorFlag = false
         val productName = binding.textInputEditTextProductName.text.toString().trim()
         val priceText = binding.textInputEditTextProductPrice.getTextWithoutCommas()
-        val price = if (priceText.isEmpty()) 0 else priceText.toLong()
+        val price: Double = if (priceText.isEmpty()) 0.0 else priceText.toDouble()
         val buyerName = binding.autoCompleteTextViewProductBuyer.text.toString().trim()
         val buyer = viewModel.activeResidents.find { it.name == buyerName }
 
@@ -201,7 +201,7 @@ class AddPurchaseBottomSheetFragment :
             binding.textInputLayoutProductPrice.error = getString(R.string.its_empty)
             UiUtil.removeErrorOnTextChange(binding.textInputEditTextProductPrice)
             errorFlag = true
-        } else if (price <= 0) {
+        } else if (price <= 0.0) {
             binding.textInputLayoutProductPrice.error = getString(R.string.must_be_positive)
             UiUtil.removeErrorOnTextChange(binding.textInputEditTextProductPrice)
             errorFlag = true

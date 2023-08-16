@@ -133,7 +133,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     private fun setupRecyclerView() {
         val decimalFormat = NumberFormat.getInstance(LocaleHelper.currentLocale) as DecimalFormat
-        decimalFormat.applyPattern("#,###")
         val adapter = PurchasesListAdapter(decimalFormat) {
             UiUtil.setSweetAlertDialogNightMode(resources)
             lifecycleScope.launch {
@@ -214,7 +213,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                     DetailedPurchase(
                         purchaseId = 0,
                         purchaseProduct = getString(R.string.showcase_product),
-                        purchasePrice = getString(R.string.showcase_price).toLong(),
+                        purchasePrice = getString(R.string.showcase_price).toDouble(),
                         purchaseTime = PersianDate().time,
                         purchaseBuyerId = 0,
                         buyerName = getString(R.string.showcase_resident)

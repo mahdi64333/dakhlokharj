@@ -20,7 +20,7 @@ import javax.inject.Inject
 class FilterPurchasesViewModel @Inject constructor(
     private val dataRepository: DataRepository,
 ) : ViewModel() {
-    private val _purchasesStateFlows: List<MutableStateFlow<Pair<List<DetailedPurchase>, Long>?>> =
+    private val _purchasesStateFlows: List<MutableStateFlow<Pair<List<DetailedPurchase>, Double>?>> =
         List(FilterBy.size) { MutableStateFlow(null) }
     private var purchasesCollectionJobs: MutableList<Job?> =
         MutableList(_purchasesStateFlows.size) { null }
@@ -51,7 +51,7 @@ class FilterPurchasesViewModel @Inject constructor(
                 .collectLatest {
                     ensureActive()
                     _purchasesStateFlows[filterIndex].update { _ ->
-                        val sum = it.fold(0L) { acc, next ->
+                        val sum: Double = it.fold(0.0) { acc, next ->
                             acc + next.purchasePrice
                         }
                         Pair(it, sum)
@@ -61,7 +61,7 @@ class FilterPurchasesViewModel @Inject constructor(
         }
     }
 
-    fun filterByPrice(minPrice: Long, maxPrice: Long) {
+    fun filterByPrice(minPrice: Double, maxPrice: Double) {
         val filterIndex = FilterBy.PRICE.ordinal
 
         purchasesCollectionJobs[filterIndex]?.cancel()
@@ -70,7 +70,7 @@ class FilterPurchasesViewModel @Inject constructor(
                 .collectLatest {
                     ensureActive()
                     _purchasesStateFlows[filterIndex].update { _ ->
-                        val sum = it.fold(0L) { acc, next ->
+                        val sum: Double = it.fold(0.0) { acc, next ->
                             acc + next.purchasePrice
                         }
                         Pair(it, sum)
@@ -88,7 +88,7 @@ class FilterPurchasesViewModel @Inject constructor(
                 .collectLatest {
                     ensureActive()
                     _purchasesStateFlows[filterIndex].update { _ ->
-                        val sum = it.fold(0L) { acc, next ->
+                        val sum: Double = it.fold(0.0) { acc, next ->
                             acc + next.purchasePrice
                         }
                         Pair(it, sum)
@@ -106,7 +106,7 @@ class FilterPurchasesViewModel @Inject constructor(
                 .collectLatest {
                     ensureActive()
                     _purchasesStateFlows[filterIndex].update { _ ->
-                        val sum = it.fold(0L) { acc, next ->
+                        val sum: Double = it.fold(0.0) { acc, next ->
                             acc + next.purchasePrice
                         }
                         Pair(it, sum)
@@ -124,7 +124,7 @@ class FilterPurchasesViewModel @Inject constructor(
                 .collectLatest {
                     ensureActive()
                     _purchasesStateFlows[filterIndex].update { _ ->
-                        val sum = it.fold(0L) { acc, next ->
+                        val sum: Double = it.fold(0.0) { acc, next ->
                             acc + next.purchasePrice
                         }
                         Pair(it, sum)

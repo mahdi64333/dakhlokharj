@@ -21,8 +21,8 @@ class FilterPriceFragment : BasePurchaseFilteringFragment<FragmentFilterPriceBin
             val minPriceText = binding.textInputEditTextFilterMin.getTextWithoutCommas()
             val maxPriceText = binding.textInputEditTextFilterMax.getTextWithoutCommas()
 
-            val minPrice = if (minPriceText.isEmpty()) Long.MIN_VALUE else minPriceText.toLong()
-            val maxPrice = if (maxPriceText.isEmpty()) Long.MAX_VALUE else maxPriceText.toLong()
+            val minPrice = if (minPriceText.isEmpty()) Double.MIN_VALUE else minPriceText.toDouble()
+            val maxPrice = if (maxPriceText.isEmpty()) Double.MAX_VALUE else maxPriceText.toDouble()
 
             if (minPrice > maxPrice) {
                 binding.tvError.isVisible = true

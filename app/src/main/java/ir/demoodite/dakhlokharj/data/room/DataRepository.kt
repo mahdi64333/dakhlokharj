@@ -17,7 +17,7 @@ import ir.demoodite.dakhlokharj.data.room.models.Resident
 import kotlinx.coroutines.flow.first
 import java.io.File
 
-private const val DATABASE_VERSION = 5
+private const val DATABASE_VERSION = 6
 
 @Database(
     entities = [

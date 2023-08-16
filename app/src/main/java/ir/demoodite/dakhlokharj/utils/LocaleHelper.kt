@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import saman.zamani.persiandate.PersianDate
 import saman.zamani.persiandate.PersianDateFormat
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToLong
 
 
 object LocaleHelper {
@@ -90,5 +92,12 @@ object LocaleHelper {
             "FA" -> persianDateFormat.format(persianDate)
             else -> gregorianDateFormat.format(persianDate.time)
         }
+    }
+
+    fun localizePrice(decimalFormat: DecimalFormat, price: Double): String {
+        return if (applicationLanguageCode == "FA")
+            decimalFormat.format(price.roundToLong())
+        else
+            decimalFormat.format(price)
     }
 }
