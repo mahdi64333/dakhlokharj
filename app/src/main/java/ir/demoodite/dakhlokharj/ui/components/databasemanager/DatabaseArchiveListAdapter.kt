@@ -60,21 +60,29 @@ class DatabaseArchiveListAdapter(
             isActive = getItem(position).alias == activeArchiveAlias,
             isEditing = holder.adapterPosition == editingArchivePosition,
             editingText = editingAlias,
-            shareOnClickListener = { shareOnClickListener(getItem(position)) },
-            saveOnClickListener = { saveOnClickListener(getItem(position)) },
-            deleteOnClickListener = { deleteOnClickListener(getItem(position)) },
+            shareOnClickListener = {
+                stopEditing()
+                shareOnClickListener(getItem(position))
+            },
+            saveOnClickListener = {
+                stopEditing()
+                saveOnClickListener(getItem(position))
+            },
+            deleteOnClickListener = {
+                stopEditing()
+                deleteOnClickListener(getItem(position))
+            },
             activateArchiveOnClickListener = {
                 stopEditing()
                 activeArchiveViewHolder?.deactivate()
                 activeArchiveOnClickListener(getItem(position))
             },
             renameCallback = {
+                stopEditing()
                 newFilenameCallback(getItem(position), it)
-                editingAlias = null
             },
             onStartEditing = {
                 stopEditing()
-                editingAlias = null
                 editingArchivePosition = holder.adapterPosition
                 editingViewHolder = holder
             },
@@ -92,6 +100,7 @@ class DatabaseArchiveListAdapter(
         editingViewHolder?.stopEditing()
         editingAlias = null
         editingViewHolder = null
+        editingArchivePosition = RecyclerView.NO_POSITION
     }
 
     data class DatabaseArchive(
@@ -99,10 +108,7 @@ class DatabaseArchiveListAdapter(
         var file: File,
     ) {
         override fun equals(other: Any?) =
-            (other is DatabaseArchive)
-                    && this.alias == other.alias
-                    && this.file.absolutePath == other.file.absolutePath
-                    && this.file.lastModified() == other.file.lastModified()
+            (other is DatabaseArchive) && this.alias == other.alias && this.file.absolutePath == other.file.absolutePath && this.file.lastModified() == other.file.lastModified()
 
         override fun hashCode(): Int {
             var result = alias.hashCode()
@@ -117,7 +123,7 @@ class DatabaseArchiveListAdapter(
         private val dpUnit = UiUtil.dpToPixel(context, 1)
         var alias: String = ""
             set(value) {
-                field = value
+                field = value.ifEmpty { context.getString(R.string.app_name) }
                 binding.textInputEditTextArchiveName.setText(alias)
             }
         lateinit var renameCallback: (newName: String) -> Unit
@@ -219,7 +225,9 @@ class DatabaseArchiveListAdapter(
                 setEndIconOnClickListener {
                     validateAndGetFilename()?.let {
                         stopEditing()
-                        renameCallback(it)
+                        if (it != alias) {
+                            renameCallback(it)
+                        }
                     }
                 }
             }
