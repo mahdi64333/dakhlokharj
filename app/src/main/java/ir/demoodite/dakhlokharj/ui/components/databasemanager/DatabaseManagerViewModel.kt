@@ -48,7 +48,7 @@ class DatabaseManagerViewModel @Inject constructor(
             updateFilesList()
         }
     }
-    val fileListUpdateLock = AtomicBoolean(false)
+    private val fileListUpdateLock = AtomicBoolean(false)
     val currentDbAliasStateFlow by lazy {
         runBlocking {
             settingsDataStore.getCurrentDbAliasFlow().stateIn(

@@ -17,6 +17,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.withResumed
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.pedant.SweetAlert.SweetAlertDialog
@@ -65,7 +66,11 @@ class DatabaseManagerFragment :
         val args: DatabaseManagerFragmentArgs by navArgs()
 
         args.importingArchiveUri?.let {
-            validateDbAndShowImportArchiveDatabaseDialog(it)
+            lifecycleScope.launch {
+                withResumed {
+                    validateDbAndShowImportArchiveDatabaseDialog(it)
+                }
+            }
         }
     }
 
@@ -139,8 +144,7 @@ class DatabaseManagerFragment :
             },
             newFilenameCallback = { archive, newName ->
                 viewModel.renameArchive(
-                    archive.file,
-                    newName
+                    archive.file, newName
                 )
             },
         )
@@ -182,13 +186,13 @@ class DatabaseManagerFragment :
             InputFilter.LengthFilter(24), FilenameInputFilter()
         )
 
-        MaterialAlertDialogBuilder(
-            requireContext()
-        ).setTitle(getString(R.string.database_alias))
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.database_alias))
             .setMessage(getString(R.string.please_enter_database_alias))
             .setView(databaseAliasDialogBinding.root)
             .setPositiveButton(getString(R.string.confirm), null)
-            .setNegativeButton(getString(R.string.cancel), null).show().apply {
+            .setNegativeButton(getString(R.string.cancel), null)
+            .show().apply {
                 getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                     val alias =
                         validateAndGetDatabaseAliasFromDialogBinding(databaseAliasDialogBinding)
@@ -215,13 +219,13 @@ class DatabaseManagerFragment :
                                     InputFilter.LengthFilter(24), FilenameInputFilter()
                                 )
 
-                            MaterialAlertDialogBuilder(
-                                requireContext()
-                            ).setTitle(getString(R.string.database_alias))
+                            MaterialAlertDialogBuilder(requireContext())
+                                .setTitle(getString(R.string.database_alias))
                                 .setMessage(getString(R.string.please_enter_database_alias))
                                 .setView(databaseAliasDialogBinding.root)
                                 .setPositiveButton(getString(R.string.confirm), null)
-                                .setNegativeButton(getString(R.string.cancel), null).show().apply {
+                                .setNegativeButton(getString(R.string.cancel), null)
+                                .show().apply {
                                     getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                                         val alias = validateAndGetDatabaseAliasFromDialogBinding(
                                             databaseAliasDialogBinding
