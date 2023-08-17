@@ -7,8 +7,8 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ir.demoodite.dakhlokharj.data.room.DataRepository
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasePrice
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseTime
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASE_PRICE
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASE_TIME
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import ir.demoodite.dakhlokharj.data.room.workers.DeletePurchaseWorker
@@ -46,9 +46,9 @@ class HomeViewModel @Inject constructor(
                     purchasesCollectionJob?.cancel()
                     purchasesCollectionJob = launch {
                         val orderColumn = when (orderBy.name.split("_").first()) {
-                            "TIME" -> purchaseTime
-                            "PRICE" -> purchasePrice
-                            else -> purchaseTime
+                            "TIME" -> PURCHASE_TIME
+                            "PRICE" -> PURCHASE_PRICE
+                            else -> PURCHASE_TIME
                         }
                         val order = orderBy.name.split("_").last()
                         dataRepository.purchaseDao.getAllDetailedPurchases(orderColumn, order)

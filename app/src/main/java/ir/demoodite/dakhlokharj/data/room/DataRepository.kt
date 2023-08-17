@@ -41,27 +41,30 @@ abstract class DataRepository : RoomDatabase() {
 
     companion object {
         // Database info
-        private const val databaseName = "dakhlokharj.db"
+        private const val DATABASE_NAME = "dakhlokharj.db"
+
+        // Temp database info
+        private const val TEMP_DATABASE_NAME = "temp.db"
 
         // Residents table keys
-        const val residentsTableName = "residents"
-        const val residentId = "residentId"
-        const val residentName = "residentName"
-        const val residentActive = "residentActive"
-        const val residentDeleted = "residentDeleted"
+        const val RESIDENTS_TABLE_NAME = "residents"
+        const val RESIDENT_ID = "residentId"
+        const val RESIDENT_NAME = "residentName"
+        const val RESIDENT_ACTIVE = "residentActive"
+        const val RESIDENT_DELETED = "residentDeleted"
 
         // Receipts table keys
-        const val purchasesTableName = "purchases"
-        const val purchaseId = "purchaseId"
-        const val purchaseProduct = "purchaseProduct"
-        const val purchasePrice = "purchasePrice"
-        const val purchaseBuyerId = "purchaseBuyerId"
-        const val purchaseTime = "purchaseTime"
+        const val PURCHASES_TABLE_NAME = "purchases"
+        const val PURCHASE_ID = "purchaseId"
+        const val PURCHASE_PRODUCT = "purchaseProduct"
+        const val PURCHASE_PRICE = "purchasePrice"
+        const val PURCHASE_BUYER_ID = "purchaseBuyerId"
+        const val PURCHASE_TIME = "purchaseTime"
 
         // Consumers table keys
-        const val consumersTableName = "consumers"
-        const val consumerResidentId = "consumerId"
-        const val consumedProductId = "purchaseProductId"
+        const val CONSUMERS_TABLE_NAME = "consumers"
+        const val CONSUMERS_RESIDENT_ID = "consumerId"
+        const val CONSUMERS_PRODUCT_ID = "purchaseProductId"
 
         // Declaration of the singleton database object
         @Volatile
@@ -69,8 +72,8 @@ abstract class DataRepository : RoomDatabase() {
 
         fun getDatabase(context: Context): DataRepository {
             return INSTANCE ?: synchronized(this) {
-                INSTANCE = getDatabaseBuilder(context, databaseName).build().also {
-                    it.dbFile = context.getDatabasePath(databaseName)
+                INSTANCE = getDatabaseBuilder(context, DATABASE_NAME).build().also {
+                    it.dbFile = context.getDatabasePath(DATABASE_NAME)
                 }
                 return INSTANCE!!
             }
@@ -82,12 +85,19 @@ abstract class DataRepository : RoomDatabase() {
         ): Builder<DataRepository> {
             return Room.databaseBuilder(
                 context.applicationContext, DataRepository::class.java, databaseName
-            ).fallbackToDestructiveMigration().setJournalMode(JournalMode.TRUNCATE)
+            )
+                .fallbackToDestructiveMigration()
+                .setJournalMode(JournalMode.TRUNCATE)
         }
 
         class DatabaseImporter(context: Context) {
-            private val tempDatabaseName = "temp.db"
-            private val tempDatabaseBuilder = getDatabaseBuilder(context, tempDatabaseName)
+            /*
+            * All of this boilerplate code below it just for overriding the onCorruption method.
+            * Unfortunately the default implementation of openHelperFactory by Room library
+            * doesn't throw any error when a database is corrupted and just creates a blank
+            * database silently.
+            *  */
+            private val mTempDatabaseBuilder = getDatabaseBuilder(context, TEMP_DATABASE_NAME)
                 .openHelperFactory { configuration ->
                     FrameworkSQLiteOpenHelperFactory().create(
                         SupportSQLiteOpenHelper.Configuration(
@@ -100,6 +110,7 @@ abstract class DataRepository : RoomDatabase() {
                                 }
 
                                 override fun onCreate(db: SupportSQLiteDatabase) {
+                                    // The important part
                                     configuration.callback.onCreate(db)
                                 }
 
@@ -120,20 +131,35 @@ abstract class DataRepository : RoomDatabase() {
                         )
                     )
                 }
-            private val tempDatabaseFile = context.getDatabasePath(tempDatabaseName)
-            private val database = getDatabase(context)
+            private val mTempDatabaseFile = context.getDatabasePath(TEMP_DATABASE_NAME)
 
-            suspend fun importDb(file: File): Boolean {
+            /**
+             * An instance of the main database for importing data.
+             * */
+            private val mMainDatabase = getDatabase(context)
+
+
+            /**
+             * Imports a database from file.
+             *
+             * @param dbFile File of the database to import
+             * @return Whether importing was successful or not
+             * */
+            suspend fun importDb(dbFile: File): Boolean {
                 return try {
-                    val tempDatabase = tempDatabaseBuilder.createFromFile(file).build()
+                    val tempDatabase = mTempDatabaseBuilder.createFromFile(dbFile).build()
 
-                    database.clearAllTables()
-                    database.residentDao.insert(tempDatabase.residentDao.getAll().first())
-                    database.purchaseDao.insert(tempDatabase.purchaseDao.getAll().first())
-                    database.consumerDao.insert(tempDatabase.consumerDao.getAll().first())
+                    /*
+                    * Simply coping a file is not possible to import a database
+                    * so data must be inserted manually.
+                    * */
+                    mMainDatabase.clearAllTables()
+                    mMainDatabase.residentDao.insert(tempDatabase.residentDao.getAll().first())
+                    mMainDatabase.purchaseDao.insert(tempDatabase.purchaseDao.getAll().first())
+                    mMainDatabase.consumerDao.insert(tempDatabase.consumerDao.getAll().first())
 
                     tempDatabase.close()
-                    tempDatabaseFile.delete()
+                    mTempDatabaseFile.delete()
 
                     true
                 } catch (e: Exception) {
@@ -142,16 +168,38 @@ abstract class DataRepository : RoomDatabase() {
                 }
             }
 
+            /**
+             * Validates a database file scheme and format.
+             *
+             * @param dbFile File of the database to validate
+             * @return Whether database was valid or not
+             * */
             suspend fun isDatabaseValid(dbFile: File): Boolean {
                 return try {
-                    tempDatabaseFile.writeBytes(dbFile.readBytes())
-                    val tempDatabase = tempDatabaseBuilder.build()
+                    /*
+                    * Coping dbFile to the temp database location
+                    * to open it temporarily.
+                    * */
+                    mTempDatabaseFile.writeBytes(dbFile.readBytes())
+
+                    val tempDatabase = mTempDatabaseBuilder.build()
+
+                    /*
+                    * Trying to access readableDatabase will result
+                    * in a exception if database file is not a valid sqlite3 file.
+                    * */
                     tempDatabase.openHelper.readableDatabase
+
+                    /*
+                    * Trying to write a record to tables will result
+                    * in a exception if database scheme is not valid.
+                    * */
                     val residentId = tempDatabase.residentDao.insert(Resident())
                     val purchaseId = tempDatabase.purchaseDao.insert(Purchase())
                     tempDatabase.consumerDao.insert(listOf(Consumer(purchaseId, residentId)))
+
                     tempDatabase.close()
-                    tempDatabaseFile.delete()
+                    mTempDatabaseFile.delete()
 
                     true
                 } catch (e: SQLiteDatabaseCorruptException) {

@@ -3,16 +3,16 @@ package ir.demoodite.dakhlokharj.data.room.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumedProductId
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumerResidentId
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumersTableName
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseId
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasesTableName
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentActive
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentDeleted
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentId
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentName
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentsTableName
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.CONSUMERS_PRODUCT_ID
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.CONSUMERS_RESIDENT_ID
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.CONSUMERS_TABLE_NAME
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASES_TABLE_NAME
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASE_ID
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.RESIDENTS_TABLE_NAME
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.RESIDENT_ACTIVE
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.RESIDENT_DELETED
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.RESIDENT_ID
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.RESIDENT_NAME
 import ir.demoodite.dakhlokharj.data.room.models.Consumer
 import ir.demoodite.dakhlokharj.data.room.models.Resident
 import kotlinx.coroutines.flow.Flow
@@ -20,22 +20,22 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ConsumerDao {
     @Query(
-        "SELECT * FROM $consumersTableName"
+        "SELECT * FROM $CONSUMERS_TABLE_NAME"
     )
     fun getAll(): Flow<List<Consumer>>
 
     @Query(
-        "SELECT $residentId, $residentName, $residentActive, $residentDeleted " +
-                "FROM $purchasesTableName " +
-                "LEFT JOIN $consumersTableName ON $purchaseId = $consumedProductId " +
-                "LEFT JOIN $residentsTableName ON $consumerResidentId = $residentId " +
-                "WHERE $purchaseId = :purchaseId"
+        "SELECT $RESIDENT_ID, $RESIDENT_NAME, $RESIDENT_ACTIVE, $RESIDENT_DELETED " +
+                "FROM $PURCHASES_TABLE_NAME " +
+                "LEFT JOIN $CONSUMERS_TABLE_NAME ON $PURCHASE_ID = $CONSUMERS_PRODUCT_ID " +
+                "LEFT JOIN $RESIDENTS_TABLE_NAME ON $CONSUMERS_RESIDENT_ID = $RESIDENT_ID " +
+                "WHERE $PURCHASE_ID = :purchaseId"
     )
     fun getConsumerResidentsOfPurchase(purchaseId: Long): Flow<List<Resident>>
 
     @Query(
-        "SELECT * FROM $consumersTableName " +
-                "WHERE $consumedProductId = :purchaseId"
+        "SELECT * FROM $CONSUMERS_TABLE_NAME " +
+                "WHERE $CONSUMERS_PRODUCT_ID = :purchaseId"
     )
     fun getConsumersOfPurchase(purchaseId: Long): Flow<List<Consumer>>
 

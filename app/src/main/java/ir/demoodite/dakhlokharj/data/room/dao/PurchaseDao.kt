@@ -4,19 +4,19 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumedProductId
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumerResidentId
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.consumersTableName
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseBuyerId
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseId
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasePrice
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseProduct
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchaseTime
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.purchasesTableName
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentActive
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentId
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentName
-import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.residentsTableName
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.CONSUMERS_PRODUCT_ID
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.CONSUMERS_RESIDENT_ID
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.CONSUMERS_TABLE_NAME
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASES_TABLE_NAME
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASE_BUYER_ID
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASE_ID
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASE_PRICE
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASE_PRODUCT
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASE_TIME
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.RESIDENTS_TABLE_NAME
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.RESIDENT_ACTIVE
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.RESIDENT_ID
+import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.RESIDENT_NAME
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import kotlinx.coroutines.flow.Flow
@@ -24,85 +24,85 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PurchaseDao {
     @Query(
-        "SELECT * FROM $purchasesTableName"
+        "SELECT * FROM $PURCHASES_TABLE_NAME"
     )
     fun getAll(): Flow<List<Purchase>>
 
     @Query(
-        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
-                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
-                "FROM $purchasesTableName " +
-                "INNER JOIN $residentsTableName " +
-                "ON $purchaseBuyerId = $residentId " +
-                "WHERE $residentActive = 1 " +
-                "ORDER BY $purchaseTime ASC"
+        "SELECT $PURCHASE_ID, $PURCHASE_PRODUCT, $PURCHASE_PRICE, " +
+                "$PURCHASE_TIME, $PURCHASE_BUYER_ID, $RESIDENT_NAME as buyerName " +
+                "FROM $PURCHASES_TABLE_NAME " +
+                "INNER JOIN $RESIDENTS_TABLE_NAME " +
+                "ON $PURCHASE_BUYER_ID = $RESIDENT_ID " +
+                "WHERE $RESIDENT_ACTIVE = 1 " +
+                "ORDER BY $PURCHASE_TIME ASC"
     )
     fun getAllDetailedPurchasesTimeAsc(): Flow<List<DetailedPurchase>>
 
     @Query(
-        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
-                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
-                "FROM $purchasesTableName " +
-                "INNER JOIN $residentsTableName " +
-                "ON $purchaseBuyerId = $residentId " +
-                "WHERE $residentActive = 1 " +
-                "ORDER BY $purchaseTime DESC"
+        "SELECT $PURCHASE_ID, $PURCHASE_PRODUCT, $PURCHASE_PRICE, " +
+                "$PURCHASE_TIME, $PURCHASE_BUYER_ID, $RESIDENT_NAME as buyerName " +
+                "FROM $PURCHASES_TABLE_NAME " +
+                "INNER JOIN $RESIDENTS_TABLE_NAME " +
+                "ON $PURCHASE_BUYER_ID = $RESIDENT_ID " +
+                "WHERE $RESIDENT_ACTIVE = 1 " +
+                "ORDER BY $PURCHASE_TIME DESC"
     )
     fun getAllDetailedPurchasesTimeDesc(): Flow<List<DetailedPurchase>>
 
     @Query(
-        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
-                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
-                "FROM $purchasesTableName " +
-                "INNER JOIN $residentsTableName " +
-                "ON $purchaseBuyerId = $residentId " +
-                "WHERE $residentActive = 1 " +
-                "ORDER BY $purchasePrice ASC"
+        "SELECT $PURCHASE_ID, $PURCHASE_PRODUCT, $PURCHASE_PRICE, " +
+                "$PURCHASE_TIME, $PURCHASE_BUYER_ID, $RESIDENT_NAME as buyerName " +
+                "FROM $PURCHASES_TABLE_NAME " +
+                "INNER JOIN $RESIDENTS_TABLE_NAME " +
+                "ON $PURCHASE_BUYER_ID = $RESIDENT_ID " +
+                "WHERE $RESIDENT_ACTIVE = 1 " +
+                "ORDER BY $PURCHASE_PRICE ASC"
     )
     fun getAllDetailedPurchasesPriceAsc(): Flow<List<DetailedPurchase>>
 
     @Query(
-        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
-                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
-                "FROM $purchasesTableName " +
-                "INNER JOIN $residentsTableName " +
-                "ON $purchaseBuyerId = $residentId " +
-                "WHERE $residentActive = 1 " +
-                "ORDER BY $purchasePrice DESC"
+        "SELECT $PURCHASE_ID, $PURCHASE_PRODUCT, $PURCHASE_PRICE, " +
+                "$PURCHASE_TIME, $PURCHASE_BUYER_ID, $RESIDENT_NAME as buyerName " +
+                "FROM $PURCHASES_TABLE_NAME " +
+                "INNER JOIN $RESIDENTS_TABLE_NAME " +
+                "ON $PURCHASE_BUYER_ID = $RESIDENT_ID " +
+                "WHERE $RESIDENT_ACTIVE = 1 " +
+                "ORDER BY $PURCHASE_PRICE DESC"
     )
     fun getAllDetailedPurchasesPriceDesc(): Flow<List<DetailedPurchase>>
 
     fun getAllDetailedPurchases(orderColumn: String, order: String): Flow<List<DetailedPurchase>> {
         return when {
-            orderColumn == purchaseTime && order == "ASC" -> getAllDetailedPurchasesTimeAsc()
-            orderColumn == purchaseTime && order == "DESC" -> getAllDetailedPurchasesTimeDesc()
-            orderColumn == purchasePrice && order == "ASC" -> getAllDetailedPurchasesPriceAsc()
-            orderColumn == purchasePrice && order == "DESC" -> getAllDetailedPurchasesPriceDesc()
+            orderColumn == PURCHASE_TIME && order == "ASC" -> getAllDetailedPurchasesTimeAsc()
+            orderColumn == PURCHASE_TIME && order == "DESC" -> getAllDetailedPurchasesTimeDesc()
+            orderColumn == PURCHASE_PRICE && order == "ASC" -> getAllDetailedPurchasesPriceAsc()
+            orderColumn == PURCHASE_PRICE && order == "DESC" -> getAllDetailedPurchasesPriceDesc()
             else -> getAllDetailedPurchasesTimeDesc()
         }
     }
 
     @Query(
-        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
-                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
-                "FROM $purchasesTableName " +
-                "INNER JOIN $residentsTableName " +
-                "ON $purchaseBuyerId = $residentId " +
-                "WHERE $residentActive = 1 " +
-                "AND $purchaseProduct LIKE '%' || :productName || '%' " +
-                "ORDER BY $purchaseTime DESC"
+        "SELECT $PURCHASE_ID, $PURCHASE_PRODUCT, $PURCHASE_PRICE, " +
+                "$PURCHASE_TIME, $PURCHASE_BUYER_ID, $RESIDENT_NAME as buyerName " +
+                "FROM $PURCHASES_TABLE_NAME " +
+                "INNER JOIN $RESIDENTS_TABLE_NAME " +
+                "ON $PURCHASE_BUYER_ID = $RESIDENT_ID " +
+                "WHERE $RESIDENT_ACTIVE = 1 " +
+                "AND $PURCHASE_PRODUCT LIKE '%' || :productName || '%' " +
+                "ORDER BY $PURCHASE_TIME DESC"
     )
     fun getAllDetailedPurchasesByProductName(productName: String): Flow<List<DetailedPurchase>>
 
     @Query(
-        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
-                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
-                "FROM $purchasesTableName " +
-                "INNER JOIN $residentsTableName " +
-                "ON $purchaseBuyerId = $residentId " +
-                "WHERE $residentActive = 1 " +
-                "AND $purchasePrice BETWEEN :minPrice AND :maxPrice " +
-                "ORDER BY $purchaseTime DESC"
+        "SELECT $PURCHASE_ID, $PURCHASE_PRODUCT, $PURCHASE_PRICE, " +
+                "$PURCHASE_TIME, $PURCHASE_BUYER_ID, $RESIDENT_NAME as buyerName " +
+                "FROM $PURCHASES_TABLE_NAME " +
+                "INNER JOIN $RESIDENTS_TABLE_NAME " +
+                "ON $PURCHASE_BUYER_ID = $RESIDENT_ID " +
+                "WHERE $RESIDENT_ACTIVE = 1 " +
+                "AND $PURCHASE_PRICE BETWEEN :minPrice AND :maxPrice " +
+                "ORDER BY $PURCHASE_TIME DESC"
     )
     fun getAllDetailedPurchasesByPrice(
         minPrice: Double,
@@ -110,38 +110,38 @@ interface PurchaseDao {
     ): Flow<List<DetailedPurchase>>
 
     @Query(
-        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
-                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
-                "FROM $purchasesTableName " +
-                "INNER JOIN $residentsTableName " +
-                "ON $purchaseBuyerId = $residentId " +
-                "WHERE $residentActive = 1 " +
-                "AND $purchaseTime BETWEEN :startTime AND :endTime " +
-                "ORDER BY $purchaseTime DESC"
+        "SELECT $PURCHASE_ID, $PURCHASE_PRODUCT, $PURCHASE_PRICE, " +
+                "$PURCHASE_TIME, $PURCHASE_BUYER_ID, $RESIDENT_NAME as buyerName " +
+                "FROM $PURCHASES_TABLE_NAME " +
+                "INNER JOIN $RESIDENTS_TABLE_NAME " +
+                "ON $PURCHASE_BUYER_ID = $RESIDENT_ID " +
+                "WHERE $RESIDENT_ACTIVE = 1 " +
+                "AND $PURCHASE_TIME BETWEEN :startTime AND :endTime " +
+                "ORDER BY $PURCHASE_TIME DESC"
     )
     fun getAllDetailedPurchasesByTime(startTime: Long, endTime: Long): Flow<List<DetailedPurchase>>
 
     @Query(
-        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
-                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
-                "FROM $purchasesTableName " +
-                "LEFT JOIN $residentsTableName " +
-                "ON $purchaseBuyerId = $residentId " +
-                "WHERE $purchaseBuyerId = :buyerId " +
-                "ORDER BY $purchaseTime DESC"
+        "SELECT $PURCHASE_ID, $PURCHASE_PRODUCT, $PURCHASE_PRICE, " +
+                "$PURCHASE_TIME, $PURCHASE_BUYER_ID, $RESIDENT_NAME as buyerName " +
+                "FROM $PURCHASES_TABLE_NAME " +
+                "LEFT JOIN $RESIDENTS_TABLE_NAME " +
+                "ON $PURCHASE_BUYER_ID = $RESIDENT_ID " +
+                "WHERE $PURCHASE_BUYER_ID = :buyerId " +
+                "ORDER BY $PURCHASE_TIME DESC"
     )
     fun getAllDetailedPurchasesByBuyer(buyerId: Long): Flow<List<DetailedPurchase>>
 
     @Query(
-        "SELECT $purchaseId, $purchaseProduct, $purchasePrice, " +
-                "$purchaseTime, $purchaseBuyerId, $residentName as buyerName " +
-                "FROM $consumersTableName " +
-                "LEFT JOIN $purchasesTableName " +
-                "ON $consumedProductId = $purchaseId " +
-                "LEFT JOIN $residentsTableName " +
-                "ON $purchaseBuyerId = $residentId " +
-                "WHERE $consumerResidentId = :consumerId " +
-                "ORDER BY $purchaseTime DESC"
+        "SELECT $PURCHASE_ID, $PURCHASE_PRODUCT, $PURCHASE_PRICE, " +
+                "$PURCHASE_TIME, $PURCHASE_BUYER_ID, $RESIDENT_NAME as buyerName " +
+                "FROM $CONSUMERS_TABLE_NAME " +
+                "LEFT JOIN $PURCHASES_TABLE_NAME " +
+                "ON $CONSUMERS_PRODUCT_ID = $PURCHASE_ID " +
+                "LEFT JOIN $RESIDENTS_TABLE_NAME " +
+                "ON $PURCHASE_BUYER_ID = $RESIDENT_ID " +
+                "WHERE $CONSUMERS_RESIDENT_ID = :consumerId " +
+                "ORDER BY $PURCHASE_TIME DESC"
     )
     fun getAllDetailedPurchasesByConsumer(consumerId: Long): Flow<List<DetailedPurchase>>
 
