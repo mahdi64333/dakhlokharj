@@ -26,7 +26,6 @@ class DatabaseArchiveListAdapter(
 ) : ListAdapter<DatabaseArchiveListAdapter.DatabaseArchive, DatabaseArchiveListAdapter.ViewHolder>(
     diffCallback
 ) {
-    private var activeArchivePosition = RecyclerView.NO_POSITION
     private var activeArchiveViewHolder: ViewHolder? = null
     private var editingArchivePosition = RecyclerView.NO_POSITION
     private var editingViewHolder: ViewHolder? = null
@@ -58,17 +57,16 @@ class DatabaseArchiveListAdapter(
         holder.bind(
             alias = getItem(position).alias,
             lastModified = getItem(position).file.lastModified(),
-            isActive = holder.adapterPosition == activeArchivePosition,
+            isActive = getItem(position).alias == activeArchiveAlias,
             isEditing = holder.adapterPosition == editingArchivePosition,
             editingText = editingAlias,
             shareOnClickListener = { shareOnClickListener(getItem(position)) },
             saveOnClickListener = { saveOnClickListener(getItem(position)) },
             deleteOnClickListener = { deleteOnClickListener(getItem(position)) },
             activateArchiveOnClickListener = {
+                stopEditing()
                 activeArchiveViewHolder?.deactivate()
                 activeArchiveOnClickListener(getItem(position))
-                activeArchivePosition = holder.adapterPosition
-                activeArchiveViewHolder = holder
             },
             renameCallback = {
                 newFilenameCallback(getItem(position), it)
@@ -82,7 +80,7 @@ class DatabaseArchiveListAdapter(
             },
         )
 
-        if (holder.adapterPosition == activeArchivePosition) {
+        if (getItem(position).alias == activeArchiveAlias) {
             activeArchiveViewHolder = holder
         }
         if (holder.adapterPosition == editingArchivePosition) {
@@ -101,7 +99,10 @@ class DatabaseArchiveListAdapter(
         var file: File,
     ) {
         override fun equals(other: Any?) =
-            (other is DatabaseArchive) && this.alias == other.alias && this.file.absolutePath == other.file.absolutePath && this.file.lastModified() == other.file.lastModified()
+            (other is DatabaseArchive)
+                    && this.alias == other.alias
+                    && this.file.absolutePath == other.file.absolutePath
+                    && this.file.lastModified() == other.file.lastModified()
 
         override fun hashCode(): Int {
             var result = alias.hashCode()

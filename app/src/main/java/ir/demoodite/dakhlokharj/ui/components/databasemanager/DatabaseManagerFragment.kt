@@ -135,7 +135,6 @@ class DatabaseManagerFragment :
                 showDeleteArchiveDialog(it.file)
             },
             activeArchiveOnClickListener = {
-                stopEditing()
                 viewModel.activateArchive(it.file)
             },
             newFilenameCallback = { archive, newName ->
