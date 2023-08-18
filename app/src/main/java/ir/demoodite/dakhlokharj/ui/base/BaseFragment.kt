@@ -7,11 +7,26 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 
+/**
+ * A base [Fragment] class with support for view binding.
+ *
+ * @param T The [ViewBinding] class of fragment's layout
+ * @param inflateMethod Inflate method from the ViewBinding class of fragment's layout.
+ * For example this parameter can be set with passing FragmentBinding::inflate
+ * to constructor when you want to use FragmentBinding as your ViewBinding class.
+ * */
 abstract class BaseFragment<T : ViewBinding>(
     private val inflateMethod: (LayoutInflater, ViewGroup?, Boolean) -> T,
 ) :
     Fragment() {
+    /**
+     * The [ViewBinding] backing property of the fragment.
+     */
     private var _binding: T? = null
+
+    /**
+     * The main [ViewBinding] object of the fragment.
+     */
     protected val binding get() = _binding!!
 
     override fun onCreateView(
@@ -26,6 +41,7 @@ abstract class BaseFragment<T : ViewBinding>(
     override fun onDestroyView() {
         super.onDestroyView()
 
+        // Setting the binding variable to null to prevent memory leak
         _binding = null
     }
 }
