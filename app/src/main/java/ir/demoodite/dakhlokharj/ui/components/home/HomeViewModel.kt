@@ -2,18 +2,15 @@ package ir.demoodite.dakhlokharj.ui.components.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASE_PRICE
 import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.PURCHASE_TIME
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.data.room.models.Purchase
-import ir.demoodite.dakhlokharj.data.room.workers.DeletePurchaseWorker
+import ir.demoodite.dakhlokharj.data.room.models.Resident
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
-import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
+import ir.demoodite.dakhlokharj.data.settings.enums.PurchasesOrderBy
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.*
@@ -25,15 +22,18 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     private val settingsDataStore: SettingsDataStore,
-    private val workManager: WorkManager,
 ) : ViewModel() {
     private val _purchasesStateFlow = MutableStateFlow(listOf<DetailedPurchase>())
     val purchasesStateFlow get() = _purchasesStateFlow.asStateFlow()
+
+    /**
+     * The purchase collection job object. It must be canceled when the purchase order changes.
+     */
     private var purchasesCollectionJob: Job? = null
-    val orderStateFlow = runBlocking {
+    val purchasesOrderStateFlow = runBlocking {
         settingsDataStore.getOrderByFlow().stateIn(
             viewModelScope,
-            SharingStarted.Lazily,
+            SharingStarted.WhileSubscribed(),
             settingsDataStore.getOrderByFlow().first()
         )
     }
@@ -41,50 +41,57 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             settingsDataStore.getOrderByFlow().collectLatest {
-                try {
-                    val orderBy = OrderBy.valueOf(it)
-                    purchasesCollectionJob?.cancel()
-                    purchasesCollectionJob = launch {
-                        val orderColumn = when (orderBy.name.split("_").first()) {
-                            "TIME" -> PURCHASE_TIME
-                            "PRICE" -> PURCHASE_PRICE
-                            else -> PURCHASE_TIME
-                        }
-                        val order = orderBy.name.split("_").last()
-                        dataRepository.purchaseDao.getAllDetailedPurchases(orderColumn, order)
-                            .collectLatest { detailedPurchases ->
-                                ensureActive()
-                                _purchasesStateFlow.update {
-                                    detailedPurchases
-                                }
+                // Canceling previous purchases collection with the old purchases order
+                purchasesCollectionJob?.cancel()
+
+                // Constructing required order of purchases
+                val purchasesOrderBy = PurchasesOrderBy.valueOf(it)
+                // The column which order must be based upon
+                val orderColumn = when (purchasesOrderBy.name.split("_").first()) {
+                    "TIME" -> PURCHASE_TIME
+                    "PRICE" -> PURCHASE_PRICE
+                    else -> PURCHASE_TIME
+                }
+                // Ascending or descending order of purchases
+                val order = purchasesOrderBy.name.split("_").last()
+
+                // Creating a new purchase collection job based on the new order
+                purchasesCollectionJob = launch {
+                    dataRepository.purchaseDao.getAllDetailedPurchases(orderColumn, order)
+                        .collectLatest { detailedPurchases ->
+                            ensureActive()
+                            _purchasesStateFlow.update {
+                                detailedPurchases
                             }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                        }
                 }
             }
         }
     }
 
     fun deletePurchase(purchase: Purchase) {
-        val data = Data.Builder()
-            .putLong(DeletePurchaseWorker.PURCHASE_ID_KEY, purchase.id)
-            .build()
-        val deletePurchaseWorker = OneTimeWorkRequest.Builder(DeletePurchaseWorker::class.java)
-            .setInputData(data)
-            .build()
-        workManager.enqueue(deletePurchaseWorker)
-    }
-
-    fun setOrder(orderBy: OrderBy) {
         viewModelScope.launch {
-            settingsDataStore.setOrderBy(orderBy.name)
+            dataRepository.purchaseDao.delete(purchase)
         }
     }
 
-    fun noLanguageSelected(): Boolean {
+    suspend fun getConsumerResidentsOfPurchase(purchase: Purchase): List<Resident> {
+        return dataRepository.consumerDao.getConsumerResidentsOfPurchase(purchase.id).first()
+    }
+
+    fun setPurchasesOrder(purchasesOrderBy: PurchasesOrderBy) {
+        viewModelScope.launch {
+            settingsDataStore.setOrderBy(purchasesOrderBy.name)
+        }
+    }
+
+    fun isApplicationLanguageSet(): Boolean {
+        /*
+        * Using runBlocking doesn't effect the ui thread in a noticeable way
+        * because it's just a small string.
+         */
         return runBlocking {
-            settingsDataStore.getLanguageFlow().first().isEmpty()
+            settingsDataStore.getLanguageFlow().first().isNotEmpty()
         }
     }
 }

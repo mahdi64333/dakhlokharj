@@ -10,7 +10,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.data.settings.enums.AppLanguage
-import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
+import ir.demoodite.dakhlokharj.data.settings.enums.PurchasesOrderBy
 
 @AndroidEntryPoint
 class SettingsFragment() : PreferenceFragmentCompat() {
@@ -28,10 +28,10 @@ class SettingsFragment() : PreferenceFragmentCompat() {
             }.toTypedArray()
         }
         findPreference<ListPreference>(SettingsDataStore.ORDER_BY_KEY)?.let {
-            it.entries = OrderBy.values().map { orderBy ->
+            it.entries = PurchasesOrderBy.values().map { orderBy ->
                 getString(orderBy.stringRes)
             }.toTypedArray()
-            it.entryValues = OrderBy.values().map { orderBy ->
+            it.entryValues = PurchasesOrderBy.values().map { orderBy ->
                 orderBy.name
             }.toTypedArray()
         }

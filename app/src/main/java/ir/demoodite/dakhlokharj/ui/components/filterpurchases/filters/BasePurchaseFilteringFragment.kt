@@ -81,14 +81,14 @@ abstract class BasePurchaseFilteringFragment<T : ViewBinding>(
     protected abstract fun setupFilterInput()
 
     private fun setupPurchasesRecyclerView() {
-        val adapter = PurchasesListAdapter(decimalFormat) {
+        val adapter = PurchasesListAdapter() {
             UiUtil.setSweetAlertDialogNightMode(resources)
             lifecycleScope.launch {
                 val consumers =
                     DataRepository.getDatabase(requireContext()).consumerDao.getConsumerResidentsOfPurchase(
                         it.purchaseId
                     ).first()
-                UiUtil.createConsumersSweetAlertDialog(requireContext(), consumers).apply {
+                UiUtil.createAndShowConsumersSweetDialog(requireContext(), consumers).apply {
                     show()
                     getButton(SweetAlertDialog.BUTTON_CONFIRM).setPadding(0)
                 }

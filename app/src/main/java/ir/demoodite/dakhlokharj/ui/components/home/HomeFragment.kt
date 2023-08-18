@@ -18,51 +18,49 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
-import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
-import ir.demoodite.dakhlokharj.data.settings.enums.OrderBy
+import ir.demoodite.dakhlokharj.data.settings.enums.PurchasesOrderBy
 import ir.demoodite.dakhlokharj.databinding.FragmentHomeBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
 import ir.demoodite.dakhlokharj.ui.components.addpurchase.AddPurchaseBottomSheetFragment
 import ir.demoodite.dakhlokharj.ui.showcase.ShowcaseStatus
-import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import saman.zamani.persiandate.PersianDate
 import smartdevelop.ir.eram.showcaseviewlib.GuideView
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
 import smartdevelop.ir.eram.showcaseviewlib.config.PointerType
-import java.text.DecimalFormat
-import java.text.NumberFormat
 import java.util.*
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
     private val viewModel: HomeViewModel by viewModels()
-    private var orderMenuItem: MenuItem? = null
+
+    /**
+     * The menu item for selecting order of purchases in the home fragment.
+     * It's icon must be updated when changing the setting.
+     */
+    private var purchaseListOrderMenuItem: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        startDataCollection()
+        startFlowCollection()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        showLanguageSelectionIfFirstLaunch()
-        setupRecyclerView()
+        showLanguageSelectionFragmentOnFirstApplicationLaunch()
+        setupPurchasesRecyclerView()
         setupFab()
         setupOptionsMenu()
     }
@@ -70,29 +68,40 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     override fun onStop() {
         super.onStop()
 
-        orderMenuItem = null
+        /*
+        * Purchase list order selection menu item has to be set to null on fragment's stop.
+        * Because fragment's options menu gets destroyed when stopping the fragment.
+        * */
+        purchaseListOrderMenuItem = null
     }
 
-    private fun startDataCollection() {
+    private fun startFlowCollection() {
+        // Purchase list collection
         lifecycleScope.launch {
-            viewModel.purchasesStateFlow.collectLatest {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    updatePurchasesUi(it)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.purchasesStateFlow.collectLatest { newPurchases ->
+                    updatePurchasesUi(newPurchases)
                 }
             }
         }
 
+        // Purchase list order collection
         lifecycleScope.launch {
-            viewModel.orderStateFlow.collectLatest {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    updateOrderMenuItemIcon(OrderBy.valueOf(it))
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.purchasesOrderStateFlow.collectLatest { newPurchaseListOrder ->
+                    updateOrderMenuItemIcon(PurchasesOrderBy.valueOf(newPurchaseListOrder))
                 }
             }
         }
 
+        // Home showcase signal receiver
         lifecycleScope.launch {
-            getShowcaseFeedbackReceiver().collectLatest {
-                showShowcase()
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                getShowcaseFeedbackReceiver().collectLatest { showcaseFeedbackType ->
+                    when (showcaseFeedbackType) {
+                        ShowcaseFeedbackType.START_HOME_SHOWCASE -> showShowcase()
+                    }
+                }
             }
         }
     }
@@ -103,111 +112,33 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         binding.tvNoData.isVisible = detailedPurchases.isEmpty()
     }
 
-    private fun updateOrderMenuItemIcon(orderBy: OrderBy) {
-        orderMenuItem?.let { menuItem ->
-            when (orderBy) {
-                OrderBy.TIME_ASC -> menuItem.icon = ResourcesCompat.getDrawable(
+    private fun updateOrderMenuItemIcon(purchasesOrderBy: PurchasesOrderBy) {
+        purchaseListOrderMenuItem?.let { menuItem ->
+            when (purchasesOrderBy) {
+                PurchasesOrderBy.TIME_ASC -> menuItem.icon = ResourcesCompat.getDrawable(
                     resources, R.drawable.ic_order_time_asc, requireContext().theme
                 )
-                OrderBy.TIME_DESC -> menuItem.icon = ResourcesCompat.getDrawable(
+                PurchasesOrderBy.TIME_DESC -> menuItem.icon = ResourcesCompat.getDrawable(
                     resources, R.drawable.ic_order_time_desc, requireContext().theme
                 )
-                OrderBy.PRICE_ASC -> menuItem.icon = ResourcesCompat.getDrawable(
+                PurchasesOrderBy.PRICE_ASC -> menuItem.icon = ResourcesCompat.getDrawable(
                     resources, R.drawable.ic_order_price_asc, requireContext().theme
                 )
-                OrderBy.PRICE_DESC -> menuItem.icon = ResourcesCompat.getDrawable(
+                PurchasesOrderBy.PRICE_DESC -> menuItem.icon = ResourcesCompat.getDrawable(
                     resources, R.drawable.ic_order_price_desc, requireContext().theme
                 )
             }
         }
     }
 
-    private fun showLanguageSelectionIfFirstLaunch() {
-        runBlocking {
-            if (viewModel.noLanguageSelected()) {
-                val action = HomeFragmentDirections.actionHomeFragmentToLanguageSelectionFragment()
-                findNavController().navigate(action)
-            }
-        }
-    }
-
-    private fun setupRecyclerView() {
-        val decimalFormat = NumberFormat.getInstance(LocaleHelper.currentLocale) as DecimalFormat
-        val adapter = PurchasesListAdapter(decimalFormat) {
-            UiUtil.setSweetAlertDialogNightMode(resources)
-            lifecycleScope.launch {
-                val consumers =
-                    DataRepository.getDatabase(requireContext()).consumerDao.getConsumerResidentsOfPurchase(
-                        it.purchaseId
-                    ).first()
-                UiUtil.createConsumersSweetAlertDialog(requireContext(), consumers).apply {
-                    show()
-                    getButton(SweetAlertDialog.BUTTON_CONFIRM).setPadding(0)
-                }
-            }
-        }
-        binding.rvPurchases.adapter = adapter
-        binding.rvPurchases.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvPurchases.addItemDecoration(MaterialDividerItemDecoration(
-            requireContext(), MaterialDividerItemDecoration.VERTICAL
-        ).apply {
-            isLastItemDecorated = false
-        })
-        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder,
-            ): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val purchasesListAdapter = binding.rvPurchases.adapter as PurchasesListAdapter
-                val detailedPurchases = LinkedList(purchasesListAdapter.currentList)
-                val detailedPurchasePosition = viewHolder.adapterPosition
-                val detailedPurchase = detailedPurchases[detailedPurchasePosition]
-                detailedPurchases.removeAt(detailedPurchasePosition)
-                purchasesListAdapter.submitList(detailedPurchases)
-                Snackbar.make(
-                    binding.root, getString(R.string.purchase_got_deleted), Snackbar.LENGTH_LONG
-                ).apply {
-                    setAction(R.string.undo) {
-                        detailedPurchases.add(detailedPurchasePosition, detailedPurchase)
-                        purchasesListAdapter.submitList(detailedPurchases)
-                        binding.rvPurchases.adapter = purchasesListAdapter
-                    }
-                    addCallback(object : Snackbar.Callback() {
-                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                            super.onDismissed(transientBottomBar, event)
-
-                            if (event != DISMISS_EVENT_ACTION) {
-                                viewModel.deletePurchase(detailedPurchase.purchase)
-                            }
-                        }
-                    })
-                    show()
-                }
-            }
-        }).attachToRecyclerView(binding.rvPurchases)
-    }
-
-    private fun setupFab() {
-        binding.fabAddPurchase.setOnClickListener {
-            val addPurchaseBottomSheetFragment = AddPurchaseBottomSheetFragment()
-            addPurchaseBottomSheetFragment.show(
-                requireActivity().supportFragmentManager, AddPurchaseBottomSheetFragment.TAG
-            )
-        }
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     private fun showShowcase() {
         val showcaseStatus = ShowcaseStatus(requireContext())
-        val adapter = binding.rvPurchases.adapter as PurchasesListAdapter
 
-        binding.rvPurchases.itemAnimator = null
+        // Adding a temporary showcase purchase item if there is no purchase in database
+        val adapter = binding.rvPurchases.adapter as PurchasesListAdapter
         if (viewModel.purchasesStateFlow.value.isEmpty()) {
+            binding.rvPurchases.itemAnimator = null
             adapter.submitList(
                 listOf(
                     DetailedPurchase(
@@ -223,12 +154,20 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             binding.tvNoData.isGone = true
         }
 
+        // Starting the showcase
+        /*
+        * This code is a bit messy because of Android's recyclerView implementation.
+        * A recyclerView item gets inserted with a delay and when adding a demonstrative
+        * purchase item to the recyclerView it is not possible to create a new showcase
+        * with that item as a target.
+        * */
         GuideView.Builder(requireActivity())
             .setContentText(getString(R.string.showcase_add_purchase))
             .setDismissType(DismissType.anywhere).setTargetView(binding.fabAddPurchase)
             .setPointerType(PointerType.arrow)
             .setContentTypeFace(ResourcesCompat.getFont(requireContext(), R.font.iran_sans))
-            .setContentTextSize(15).setGuideListener {
+            .setContentTextSize(15)
+            .setGuideListener {
                 val purchaseSwipeShowcase = GuideView.Builder(requireActivity())
                     .setContentText(getString(R.string.showcase_delete_purchase))
                     .setDismissType(DismissType.anywhere).setTargetView(binding.rvPurchases[0])
@@ -236,13 +175,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                     .setContentTypeFace(ResourcesCompat.getFont(requireContext(), R.font.iran_sans))
                     .setContentTextSize(15).setGuideListener {
                         if (viewModel.purchasesStateFlow.value.isEmpty()) {
+                            // Removing the demonstrative purchase item
                             adapter.submitList(emptyList()) {
                                 binding.rvPurchases.itemAnimator = DefaultItemAnimator()
                                 binding.tvNoData.isGone = false
                             }
                         } else {
+                            // Moving back the first item to it's original place
                             binding.rvPurchases[0].clearAnimation()
                         }
+
                         showcaseStatus.recordShowcaseEnd(ShowcaseStatus.Screen.HOME)
                     }.build()
 
@@ -251,15 +193,119 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                     .setDismissType(DismissType.anywhere).setTargetView(binding.rvPurchases[0])
                     .setPointerType(PointerType.arrow)
                     .setContentTypeFace(ResourcesCompat.getFont(requireContext(), R.font.iran_sans))
-                    .setContentTextSize(15).setGuideListener {
+                    .setContentTextSize(15)
+                    .setGuideListener {
+                        // Moving the first item a bit to showcase how to swipe
                         val swipeAnimation =
                             AnimationUtils.loadAnimation(requireContext(), R.anim.move_to_side)
                         swipeAnimation.isFillEnabled = true
                         swipeAnimation.fillAfter = true
                         binding.rvPurchases[0].startAnimation(swipeAnimation)
+
                         purchaseSwipeShowcase.show()
-                    }.build().show()
-            }.build().show()
+                    }.build()
+                    .show()
+            }.build()
+            .show()
+    }
+
+    private fun showLanguageSelectionFragmentOnFirstApplicationLaunch() {
+        if (!viewModel.isApplicationLanguageSet()) {
+            val action = HomeFragmentDirections.actionHomeFragmentToLanguageSelectionFragment()
+            findNavController().navigate(action)
+        }
+    }
+
+    private fun setupPurchasesRecyclerView() {
+        // Purchases recyclerView adapter and layout manager
+        val adapter = PurchasesListAdapter(onItemClickListener = { detailedPurchase ->
+            showConsumersListDialog(detailedPurchase)
+        })
+        binding.rvPurchases.adapter = adapter
+        binding.rvPurchases.layoutManager = LinearLayoutManager(requireContext())
+
+        // Purchases recyclerView divider
+        binding.rvPurchases.addItemDecoration(MaterialDividerItemDecoration(
+            requireContext(), MaterialDividerItemDecoration.VERTICAL
+        ).apply {
+            isLastItemDecorated = false
+        })
+
+        // Purchases recyclerView item swipe for deletion
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder,
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                removePurchaseTemporarilyFromRecyclerView(viewHolder.adapterPosition)
+            }
+        }).attachToRecyclerView(binding.rvPurchases)
+    }
+
+    private fun showConsumersListDialog(detailedPurchase: DetailedPurchase) {
+        UiUtil.setSweetAlertDialogNightMode(resources)
+        lifecycleScope.launch {
+            val consumers = viewModel.getConsumerResidentsOfPurchase(detailedPurchase.purchase)
+            UiUtil.createAndShowConsumersSweetDialog(requireContext(), consumers)
+        }
+    }
+
+    /**
+     * Removes an item from the purchases recyclerView list and shows a [Snackbar].
+     * The [Snackbar] has a "Undo" button. When the "Undo" button is pressed
+     * deletion will be cancelled and the recyclerVIew list will be reverted back to the real list.
+     * If the [Snackbar] gets dismissed by any method other than "Undo" button, the purchase
+     * gets deleted from the database.
+     */
+    private fun removePurchaseTemporarilyFromRecyclerView(detailedPurchaseAdapterPosition: Int) {
+        /*
+        * Changing purchases recyclerView list
+        * to a list without the item that's going to be deleted
+        * */
+        val purchasesListAdapter = binding.rvPurchases.adapter as PurchasesListAdapter
+        val detailedPurchases = purchasesListAdapter.currentList.toMutableList()
+        val detailedPurchase = detailedPurchases[detailedPurchaseAdapterPosition]
+        detailedPurchases.removeAt(detailedPurchaseAdapterPosition)
+        purchasesListAdapter.submitList(detailedPurchases)
+
+        // Showing a Snackbar with ability to undo deletion with it
+        Snackbar.make(
+            binding.root, getString(R.string.purchase_got_deleted), Snackbar.LENGTH_LONG
+        ).apply {
+            setAction(R.string.undo) {
+                // Reverting back the purchases recyclerView list to the original purchases list
+                purchasesListAdapter.submitList(viewModel.purchasesStateFlow.value)
+            }
+            addCallback(object : Snackbar.Callback() {
+                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                    super.onDismissed(transientBottomBar, event)
+
+                    /*
+                    * Deleting the purchase if the Snackbar has been dismissed by
+                    * any method other than pressing the action button (the "Undo" button)
+                    * */
+                    if (event != DISMISS_EVENT_ACTION) {
+                        viewModel.deletePurchase(detailedPurchase.purchase)
+                    }
+                }
+            })
+            show()
+        }
+    }
+
+    private fun setupFab() {
+        // Home fragment's floating action button shows AddPurchaseBottomSheetFragment
+        binding.fabAddPurchase.setOnClickListener {
+            val addPurchaseBottomSheetFragment = AddPurchaseBottomSheetFragment()
+            addPurchaseBottomSheetFragment.show(
+                requireActivity().supportFragmentManager, AddPurchaseBottomSheetFragment.TAG
+            )
+        }
     }
 
     private fun setupOptionsMenu() {
@@ -267,32 +313,41 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             object : MenuProvider {
                 override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                     menuInflater.inflate(R.menu.home_menu, menu)
-                    orderMenuItem = menu.findItem(R.id.menu_order_by)
-                    updateOrderMenuItemIcon(OrderBy.valueOf(viewModel.orderStateFlow.value))
+                    /*
+                    * Setting the purchase list menu item for updating the icon
+                    * when purchase list order gets updated
+                    * */
+                    purchaseListOrderMenuItem = menu.findItem(R.id.menu_order_by)
+                    // Setting the item's icon for the first time
+                    val purchasesOrder =
+                        PurchasesOrderBy.valueOf(viewModel.purchasesOrderStateFlow.value)
+                    updateOrderMenuItemIcon(purchasesOrder)
                 }
 
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                     return when (menuItem.itemId) {
                         R.id.action_filter -> {
+                            // Opening the filter purchase fragment
                             val action =
                                 HomeFragmentDirections.actionHomeFragmentToFilterPurchasesFragment()
                             findNavController().navigate(action)
                             true
                         }
+                        // Changing the purchases order
                         R.id.action_order_time_asc -> {
-                            viewModel.setOrder(OrderBy.TIME_ASC)
+                            viewModel.setPurchasesOrder(PurchasesOrderBy.TIME_ASC)
                             true
                         }
                         R.id.action_order_time_desc -> {
-                            viewModel.setOrder(OrderBy.TIME_DESC)
+                            viewModel.setPurchasesOrder(PurchasesOrderBy.TIME_DESC)
                             true
                         }
                         R.id.action_order_price_asc -> {
-                            viewModel.setOrder(OrderBy.PRICE_ASC)
+                            viewModel.setPurchasesOrder(PurchasesOrderBy.PRICE_ASC)
                             true
                         }
                         R.id.action_order_price_desc -> {
-                            viewModel.setOrder(OrderBy.PRICE_DESC)
+                            viewModel.setPurchasesOrder(PurchasesOrderBy.PRICE_DESC)
                             true
                         }
                         else -> {

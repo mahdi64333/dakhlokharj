@@ -11,15 +11,17 @@ import ir.demoodite.dakhlokharj.databinding.ItemPurchaseBinding
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import saman.zamani.persiandate.PersianDate
 import java.text.DecimalFormat
+import java.text.NumberFormat
 
 class PurchasesListAdapter(
-    private val decimalFormat: DecimalFormat,
-    private val onClickListener: (detailedPurchase: DetailedPurchase) -> Unit,
+    private val onItemClickListener: (detailedPurchase: DetailedPurchase) -> Unit,
 ) :
     ListAdapter<DetailedPurchase, PurchasesListAdapter.ViewHolder>(
         diffCallback
     ) {
     var onLongClickListener: ((detailedPurchase: DetailedPurchase) -> Unit)? = null
+    private val decimalFormat =
+        NumberFormat.getInstance(LocaleHelper.currentLocale) as DecimalFormat
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -32,7 +34,7 @@ class PurchasesListAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position), decimalFormat)
         holder.itemView.setOnClickListener {
-            onClickListener(getItem(position))
+            onItemClickListener(getItem(position))
         }
         holder.itemView.setOnLongClickListener {
             onLongClickListener?.invoke(getItem(position))

@@ -74,7 +74,7 @@ object UiUtil {
         return (dp * context.resources.displayMetrics.density).toInt()
     }
 
-    fun createConsumersSweetAlertDialog(
+    fun createAndShowConsumersSweetDialog(
         context: Context,
         consumers: List<Resident>,
     ): SweetAlertDialog {
@@ -95,6 +95,8 @@ object UiUtil {
             listView.selector = ColorDrawable(Color.TRANSPARENT)
             setCustomView(listView)
             confirmText = context.getString(R.string.confirm)
+            show()
+            getButton(SweetAlertDialog.BUTTON_CONFIRM).setPadding(0)
         }
     }
 }
