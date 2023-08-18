@@ -1,9 +1,7 @@
 <resources>
 
     <style name="Theme.Dakhlokharj.Parent" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="fontFamily">?attr/fontFamily</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="Theme.Dakhlokharj.Localized" parent="Theme.Dakhlokharj.Parent">

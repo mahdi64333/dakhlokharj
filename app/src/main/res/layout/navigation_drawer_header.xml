@@ -2,7 +2,10 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/m"
+    android:layout_marginStart="@dimen/m"
+    android:layout_marginTop="@dimen/l"
+    android:layout_marginEnd="@dimen/m"
+    android:layout_marginBottom="@dimen/m"
     android:fitsSystemWindows="true"
     android:gravity="bottom"
     android:minHeight="90dp">
@@ -19,9 +22,9 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="24dp"
+            android:text="@string/app_name"
             android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:textColor="?attr/colorOnSurface"
-            android:text="@string/app_name"/>
+            android:textColor="?attr/colorOnSurface" />
 
         <TextView
             android:layout_width="wrap_content"

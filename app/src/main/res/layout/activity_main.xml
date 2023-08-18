@@ -5,6 +5,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".ui.components.mainactivity.MainActivity">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -20,12 +21,14 @@
                 android:id="@+id/AppBarLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="?attr/colorSurfaceContainer"
                     app:title="@string/app_name" />
             </com.google.android.material.appbar.AppBarLayout>
 

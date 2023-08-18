@@ -2,13 +2,11 @@ package ir.demoodite.dakhlokharj.ui.components.mainactivity
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
 import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
 import androidx.lifecycle.Lifecycle
@@ -46,10 +44,6 @@ class MainActivity : AppCompatActivity() {
         (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
     }
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private val fileSchemes = listOf("file", "content")
-    private val sqliteMimeTypes = listOf(
-        "application/octet-stream", "application/x-sqlite3", "application/vnd.sqlite3"
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,8 +55,8 @@ class MainActivity : AppCompatActivity() {
         listenForUiFeedbackRequests()
         setupNavigation()
         handleDrawerBackPressed()
-        handleIntent(intent)
         showShowcaseIfNotShown()
+        handleIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -71,6 +65,10 @@ class MainActivity : AppCompatActivity() {
         intent?.let {
             handleIntent(intent)
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
     private fun setupLanguageSettingDataCollection() {
@@ -89,8 +87,10 @@ class MainActivity : AppCompatActivity() {
     private fun listenForUiFeedbackRequests() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Loading alert dialog declaring for later showing or dismissing
                 val loadingAlertDialog =
                     SweetAlertDialog(this@MainActivity, SweetAlertDialog.PROGRESS_TYPE)
+
                 getUiFeedbackReceiver().debounce(100).collectLatest { (type, messageResId) ->
                     when (type) {
                         FeedbackType.ERROR_DIALOG -> {
@@ -103,9 +103,9 @@ class MainActivity : AppCompatActivity() {
                                 confirmText = getString(R.string.confirm)
                                 setConfirmClickListener { dismiss() }
                                 show()
-                                getButton(SweetAlertDialog.BUTTON_CONFIRM).apply {
-                                    UiUtil.fixSweetAlertDialogButton(this)
-                                }
+                                UiUtil.fixSweetAlertDialogButton(
+                                    getButton(SweetAlertDialog.BUTTON_CONFIRM)
+                                )
                             }
                         }
                         FeedbackType.SNACKBAR -> {
@@ -124,26 +124,30 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavigation() {
         setSupportActionBar(binding.toolbar)
 
-        // Fragments in navigation drawer
+        // Root distinctions which navigation drawer is openable within them
         val rootDestinations = setOf(
             R.id.homeFragment,
         )
+
         appBarConfiguration = AppBarConfiguration(
             rootDestinations, binding.drawerLayout
         )
-
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.navigationView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, arguments ->
-            binding.AppBarLayout.isGone = arguments?.getBoolean("fullScreen", false) == true
+            // Hiding the AppBarLayout when a navigation destination has fullscreen argument
+            binding.AppBarLayout.isGone =
+                arguments?.getBoolean("fullScreen", false) == true
+            // Locking the DrawerLayout in non root destination which shouldn't open the drawer
             binding.drawerLayout.setDrawerLockMode(
                 if (rootDestinations.contains(destination.id)) LOCK_MODE_UNLOCKED
                 else LOCK_MODE_LOCKED_CLOSED
             )
         }
 
+        // Closing the navigation drawer when selecting an item
         binding.navigationView.setNavigationItemSelectedListener {
             binding.drawerLayout.close()
             it.onNavDestinationSelected(navController)
@@ -151,50 +155,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleDrawerBackPressed() {
-        val onBackPressedDrawerCallback = object : OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding.drawerLayout.isOpen) {
                     binding.drawerLayout.close()
                 }
             }
-        }
-        onBackPressedDispatcher.addCallback(onBackPressedDrawerCallback)
-        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-
-            override fun onDrawerOpened(drawerView: View) {
-                onBackPressedDrawerCallback.isEnabled = true
-            }
-
-            override fun onDrawerClosed(drawerView: View) {
-                onBackPressedDrawerCallback.isEnabled = false
-            }
-
-            override fun onDrawerStateChanged(newState: Int) {}
-
         })
     }
 
-    private fun handleIntent(intent: Intent) {
-        intent.data?.let { intentData ->
-            if (intent.action == Intent.ACTION_VIEW && fileSchemes.contains(intent.data?.scheme) && sqliteMimeTypes.contains(
-                    contentResolver.getType(intentData)
-                )
-            ) {
-                if (navController.currentDestination?.id == R.id.databaseManagerFragment) {
-                    lifecycleScope.launch {
-                        DatabaseManagerFragment.importArchiveFromUri(intentData)
-                    }
-                } else {
-                    val args =
-                        DatabaseManagerFragmentArgs.Builder().setImportingArchiveUri(intentData)
-                            .build()
-                    navController.navigate(R.id.databaseManagerFragment, args.toBundle())
-                }
-            }
-        }
-    }
-
+    /**
+     * Shows the [MainActivity] and [HomeFragment]'s showcases if they have not been shown.
+     */
     private fun showShowcaseIfNotShown() {
         val showcaseStatus = ShowcaseStatus(this)
 
@@ -202,10 +174,8 @@ class MainActivity : AppCompatActivity() {
                 ShowcaseStatus.Screen.HOME
             )
         ) {
-            GuideView.Builder(this)
-                .setContentText(getString(R.string.showcase_resident_adding))
-                .setDismissType(DismissType.anywhere)
-                .setTargetView(binding.toolbar.getChildAt(1))
+            GuideView.Builder(this).setContentText(getString(R.string.showcase_resident_adding))
+                .setDismissType(DismissType.anywhere).setTargetView(binding.toolbar.getChildAt(1))
                 .setPointerType(PointerType.arrow)
                 .setContentTypeFace(ResourcesCompat.getFont(this, R.font.iran_sans))
                 .setContentTextSize(15)
@@ -219,10 +189,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    private fun handleIntent(intent: Intent) {
+        val fileSchemes = listOf("file", "content")
+        val sqliteMimeTypes = listOf(
+            "application/octet-stream", "application/x-sqlite3", "application/vnd.sqlite3"
+        )
+
+        intent.data?.let { intentData ->
+            if (intent.action == Intent.ACTION_VIEW && fileSchemes.contains(intent.data?.scheme)) {
+                if (sqliteMimeTypes.contains(contentResolver.getType(intentData))) {
+                    if (navController.currentDestination?.id == R.id.databaseManagerFragment) {
+                        lifecycleScope.launch {
+                            DatabaseManagerFragment.importArchiveFromUri(intentData)
+                        }
+                    } else {
+                        val args =
+                            DatabaseManagerFragmentArgs.Builder()
+                                .setImportingArchiveUri(intentData)
+                                .build()
+                        navController.navigate(R.id.databaseManagerFragment, args.toBundle())
+                    }
+                }
+            }
+        }
     }
 
+    /**
+     * An event system for receiving Ui event requests such as showing an error
+     * or displaying a message. It makes showing ui events from viewModel much easier.
+     */
     companion object UiFeedbackChannel {
         @Volatile
         private var INSTANCE: Channel<Pair<FeedbackType, Int>>? = null
@@ -240,24 +235,40 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        /**
+         * Shows an error with a [SweetAlertDialog].
+         *
+         * @param errorRes String resource id of the error message
+         */
         suspend fun sendError(@StringRes errorRes: Int) {
             withContext(Dispatchers.Main) {
                 getUiFeedbackChannel().send(Pair(FeedbackType.ERROR_DIALOG, errorRes))
             }
         }
 
+        /**
+         * Shows a messsage with a [Snackbar].
+         *
+         * @param messageRes String resource id of the message
+         */
         suspend fun sendMessage(@StringRes messageRes: Int) {
             withContext(Dispatchers.Main) {
                 getUiFeedbackChannel().send(Pair(FeedbackType.SNACKBAR, messageRes))
             }
         }
 
+        /**
+         * Starts to show an indefinite loading [SweetAlertDialog].
+         */
         suspend fun startLoading() {
             withContext(Dispatchers.Main) {
                 getUiFeedbackChannel().send(Pair(FeedbackType.START_LOADING, 0))
             }
         }
 
+        /**
+         * Dismisses the previous loading [SweetAlertDialog].
+         */
         suspend fun stopLoading() {
             withContext(Dispatchers.Main) {
                 getUiFeedbackChannel().send(Pair(FeedbackType.STOP_LOADING, 0))
