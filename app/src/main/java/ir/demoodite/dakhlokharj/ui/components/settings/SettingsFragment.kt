@@ -19,7 +19,7 @@ class SettingsFragment() : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = viewModel.settingsDataStore
         setPreferencesFromResource(R.xml.settings, rootKey)
-        findPreference<ListPreference>(SettingsDataStore.LANGUAGE_KEY.name)?.let {
+        findPreference<ListPreference>(SettingsDataStore.LANGUAGE_KEY)?.let {
             it.entries = AppLanguage.values().map { appLanguage ->
                 getString(appLanguage.stringRes)
             }.toTypedArray()
@@ -27,7 +27,7 @@ class SettingsFragment() : PreferenceFragmentCompat() {
                 appLanguage.name
             }.toTypedArray()
         }
-        findPreference<ListPreference>(SettingsDataStore.ORDER_BY_KEY.name)?.let {
+        findPreference<ListPreference>(SettingsDataStore.ORDER_BY_KEY)?.let {
             it.entries = OrderBy.values().map { orderBy ->
                 getString(orderBy.stringRes)
             }.toTypedArray()
