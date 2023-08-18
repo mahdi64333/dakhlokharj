@@ -38,6 +38,7 @@ abstract class DataRepository : RoomDatabase() {
     val consumerDao get() = consumerDao()
 
     lateinit var dbFile: File
+        private set
 
     companion object {
         // Database info
@@ -97,7 +98,7 @@ abstract class DataRepository : RoomDatabase() {
             * doesn't throw any error when a database is corrupted and just creates a blank
             * database silently.
             *  */
-            private val mTempDatabaseBuilder = getDatabaseBuilder(context, TEMP_DATABASE_NAME)
+            private val tempDatabaseBuilder = getDatabaseBuilder(context, TEMP_DATABASE_NAME)
                 .openHelperFactory { configuration ->
                     FrameworkSQLiteOpenHelperFactory().create(
                         SupportSQLiteOpenHelper.Configuration(
@@ -131,12 +132,12 @@ abstract class DataRepository : RoomDatabase() {
                         )
                     )
                 }
-            private val mTempDatabaseFile = context.getDatabasePath(TEMP_DATABASE_NAME)
+            private val tempDatabaseFile = context.getDatabasePath(TEMP_DATABASE_NAME)
 
             /**
              * An instance of the main database for importing data.
              * */
-            private val mMainDatabase = getDatabase(context)
+            private val mainDatabase = getDatabase(context)
 
 
             /**
@@ -147,19 +148,19 @@ abstract class DataRepository : RoomDatabase() {
              * */
             suspend fun importDb(dbFile: File): Boolean {
                 return try {
-                    val tempDatabase = mTempDatabaseBuilder.createFromFile(dbFile).build()
+                    val tempDatabase = tempDatabaseBuilder.createFromFile(dbFile).build()
 
                     /*
                     * Simply coping a file is not possible to import a database
                     * so data must be inserted manually.
                     * */
-                    mMainDatabase.clearAllTables()
-                    mMainDatabase.residentDao.insert(tempDatabase.residentDao.getAll().first())
-                    mMainDatabase.purchaseDao.insert(tempDatabase.purchaseDao.getAll().first())
-                    mMainDatabase.consumerDao.insert(tempDatabase.consumerDao.getAll().first())
+                    mainDatabase.clearAllTables()
+                    mainDatabase.residentDao.insert(tempDatabase.residentDao.getAll().first())
+                    mainDatabase.purchaseDao.insert(tempDatabase.purchaseDao.getAll().first())
+                    mainDatabase.consumerDao.insert(tempDatabase.consumerDao.getAll().first())
 
                     tempDatabase.close()
-                    mTempDatabaseFile.delete()
+                    tempDatabaseFile.delete()
 
                     true
                 } catch (e: Exception) {
@@ -180,9 +181,9 @@ abstract class DataRepository : RoomDatabase() {
                     * Coping dbFile to the temp database location
                     * to open it temporarily.
                     * */
-                    mTempDatabaseFile.writeBytes(dbFile.readBytes())
+                    tempDatabaseFile.writeBytes(dbFile.readBytes())
 
-                    val tempDatabase = mTempDatabaseBuilder.build()
+                    val tempDatabase = tempDatabaseBuilder.build()
 
                     /*
                     * Trying to access readableDatabase will result
@@ -199,7 +200,7 @@ abstract class DataRepository : RoomDatabase() {
                     tempDatabase.consumerDao.insert(listOf(Consumer(purchaseId, residentId)))
 
                     tempDatabase.close()
-                    mTempDatabaseFile.delete()
+                    tempDatabaseFile.delete()
 
                     true
                 } catch (e: SQLiteDatabaseCorruptException) {
