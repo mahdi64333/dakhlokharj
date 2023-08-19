@@ -123,8 +123,8 @@ class DatabaseManagerViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             MainActivity.startLoading()
             fileListUpdateLock.set(true)
-            settingsDataStore.setCurrentDbAlias(archiveFile.nameWithoutExtension)
             archiveCurrentDb()
+            settingsDataStore.setCurrentDbAlias(archiveFile.nameWithoutExtension)
             val cacheDbFile = File(cacheDir, "cache_db_file.db")
             archiveFile.renameTo(cacheDbFile)
             databaseImporter.importDb(cacheDbFile)
