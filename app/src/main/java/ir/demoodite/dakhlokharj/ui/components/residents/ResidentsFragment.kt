@@ -3,6 +3,7 @@ package ir.demoodite.dakhlokharj.ui.components.residents
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
+import androidx.activity.addCallback
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.get
 import androidx.core.view.isGone
@@ -11,10 +12,12 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,6 +39,9 @@ import java.util.*
 @AndroidEntryPoint
 class ResidentsFragment :
     BaseFragment<FragmentResidentsBinding>(FragmentResidentsBinding::inflate) {
+    private fun RecyclerView.Adapter<ViewHolder>.asResidentsListAdapter(): ResidentsListAdapter =
+        this as ResidentsListAdapter
+    
     private val viewModel: ResidentsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +56,7 @@ class ResidentsFragment :
 
         setupResidentSaveUi()
         setupResidentsRecyclerView()
+        overrideBackPressedWhenEditing()
         showShowcaseIfNotShown()
     }
 
@@ -135,13 +142,13 @@ class ResidentsFragment :
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END) {
             override fun onMove(
                 recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder,
+                viewHolder: ViewHolder,
+                target: ViewHolder,
             ): Boolean {
                 return false
             }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
                 val residentsAdapter = binding.rvResidents.adapter!! as ResidentsListAdapter
                 val residents = LinkedList(residentsAdapter.currentList)
                 val residentPosition = viewHolder.adapterPosition
@@ -173,6 +180,16 @@ class ResidentsFragment :
                     }
             }
         }).attachToRecyclerView(binding.rvResidents)
+    }
+
+    private fun overrideBackPressedWhenEditing() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if (binding.rvResidents.adapter?.asResidentsListAdapter()?.isEditing() == true) {
+                binding.rvResidents.adapter!!.asResidentsListAdapter().stopEditing()
+            } else {
+                findNavController().navigateUp()
+            }
+        }
     }
 
     private fun showShowcaseIfNotShown() {

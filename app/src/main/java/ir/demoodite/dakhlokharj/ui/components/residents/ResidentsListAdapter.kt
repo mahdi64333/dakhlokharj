@@ -76,6 +76,10 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
         }
     }
 
+    fun isEditing(): Boolean {
+        return editingPosition != RecyclerView.NO_POSITION
+    }
+
     fun stopEditing() {
         editingPosition = RecyclerView.NO_POSITION
         editingViewHolder?.stopEditing()
