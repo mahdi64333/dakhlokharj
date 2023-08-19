@@ -10,6 +10,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
@@ -25,6 +27,9 @@ import saman.zamani.persiandate.PersianDate
 @AndroidEntryPoint
 class AddPurchaseBottomSheetFragment :
     BaseBottomSheetDialogFragment<FragmentAddPurchaseBinding>(FragmentAddPurchaseBinding::inflate) {
+    private fun RecyclerView.Adapter<ViewHolder>.asSelectedConsumersListAdapter(): SelectedConsumersListAdapter =
+        this as SelectedConsumersListAdapter
+
     private val viewModel: AddPurchaseViewModel by activityViewModels()
     private lateinit var residents: List<Resident>
     private lateinit var activeResidents: List<Resident>
@@ -87,8 +92,7 @@ class AddPurchaseBottomSheetFragment :
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.selectedResidentsStateFlow.collectLatest { newSelectedResidents ->
                     // Updating consumers RecyclerView
-                    val selectedResidents =
-                        residents.intersect(newSelectedResidents).toList()
+                    val selectedResidents = residents.intersect(newSelectedResidents).toList()
                     updateSelectedResidentsRecyclerView(selectedResidents)
 
                     // Updating consumers AutocompleteTextView
@@ -114,9 +118,7 @@ class AddPurchaseBottomSheetFragment :
 
     private fun updateSelectedResidentsRecyclerView(selectedResidents: List<Resident>) {
         binding.tvLabelChips.isVisible = selectedResidents.isNotEmpty()
-        val selectedResidentsListAdapter =
-            binding.rvConsumers.adapter as SelectedConsumersListAdapter
-        selectedResidentsListAdapter.submitList(selectedResidents)
+        binding.rvConsumers.adapter?.asSelectedConsumersListAdapter()?.submitList(selectedResidents)
     }
 
     private fun updateConsumerAutocompleteTextViewAdapter(unselectedResidentNames: List<String>) {
