@@ -31,9 +31,9 @@ class AddPurchaseBottomSheetFragment :
         this as SelectedConsumersListAdapter
 
     private val viewModel: AddPurchaseViewModel by activityViewModels()
-    private lateinit var residents: List<Resident>
-    private lateinit var activeResidents: List<Resident>
-    private lateinit var selectedResidents: List<Resident>
+    private var residents: List<Resident> = emptyList()
+    private var activeResidents: List<Resident> = emptyList()
+    private var selectedResidents: List<Resident> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
