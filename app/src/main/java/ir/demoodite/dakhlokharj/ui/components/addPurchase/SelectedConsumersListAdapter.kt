@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.ui.components.home
+package ir.demoodite.dakhlokharj.ui.components.addPurchase
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,31 +9,29 @@ import ir.demoodite.dakhlokharj.data.room.models.Resident
 import ir.demoodite.dakhlokharj.databinding.ItemConsumerBinding
 
 class SelectedConsumersListAdapter(
-    private val onClickListener: (Resident) -> Unit,
+    private val onCloseIconClickListener: (Resident) -> Unit,
 ) : ListAdapter<Resident, SelectedConsumersListAdapter.ViewHolder>(diffCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             ItemConsumerBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
+                LayoutInflater.from(parent.context), parent, false
             )
         )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position)
-        holder.bind(item) {
-            onClickListener(item)
-        }
+        holder.bind(
+            consumer = getItem(position),
+            onCloseIconClickListener = { onCloseIconClickListener(getItem(position)) }
+        )
     }
 
     class ViewHolder(private val binding: ItemConsumerBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(consumer: Resident, onClickListener: () -> Unit) {
+        fun bind(consumer: Resident, onCloseIconClickListener: () -> Unit) {
             binding.chipName.text = consumer.name
             binding.chipName.setOnCloseIconClickListener {
-                onClickListener()
+                onCloseIconClickListener()
             }
         }
     }
@@ -47,7 +45,6 @@ class SelectedConsumersListAdapter(
             override fun areContentsTheSame(oldItem: Resident, newItem: Resident): Boolean {
                 return oldItem == newItem
             }
-
         }
     }
 }

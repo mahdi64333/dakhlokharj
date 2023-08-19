@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.ui.components.addpurchase
+package ir.demoodite.dakhlokharj.ui.components.addPurchase
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,27 +15,21 @@ import javax.inject.Inject
 class AddPurchaseViewModel @Inject constructor(
     private val dataRepository: DataRepository,
 ) : ViewModel() {
-    private val residentsStateFlow: StateFlow<List<Resident>> by lazy {
-        dataRepository.residentDao.getAllNonDeleted().stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            listOf()
-        )
-    }
-    val activeResidentsStateFlow: StateFlow<List<Resident>> by lazy {
-        dataRepository.residentDao.getAllActive().stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            listOf()
-        )
-    }
+    val residentsStateFlow = dataRepository.residentDao.getAllNonDeleted().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(), emptyList()
+    )
+    val activeResidentsStateFlow = dataRepository.residentDao.getAllActive().stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(), emptyList()
+    )
     private var _selectedResidentsStateFlow: MutableStateFlow<Set<Resident>> =
-        MutableStateFlow(setOf())
+        MutableStateFlow(emptySet())
     val selectedResidentsStateFlow get() = _selectedResidentsStateFlow.asStateFlow()
-    val savedPurchaseInfo = Purchase(-1)
-    val residents get() = residentsStateFlow.value
-    val activeResidents get() = activeResidentsStateFlow.value
-    val selectedResidents get() = selectedResidentsStateFlow.value
+
+    /**
+     * Data of last input fields after dismissing [AddPurchaseBottomSheetFragment]
+     * to restore when reopened.
+     */
+    val savedPurchaseInfo = Purchase()
 
     fun addSelectedResident(resident: Resident) {
         _selectedResidentsStateFlow.update {
@@ -53,13 +47,13 @@ class AddPurchaseViewModel @Inject constructor(
         }
     }
 
-    fun clearSelectedResident() {
+    fun clearSelectedResidents() {
         _selectedResidentsStateFlow.update {
             setOf()
         }
     }
 
-    fun savePurchaseRecord(purchase: Purchase, consumerResidents: List<Resident>) {
+    fun savePurchase(purchase: Purchase, consumerResidents: List<Resident>) {
         viewModelScope.launch {
             val purchaseId = dataRepository.purchaseDao.insert(purchase)
             val consumers = consumerResidents.map {

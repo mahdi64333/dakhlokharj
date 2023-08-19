@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.ui.components.addpurchase
+package ir.demoodite.dakhlokharj.ui.components.addPurchase
 
 import android.app.Dialog
 import android.os.Bundle
@@ -17,7 +17,6 @@ import ir.demoodite.dakhlokharj.data.room.models.Purchase
 import ir.demoodite.dakhlokharj.data.room.models.Resident
 import ir.demoodite.dakhlokharj.databinding.FragmentAddPurchaseBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseBottomSheetDialogFragment
-import ir.demoodite.dakhlokharj.ui.components.home.SelectedConsumersListAdapter
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -27,11 +26,14 @@ import saman.zamani.persiandate.PersianDate
 class AddPurchaseBottomSheetFragment :
     BaseBottomSheetDialogFragment<FragmentAddPurchaseBinding>(FragmentAddPurchaseBinding::inflate) {
     private val viewModel: AddPurchaseViewModel by activityViewModels()
+    private lateinit var residents: List<Resident>
+    private lateinit var activeResidents: List<Resident>
+    private lateinit var selectedResidents: List<Resident>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        startDataCollection()
+        startFlowCollection()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,59 +46,64 @@ class AddPurchaseBottomSheetFragment :
     }
 
     override fun onDestroyView() {
-        viewModel.savedPurchaseInfo.apply {
-            product = binding.textInputEditTextProductName.text.toString()
-            val priceText = binding.textInputEditTextProductPrice.getTextWithoutCommas()
-            price = if (priceText.isNotEmpty()) priceText.toDouble() else -1.0
-            val buyer =
-                viewModel.activeResidents.find { it.name == binding.autoCompleteTextViewProductBuyer.text.toString() }
-            buyerId = buyer?.id ?: -1
-        }
+        saveCurrentInputData()
 
         super.onDestroyView()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
+
+        // Setting the peek height at full window height
         dialog.setOnShowListener {
             val bottomSheetDialog = it as BottomSheetDialog
             bottomSheetDialog.behavior.peekHeight = resources.displayMetrics.heightPixels
         }
+
         return dialog
     }
 
-    private fun startDataCollection() {
+    private fun startFlowCollection() {
+        // All residents collection
         lifecycleScope.launch {
-            viewModel.activeResidentsStateFlow.collectLatest {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    setupBuyerAutocompleteTextViewAdapter()
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.residentsStateFlow.collectLatest { newResidents ->
+                    residents = newResidents
                 }
             }
         }
 
+        // Active residents collection
         lifecycleScope.launch {
-            viewModel.selectedResidentsStateFlow.collectLatest {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    val selectedResidents = viewModel.residents.intersect(it).toList()
-                    binding.tvLabelChips.isVisible = selectedResidents.isNotEmpty()
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.activeResidentsStateFlow.collectLatest { newActiveResidents ->
+                    updateBuyerAutocompleteTextViewAdapter(newActiveResidents)
+                }
+            }
+        }
+
+        // Selected residents collection
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.selectedResidentsStateFlow.collectLatest { newSelectedResidents ->
+                    // Updating consumers RecyclerView
+                    val selectedResidents =
+                        residents.intersect(newSelectedResidents).toList()
                     updateSelectedResidentsRecyclerView(selectedResidents)
-                    val unselectedResidentNames = viewModel.residents.subtract(it).map { resident ->
-                        resident.name
-                    }
-                    setupConsumerAutocompleteTextViewAdapter(unselectedResidentNames)
+
+                    // Updating consumers AutocompleteTextView
+                    val unselectedResidentNames =
+                        residents.subtract(selectedResidents.toSet()).map { resident ->
+                            resident.name
+                        }
+                    updateConsumerAutocompleteTextViewAdapter(unselectedResidentNames)
                 }
             }
         }
     }
 
-    private fun updateSelectedResidentsRecyclerView(selectedResidents: List<Resident>) {
-        val selectedResidentsListAdapter =
-            binding.rvConsumers.adapter as SelectedConsumersListAdapter
-        selectedResidentsListAdapter.submitList(selectedResidents)
-    }
-
-    private fun setupBuyerAutocompleteTextViewAdapter() {
-        val activeResidentNames = viewModel.activeResidents.map {
+    private fun updateBuyerAutocompleteTextViewAdapter(activeResidents: List<Resident>) {
+        val activeResidentNames = activeResidents.map {
             it.name
         }
         val arrayAdapter = ArrayAdapter(
@@ -105,7 +112,14 @@ class AddPurchaseBottomSheetFragment :
         binding.autoCompleteTextViewProductBuyer.setAdapter(arrayAdapter)
     }
 
-    private fun setupConsumerAutocompleteTextViewAdapter(unselectedResidentNames: List<String>) {
+    private fun updateSelectedResidentsRecyclerView(selectedResidents: List<Resident>) {
+        binding.tvLabelChips.isVisible = selectedResidents.isNotEmpty()
+        val selectedResidentsListAdapter =
+            binding.rvConsumers.adapter as SelectedConsumersListAdapter
+        selectedResidentsListAdapter.submitList(selectedResidents)
+    }
+
+    private fun updateConsumerAutocompleteTextViewAdapter(unselectedResidentNames: List<String>) {
         val arrayAdapter = ArrayAdapter(
             requireContext(), android.R.layout.simple_list_item_1, unselectedResidentNames
         )
@@ -116,7 +130,7 @@ class AddPurchaseBottomSheetFragment :
         viewModel.savedPurchaseInfo.let { purchase ->
             binding.textInputEditTextProductName.setText(purchase.product)
             binding.textInputEditTextProductPrice.setText(if (purchase.price > 0) purchase.price.toString() else "")
-            val buyer = viewModel.activeResidents.find { resident ->
+            val buyer = activeResidents.find { resident ->
                 resident.id == purchase.buyerId
             }
             binding.autoCompleteTextViewProductBuyer.setText(buyer?.name)
@@ -128,38 +142,42 @@ class AddPurchaseBottomSheetFragment :
             binding.autoCompleteTextViewConsumerName.showDropDown()
         }
         binding.textInputLayoutConsumerName.setEndIconOnClickListener {
-            val textInputLayout = binding.textInputLayoutConsumerName
-            val enteredName = binding.autoCompleteTextViewConsumerName.text.toString()
-
-            if (enteredName.isEmpty()) {
-                textInputLayout.error = getString(R.string.its_empty)
-                UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
-                return@setEndIconOnClickListener
-            }
-            if (viewModel.residents.find { it.name == enteredName } == null) {
-                textInputLayout.error = getString(R.string.no_residents_found)
-                UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
-                return@setEndIconOnClickListener
-            }
-            if (viewModel.activeResidents.find { it.name == enteredName } == null) {
-                textInputLayout.error = getString(R.string.no_active_residents_found)
-                UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
-                return@setEndIconOnClickListener
-            }
-
-            if (viewModel.selectedResidents.find { it.name == enteredName } == null) {
-                val selectedResident = viewModel.activeResidents.find { it.name == enteredName }!!
-                viewModel.addSelectedResident(selectedResident)
-            }
-            binding.autoCompleteTextViewConsumerName.setText("")
+            validateAndAddConsumer()
         }
         binding.textInputLayoutConsumerName.setEndIconOnLongClickListener {
             binding.autoCompleteTextViewConsumerName.setText("")
-            viewModel.activeResidents.forEach { activeResident ->
+            activeResidents.forEach { activeResident ->
                 viewModel.addSelectedResident(activeResident)
             }
             true
         }
+    }
+
+    private fun validateAndAddConsumer() {
+        val enteredName = binding.autoCompleteTextViewConsumerName.text.toString()
+
+        if (enteredName.isEmpty()) {
+            binding.textInputLayoutConsumerName.error = getString(R.string.its_empty)
+            UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
+            return
+        }
+        if (residents.find { it.name == enteredName } == null) {
+            binding.textInputLayoutConsumerName.error = getString(R.string.no_residents_found)
+            UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
+            return
+        }
+        if (activeResidents.find { it.name == enteredName } == null) {
+            binding.textInputLayoutConsumerName.error =
+                getString(R.string.no_active_residents_found)
+            UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
+            return
+        }
+
+        if (selectedResidents.find { it.name == enteredName } == null) {
+            val selectedResident = activeResidents.find { it.name == enteredName }!!
+            viewModel.addSelectedResident(selectedResident)
+        }
+        binding.autoCompleteTextViewConsumerName.setText("")
     }
 
     private fun setupConsumerChips() {
@@ -174,29 +192,31 @@ class AddPurchaseBottomSheetFragment :
     private fun setupSubmitButton() {
         binding.btnSubmit.setOnClickListener {
             it.isEnabled = false
-            validateInputsAndGetPurchase()?.let { purchase ->
-                viewModel.savePurchaseRecord(
-                    purchase, viewModel.selectedResidents.toList()
+            validateInputsAndGetPurchaseOrNull()?.let { purchase ->
+                viewModel.savePurchase(
+                    purchase, selectedResidents.toList()
                 )
-                cleanupAndDismiss()
+                cleanupInputs()
+                dismiss()
             }
             it.isEnabled = true
         }
     }
 
-    private fun validateInputsAndGetPurchase(): Purchase? {
+    private fun validateInputsAndGetPurchaseOrNull(): Purchase? {
         var errorFlag = false
         val productName = binding.textInputEditTextProductName.text.toString().trim()
         val priceText = binding.textInputEditTextProductPrice.getTextWithoutCommas()
         val price: Double = if (priceText.isEmpty()) 0.0 else priceText.toDouble()
         val buyerName = binding.autoCompleteTextViewProductBuyer.text.toString().trim()
-        val buyer = viewModel.activeResidents.find { it.name == buyerName }
+        val buyer = activeResidents.find { it.name == buyerName }
 
         if (productName.isEmpty()) {
             binding.textInputLayoutProductName.error = getString(R.string.its_empty)
             UiUtil.removeErrorOnTextChange(binding.textInputEditTextProductName)
             errorFlag = true
         }
+
         if (priceText.isEmpty()) {
             binding.textInputLayoutProductPrice.error = getString(R.string.its_empty)
             UiUtil.removeErrorOnTextChange(binding.textInputEditTextProductPrice)
@@ -206,21 +226,23 @@ class AddPurchaseBottomSheetFragment :
             UiUtil.removeErrorOnTextChange(binding.textInputEditTextProductPrice)
             errorFlag = true
         }
+
         if (buyerName.isEmpty()) {
             binding.textInputLayoutProductBuyer.error = getString(R.string.its_empty)
             UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewProductBuyer)
             errorFlag = true
-        } else if (!viewModel.activeResidents.contains(buyer)) {
+        } else if (!activeResidents.contains(buyer)) {
             binding.textInputLayoutProductBuyer.error =
                 getString(R.string.no_active_residents_found)
             UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewProductBuyer)
             errorFlag = true
-        } else if (!viewModel.residents.contains(buyer)) {
+        } else if (!residents.contains(buyer)) {
             binding.textInputLayoutProductBuyer.error = getString(R.string.no_residents_found)
             UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewProductBuyer)
             errorFlag = true
         }
-        if (viewModel.selectedResidents.isEmpty()) {
+
+        if (selectedResidents.isEmpty()) {
             binding.textInputLayoutConsumerName.error = getString(R.string.no_consumer_selected)
             UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
             errorFlag = true
@@ -235,15 +257,25 @@ class AddPurchaseBottomSheetFragment :
         }
     }
 
-    private fun cleanupAndDismiss() {
-        viewModel.clearSelectedResident()
+    private fun cleanupInputs() {
+        viewModel.clearSelectedResidents()
         binding.apply {
             textInputEditTextProductName.setText("")
             textInputEditTextProductPrice.setText("")
             autoCompleteTextViewProductBuyer.setText("")
             autoCompleteTextViewConsumerName.setText("")
         }
-        dismiss()
+    }
+
+    private fun saveCurrentInputData() {
+        viewModel.savedPurchaseInfo.apply {
+            product = binding.textInputEditTextProductName.text.toString()
+            val priceText = binding.textInputEditTextProductPrice.getTextWithoutCommas()
+            price = if (priceText.isNotEmpty()) priceText.toDouble() else -1.0
+            val buyer =
+                activeResidents.find { it.name == binding.autoCompleteTextViewProductBuyer.text.toString() }
+            buyerId = buyer?.id ?: -1
+        }
     }
 
     companion object {
