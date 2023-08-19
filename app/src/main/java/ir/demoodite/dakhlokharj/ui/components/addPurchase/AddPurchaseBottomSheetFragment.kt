@@ -82,6 +82,7 @@ class AddPurchaseBottomSheetFragment :
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.activeResidentsStateFlow.collectLatest { newActiveResidents ->
+                    activeResidents = newActiveResidents
                     updateBuyerAutocompleteTextViewAdapter(newActiveResidents)
                 }
             }
@@ -92,7 +93,7 @@ class AddPurchaseBottomSheetFragment :
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.selectedResidentsStateFlow.collectLatest { newSelectedResidents ->
                     // Updating consumers RecyclerView
-                    val selectedResidents = residents.intersect(newSelectedResidents).toList()
+                    selectedResidents = residents.intersect(newSelectedResidents).toList()
                     updateSelectedResidentsRecyclerView(selectedResidents)
 
                     // Updating consumers AutocompleteTextView
