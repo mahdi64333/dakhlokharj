@@ -41,14 +41,14 @@ class ResidentsFragment :
     BaseFragment<FragmentResidentsBinding>(FragmentResidentsBinding::inflate) {
     private fun RecyclerView.Adapter<ViewHolder>.asResidentsListAdapter(): ResidentsListAdapter =
         this as ResidentsListAdapter
-    
+
     private val viewModel: ResidentsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        startDataCollection()
-        setupErrorReceiver()
+        startFlowCollection()
+        startResidentOperationChannelCollection()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -60,28 +60,54 @@ class ResidentsFragment :
         showShowcaseIfNotShown()
     }
 
-    private fun startDataCollection() {
+    private fun startFlowCollection() {
+        // Residents collection
         lifecycleScope.launch {
-            viewModel.residentsStateFlow.collectLatest {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    updateResidentsUi(it)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.residentsStateFlow.collectLatest { newResidents ->
+                    updateResidentsUi(newResidents)
                 }
             }
         }
     }
 
     private fun updateResidentsUi(residents: List<Resident>) {
-        val residentListAdapter = binding.rvResidents.adapter as ResidentsListAdapter
         binding.tvNoData.isVisible = residents.isEmpty()
-        residentListAdapter.submitList(residents)
+        binding.rvResidents.adapter?.asResidentsListAdapter()?.submitList(residents)
     }
 
-    private fun setupErrorReceiver() {
+    private fun startResidentOperationChannelCollection() {
         lifecycleScope.launch {
-            viewModel.residentNameInputErrorResChannel.collectLatest {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    binding.textInputLayoutResidentName.error = getString(R.string.duplicate)
-                    UiUtil.removeErrorOnTextChange(binding.textInputEditTextResidentName)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.residentOperationChannel.collectLatest { residentOperationResult ->
+                    handleResidentOperationResult(residentOperationResult)
+                }
+            }
+        }
+    }
+
+    private fun handleResidentOperationResult(
+        residentOperationResult: ResidentsViewModel.ResidentOperationResult,
+    ) {
+        when (residentOperationResult.operationType) {
+            ResidentsViewModel.ResidentOperationResult.ResidentOperationType.INSERT -> {
+                if (residentOperationResult.isSuccessful) {
+                    binding.textInputEditTextResidentName.setText("")
+                } else {
+                    residentOperationResult.messageStringRes?.let { errorStringRes ->
+                        binding.textInputLayoutResidentName.error = getString(errorStringRes)
+                        UiUtil.removeErrorOnTextChange(binding.textInputEditTextResidentName)
+                    }
+                }
+            }
+            ResidentsViewModel.ResidentOperationResult.ResidentOperationType.UPDATE -> {
+                if (residentOperationResult.isSuccessful) {
+                    binding.rvResidents.adapter?.asResidentsListAdapter()?.stopEditing()
+                } else {
+                    residentOperationResult.messageStringRes?.let { errorStringRes ->
+                        binding.rvResidents.adapter?.asResidentsListAdapter()
+                            ?.setError(getString(errorStringRes))
+                    }
                 }
             }
         }
@@ -89,35 +115,26 @@ class ResidentsFragment :
 
     private fun setupResidentSaveUi() {
         binding.textInputLayoutResidentName.setEndIconOnClickListener {
-            binding.textInputLayoutResidentName.setEndIconActivated(false)
-            validateInputsAndGetResident()?.let {
-                insertEditingResident(it)
+            binding.rvResidents.adapter?.asResidentsListAdapter()?.stopEditing()
+            validateInputsAndGetResidentOrNull()?.let { newResident ->
+                viewModel.insertResident(newResident)
             }
-            binding.textInputLayoutResidentName.setEndIconActivated(true)
         }
 
     }
 
-    private fun insertEditingResident(resident: Resident) {
-        (binding.rvResidents.adapter as ResidentsListAdapter).stopEditing()
-        viewModel.insertResident(resident)
-        binding.textInputEditTextResidentName.setText("")
-    }
-
-    private fun validateInputsAndGetResident(): Resident? {
+    private fun validateInputsAndGetResidentOrNull(): Resident? {
         var errorFlag = false
-        val resident = Resident(0)
         val name = binding.textInputEditTextResidentName.text.toString().trim()
 
         if (name.isEmpty()) {
             binding.textInputLayoutResidentName.error = getString(R.string.its_empty)
             UiUtil.removeErrorOnTextChange(binding.textInputEditTextResidentName)
             errorFlag = true
-        } else {
-            resident.name = name
         }
 
-        return if (errorFlag) null else resident
+        return if (errorFlag) null
+        else Resident(name = name)
     }
 
     private fun setupResidentsRecyclerView() {
@@ -127,8 +144,7 @@ class ResidentsFragment :
                 viewModel.updateResident(resident)
             }
             onNameChangedListener = { resident, newName ->
-                resident.name = newName
-                viewModel.updateResident(resident)
+                viewModel.updateResident(resident.copy(name = newName))
             }
         }
 

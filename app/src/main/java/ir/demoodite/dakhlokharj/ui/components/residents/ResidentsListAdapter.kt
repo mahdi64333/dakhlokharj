@@ -6,7 +6,6 @@ import android.widget.EditText
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.models.Resident
@@ -16,33 +15,17 @@ import ir.demoodite.dakhlokharj.utils.UiUtil
 class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHolder>(diffCallback) {
     private var editingPosition = RecyclerView.NO_POSITION
     private var editingName: String? = null
+    private var editingError: String? = null
     private var editingViewHolder: ViewHolder? = null
     lateinit var onActivationChangedListener: (resident: Resident, active: Boolean) -> Unit
     lateinit var onNameChangedListener: (resident: Resident, newName: String) -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val context = parent.context
         return ViewHolder(
             binding = ItemResidentBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
-            ), getValidatedNameOrNull = { nameTextInputEditText, nameTextInputLayout ->
-                if (nameTextInputEditText.text.toString().isEmpty()) {
-                    nameTextInputLayout.error = context.getString(R.string.its_empty)
-                    UiUtil.removeErrorOnTextChange(nameTextInputEditText, false)
-                    null
-                } else if (currentList.find {
-                        it.name == nameTextInputEditText.text.toString().trim()
-                    } != null) {
-                    nameTextInputLayout.error =
-                        context.getString(R.string.there_is_a_resident_with_this_name)
-                    UiUtil.removeErrorOnTextChange(nameTextInputEditText, false)
-                    null
-                } else {
-                    nameTextInputEditText.text.toString().trim()
-                }
-            },
+            ),
             renameCallback = { resident, newName ->
-                editingPosition = RecyclerView.NO_POSITION
                 if (newName != null) {
                     onNameChangedListener(resident, newName)
                 }
@@ -73,6 +56,9 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
 
         if (holder.adapterPosition == editingPosition) {
             editingViewHolder = holder
+            editingError?.let {
+                editingViewHolder?.setError(it)
+            }
         }
     }
 
@@ -81,13 +67,20 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
     }
 
     fun stopEditing() {
-        editingPosition = RecyclerView.NO_POSITION
         editingViewHolder?.stopEditing()
+        editingPosition = RecyclerView.NO_POSITION
+        editingName = null
+        editingError = null
+        editingViewHolder = null
+    }
+
+    fun setError(errorMessage: String) {
+        editingError = errorMessage
+        editingViewHolder?.setError(errorMessage)
     }
 
     class ViewHolder(
         private val binding: ItemResidentBinding,
-        private val getValidatedNameOrNull: (TextInputEditText, TextInputLayout) -> String?,
         private val renameCallback: (Resident, newName: String?) -> Unit,
     ) : RecyclerView.ViewHolder(binding.root) {
         private lateinit var resident: Resident
@@ -128,17 +121,13 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
                 boxStrokeWidth = dpUnit
                 endIconMode = TextInputLayout.END_ICON_CUSTOM
                 setEndIconOnClickListener {
-                    val validatedName = if (editingName == resident.name) {
-                        null
-                    } else {
-                        getValidatedNameOrNull(
-                            binding.textInputEditTextResidentName,
-                            binding.textInputLayoutResidentName
-                        )
+                    getValidatedNameOrNull()?.let { validatedName ->
+                        if (validatedName != resident.name) {
+                            renameCallback(resident, validatedName)
+                        } else {
+                            stopEditing()
+                        }
                     }
-                    UiUtil.hideKeyboard(binding.textInputEditTextResidentName)
-                    renameCallback(resident, validatedName)
-                    stopEditing()
                 }
             }
             binding.textInputEditTextResidentName.apply {
@@ -149,8 +138,30 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
             }
         }
 
+        private fun getValidatedNameOrNull(): String? {
+            var errorFlag = false
+            val name = binding.textInputEditTextResidentName.text.toString().trim()
+
+            if (name.isEmpty()) {
+                binding.textInputLayoutResidentName.error = context.getString(R.string.its_empty)
+                UiUtil.removeErrorOnTextChange(binding.textInputEditTextResidentName, false)
+                errorFlag = true
+            }
+
+            return if (errorFlag)
+                null
+            else
+                name
+        }
+
+        fun setError(errorMessage: String) {
+            binding.textInputLayoutResidentName.error = errorMessage
+            UiUtil.removeErrorOnTextChange(binding.textInputEditTextResidentName, false)
+        }
+
         fun stopEditing() {
             binding.textInputLayoutResidentName.apply {
+                error = null
                 boxStrokeWidth = 0
                 endIconMode = TextInputLayout.END_ICON_NONE
             }

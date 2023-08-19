@@ -122,12 +122,8 @@ interface ResidentDao {
     )
     suspend fun isNameTaken(name: String): Boolean
 
-    @Query(
-        "UPDATE $RESIDENTS_TABLE_NAME " +
-                "SET $RESIDENT_DELETED = 1 ,$RESIDENT_ACTIVE = 0 " +
-                "WHERE $RESIDENT_ID = :id"
-    )
-    suspend fun delete(id: Long)
+    @Delete
+    suspend fun delete(resident: Resident)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(resident: Resident): Long

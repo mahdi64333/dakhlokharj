@@ -2,14 +2,10 @@ package ir.demoodite.dakhlokharj.ui.components.residents
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.room.models.Resident
-import ir.demoodite.dakhlokharj.data.room.workers.DeleteResidentWorker
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -20,24 +16,31 @@ import javax.inject.Inject
 @HiltViewModel
 class ResidentsViewModel @Inject constructor(
     private val dataRepository: DataRepository,
-    private val workManager: WorkManager,
 ) : ViewModel() {
     val residentsStateFlow = dataRepository.residentDao.getAllNonDeleted().stateIn(
-        viewModelScope,
-        SharingStarted.Lazily,
-        listOf()
+        viewModelScope, SharingStarted.WhileSubscribed(), listOf()
     )
-    private val _residentNameInputErrorResChannel = Channel<Int>()
-    val residentNameInputErrorResChannel get() = _residentNameInputErrorResChannel.receiveAsFlow()
-    private val _residentNameEditErrorResChannel = Channel<Int?>()
-    val residentNameEditErrorResChannel get() = _residentNameEditErrorResChannel.receiveAsFlow()
+    private val _residentOperationChannel = Channel<ResidentOperationResult>()
+    val residentOperationChannel get() = _residentOperationChannel.receiveAsFlow()
 
     fun insertResident(resident: Resident) {
         viewModelScope.launch {
             if (!dataRepository.residentDao.isNameTaken(resident.name)) {
                 dataRepository.residentDao.insert(resident)
+                _residentOperationChannel.send(
+                    ResidentOperationResult(
+                        true,
+                        ResidentOperationResult.ResidentOperationType.INSERT,
+                    )
+                )
             } else {
-                _residentNameInputErrorResChannel.send(R.string.duplicate)
+                _residentOperationChannel.send(
+                    ResidentOperationResult(
+                        false,
+                        ResidentOperationResult.ResidentOperationType.INSERT,
+                        R.string.there_is_a_resident_with_this_name
+                    )
+                )
             }
         }
     }
@@ -46,19 +49,37 @@ class ResidentsViewModel @Inject constructor(
         viewModelScope.launch {
             if (!dataRepository.residentDao.isNameTaken(resident.name)) {
                 dataRepository.residentDao.update(resident)
+                _residentOperationChannel.send(
+                    ResidentOperationResult(
+                        true,
+                        ResidentOperationResult.ResidentOperationType.UPDATE,
+                    )
+                )
             } else {
-                _residentNameEditErrorResChannel.send(R.string.duplicate)
+                _residentOperationChannel.send(
+                    ResidentOperationResult(
+                        false,
+                        ResidentOperationResult.ResidentOperationType.UPDATE,
+                        R.string.there_is_a_resident_with_this_name
+                    )
+                )
             }
         }
     }
 
     fun deleteResident(resident: Resident) {
-        val data = Data.Builder()
-            .putLong(DeleteResidentWorker.RESIDENT_ID_KEY, resident.id)
-            .build()
-        val deleteResidentWorker = OneTimeWorkRequest.Builder(DeleteResidentWorker::class.java)
-            .setInputData(data)
-            .build()
-        workManager.enqueue(deleteResidentWorker)
+        viewModelScope.launch {
+            dataRepository.residentDao.delete(resident)
+        }
+    }
+
+    data class ResidentOperationResult(
+        val isSuccessful: Boolean,
+        val operationType: ResidentOperationType,
+        val messageStringRes: Int? = null,
+    ) {
+        enum class ResidentOperationType {
+            INSERT, UPDATE,
+        }
     }
 }
