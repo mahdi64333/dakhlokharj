@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,6 +43,9 @@ import java.util.*
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
+    private fun RecyclerView.Adapter<ViewHolder>.asPurchasesListAdapter(): PurchasesListAdapter =
+        this as PurchasesListAdapter
+
     private val viewModel: HomeViewModel by viewModels()
 
     /**
@@ -107,8 +111,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun updatePurchasesUi(detailedPurchases: List<DetailedPurchase>) {
-        val purchasesListAdapter = binding.rvPurchases.adapter as PurchasesListAdapter
-        purchasesListAdapter.submitList(detailedPurchases)
+        binding.rvPurchases.adapter?.asPurchasesListAdapter()?.submitList(detailedPurchases)
         binding.tvNoData.isVisible = detailedPurchases.isEmpty()
     }
 
@@ -136,10 +139,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         val showcaseStatus = ShowcaseStatus(requireContext())
 
         // Adding a temporary showcase purchase item if there is no purchase in database
-        val adapter = binding.rvPurchases.adapter as PurchasesListAdapter
         if (viewModel.purchasesStateFlow.value.isEmpty()) {
             binding.rvPurchases.itemAnimator = null
-            adapter.submitList(
+            binding.rvPurchases.adapter?.asPurchasesListAdapter()?.submitList(
                 listOf(
                     DetailedPurchase(
                         purchaseId = 0,
@@ -176,10 +178,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                     .setContentTextSize(15).setGuideListener {
                         if (viewModel.purchasesStateFlow.value.isEmpty()) {
                             // Removing the demonstrative purchase item
-                            adapter.submitList(emptyList()) {
-                                binding.rvPurchases.itemAnimator = DefaultItemAnimator()
-                                binding.tvNoData.isGone = false
-                            }
+                            binding.rvPurchases.adapter?.asPurchasesListAdapter()
+                                ?.submitList(emptyList()) {
+                                    binding.rvPurchases.itemAnimator = DefaultItemAnimator()
+                                    binding.tvNoData.isGone = false
+                                }
                         } else {
                             // Moving back the first item to it's original place
                             binding.rvPurchases[0].clearAnimation()
@@ -235,13 +238,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END) {
             override fun onMove(
                 recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder,
+                viewHolder: ViewHolder,
+                target: ViewHolder,
             ): Boolean {
                 return false
             }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
                 removePurchaseTemporarilyFromRecyclerView(viewHolder.adapterPosition)
             }
         }).attachToRecyclerView(binding.rvPurchases)
@@ -267,7 +270,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         * Changing purchases recyclerView list
         * to a list without the item that's going to be deleted
         * */
-        val purchasesListAdapter = binding.rvPurchases.adapter as PurchasesListAdapter
+        val purchasesListAdapter = binding.rvPurchases.adapter!!.asPurchasesListAdapter()
         val detailedPurchases = purchasesListAdapter.currentList.toMutableList()
         val detailedPurchase = detailedPurchases[detailedPurchaseAdapterPosition]
         detailedPurchases.removeAt(detailedPurchaseAdapterPosition)
