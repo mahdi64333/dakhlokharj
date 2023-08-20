@@ -261,7 +261,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     /**
      * Removes an item from the purchases recyclerView list and shows a [Snackbar].
      * The [Snackbar] has a "Undo" button. When the "Undo" button is pressed
-     * deletion will be cancelled and the recyclerVIew list will be reverted back to the real list.
+     * deletion will be cancelled and the recyclerView list will be reverted back to the real list.
      * If the [Snackbar] gets dismissed by any method other than "Undo" button, the purchase
      * gets deleted from the database.
      */
