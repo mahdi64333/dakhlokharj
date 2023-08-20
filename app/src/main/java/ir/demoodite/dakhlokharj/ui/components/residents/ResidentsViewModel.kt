@@ -21,6 +21,10 @@ class ResidentsViewModel @Inject constructor(
         viewModelScope, SharingStarted.WhileSubscribed(), listOf()
     )
     private val _residentOperationChannel = Channel<ResidentOperationResult>()
+
+    /**
+     * Channel for sending resident database operation results.
+     */
     val residentOperationChannel get() = _residentOperationChannel.receiveAsFlow()
 
     fun insertResident(resident: Resident) {
@@ -30,14 +34,14 @@ class ResidentsViewModel @Inject constructor(
                 _residentOperationChannel.send(
                     ResidentOperationResult(
                         true,
-                        ResidentOperationResult.ResidentOperationType.INSERT,
+                        ResidentOperationType.INSERT,
                     )
                 )
             } else {
                 _residentOperationChannel.send(
                     ResidentOperationResult(
                         false,
-                        ResidentOperationResult.ResidentOperationType.INSERT,
+                        ResidentOperationType.INSERT,
                         R.string.there_is_a_resident_with_this_name
                     )
                 )
@@ -52,14 +56,14 @@ class ResidentsViewModel @Inject constructor(
                 _residentOperationChannel.send(
                     ResidentOperationResult(
                         true,
-                        ResidentOperationResult.ResidentOperationType.UPDATE,
+                        ResidentOperationType.UPDATE,
                     )
                 )
             } else {
                 _residentOperationChannel.send(
                     ResidentOperationResult(
                         false,
-                        ResidentOperationResult.ResidentOperationType.UPDATE,
+                        ResidentOperationType.UPDATE,
                         R.string.there_is_a_resident_with_this_name
                     )
                 )
@@ -77,9 +81,9 @@ class ResidentsViewModel @Inject constructor(
         val isSuccessful: Boolean,
         val operationType: ResidentOperationType,
         val messageStringRes: Int? = null,
-    ) {
-        enum class ResidentOperationType {
-            INSERT, UPDATE,
-        }
+    )
+
+    enum class ResidentOperationType {
+        INSERT, UPDATE,
     }
 }

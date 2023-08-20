@@ -13,31 +13,58 @@ import ir.demoodite.dakhlokharj.databinding.ItemResidentBinding
 import ir.demoodite.dakhlokharj.utils.UiUtil
 
 class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHolder>(diffCallback) {
+    /**
+     * Adapter position of the resident item that's being edited.
+     */
     private var editingPosition = RecyclerView.NO_POSITION
+
+    /**
+     * [EditText] input text of the resident that's being edited. It can be used to after
+     * the [ViewHolder] gets recycled and comes back.
+     */
     private var editingName: String? = null
+
+    /**
+     * [TextInputLayout] error text of the resident that's being edited. It can be used to after
+     * the [ViewHolder] gets recycled and comes back.
+     */
     private var editingError: String? = null
+
+    /**
+     * The [ViewHolder] of the resident Item that's being editied.
+     */
     private var editingViewHolder: ViewHolder? = null
-    lateinit var onActivationChangedListener: (resident: Resident, active: Boolean) -> Unit
+
+    /**
+     * Gets called when activation state of a resident item changes.
+     */
+    lateinit var onActivationChangedListener: (resident: Resident, isActive: Boolean) -> Unit
+
+    /**
+     * Gets called after entering a new name for a resident item.
+     */
     lateinit var onNameChangedListener: (resident: Resident, newName: String) -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(
-            binding = ItemResidentBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false
-            ),
-            renameCallback = { resident, newName ->
-                if (newName != null) {
-                    onNameChangedListener(resident, newName)
-                }
+        return ViewHolder(binding = ItemResidentBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        ), renameCallback = { resident, newName ->
+            if (newName != null) {
+                onNameChangedListener(resident, newName)
             }
-        )
+        }, onActivationChanged = { resident, isActive ->
+            onActivationChangedListener(resident, isActive)
+        })
     }
 
     override fun onViewRecycled(holder: ViewHolder) {
         super.onViewRecycled(holder)
 
+        // Saving editing ViewHolder state and changing it to a ordinary ViewHolder
         if (holder == editingViewHolder) {
+            // Saving the input value of the ViewHolder
             editingName = holder.editingName
+
             holder.stopEditing()
             editingViewHolder = null
         }
@@ -45,27 +72,38 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(resident = getItem(position),
-            onActivationChanged = onActivationChangedListener,
             isEditing = editingPosition == holder.adapterPosition,
-            editingName = editingName,
             onStartEditing = {
+                // Changing the editing ViewHolder to this ViewHolder
                 stopEditing()
                 editingPosition = holder.adapterPosition
                 editingViewHolder = holder
             })
 
+        // Setting the editing ViewHolder to this ViewHolder if the adapter position matches
         if (holder.adapterPosition == editingPosition) {
             editingViewHolder = holder
+            editingName?.let {
+                holder.editingName = it
+            }
             editingError?.let {
                 editingViewHolder?.setError(it)
             }
         }
     }
 
+    /**
+     * Whether ListAdapter is in editing state or not.
+     *
+     * @return True if one of residents are being edited.
+     */
     fun isEditing(): Boolean {
         return editingPosition != RecyclerView.NO_POSITION
     }
 
+    /**
+     * Stops editing of ListAdapter.
+     */
     fun stopEditing() {
         editingViewHolder?.stopEditing()
         editingPosition = RecyclerView.NO_POSITION
@@ -74,6 +112,11 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
         editingViewHolder = null
     }
 
+    /**
+     * Sets the error string of the editing resident item.
+     *
+     * @param errorMessage The message of error which will be put inside the [TextInputLayout].
+     */
     fun setError(errorMessage: String) {
         editingError = errorMessage
         editingViewHolder?.setError(errorMessage)
@@ -82,27 +125,27 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
     class ViewHolder(
         private val binding: ItemResidentBinding,
         private val renameCallback: (Resident, newName: String?) -> Unit,
+        private val onActivationChanged: (resident: Resident, active: Boolean) -> Unit,
     ) : RecyclerView.ViewHolder(binding.root) {
         private lateinit var resident: Resident
         private val context get() = binding.root.context
         private val dpUnit = UiUtil.dpToPixel(context, 1)
-        val editingName get() = binding.textInputEditTextResidentName.text.toString().trim()
+        var editingName
+            get() = binding.textInputEditTextResidentName.text.toString().trim()
+            set(value) {
+                binding.textInputEditTextResidentName.setText(value)
+            }
 
         fun bind(
             resident: Resident,
-            onActivationChanged: (resident: Resident, active: Boolean) -> Unit,
             isEditing: Boolean,
-            editingName: String?,
             onStartEditing: () -> Unit,
         ) {
             this.resident = resident
             binding.apply {
                 textInputEditTextResidentName.setText(resident.name)
-                if (isEditing) {
-                    startEditing(editingName, onStartEditing)
-                }
                 textInputEditTextResidentName.setOnLongClickListener {
-                    startEditing(null, onStartEditing)
+                    startEditing(onStartEditing)
                     it.requestFocus()
                     UiUtil.showKeyboard(it)
                     (it as EditText).setSelection(it.length())
@@ -112,10 +155,13 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
                 checkBoxActive.setOnCheckedChangeListener { _, isChecked ->
                     onActivationChanged(resident, isChecked)
                 }
+                if (isEditing) {
+                    startEditing(onStartEditing)
+                }
             }
         }
 
-        private fun startEditing(editingText: String? = null, onStartEditing: () -> Unit) {
+        private fun startEditing(onStartEditing: () -> Unit) {
             onStartEditing()
             binding.textInputLayoutResidentName.apply {
                 boxStrokeWidth = dpUnit
@@ -131,7 +177,6 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
                 }
             }
             binding.textInputEditTextResidentName.apply {
-                setText(editingText ?: resident.name)
                 isFocusable = true
                 isFocusableInTouchMode = true
                 isCursorVisible = true
@@ -148,10 +193,8 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
                 errorFlag = true
             }
 
-            return if (errorFlag)
-                null
-            else
-                name
+            return if (errorFlag) null
+            else name
         }
 
         fun setError(errorMessage: String) {
