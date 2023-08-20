@@ -19,7 +19,7 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
     private var editingPosition = RecyclerView.NO_POSITION
 
     /**
-     * [EditText] input text of the resident that's being edited. It can be used to after
+     * [EditText] input text of the resident that's being edited. It can be used after
      * the [ViewHolder] gets recycled and comes back.
      */
     private var editingName: String? = null
@@ -31,7 +31,7 @@ class ResidentsListAdapter : ListAdapter<Resident, ResidentsListAdapter.ViewHold
     private var editingError: String? = null
 
     /**
-     * The [ViewHolder] of the resident Item that's being editied.
+     * The [ViewHolder] of the resident Item that's being edited.
      */
     private var editingViewHolder: ViewHolder? = null
 
