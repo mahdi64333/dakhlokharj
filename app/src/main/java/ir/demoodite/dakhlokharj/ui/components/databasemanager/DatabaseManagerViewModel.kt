@@ -8,7 +8,7 @@ import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.DataRepository
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.di.AppModule
-import ir.demoodite.dakhlokharj.ui.components.mainactivity.MainActivity
+import ir.demoodite.dakhlokharj.ui.components.activity.MainActivity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.io.File

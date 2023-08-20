@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.ui.components.mainactivity
+package ir.demoodite.dakhlokharj.ui.components.activity
 
 import android.content.Intent
 import android.os.Bundle

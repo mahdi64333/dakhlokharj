@@ -16,7 +16,7 @@
         android:theme="@style/Theme.Dakhlokharj"
         tools:targetApi="31">
         <activity
-            android:name=".ui.components.mainactivity.MainActivity"
+            android:name=".ui.components.activity.MainActivity"
             android:exported="true"
             android:launchMode="singleInstance">
             <intent-filter>

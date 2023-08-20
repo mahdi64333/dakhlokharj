@@ -28,7 +28,7 @@ import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.FragmentDatabaseManagerBinding
 import ir.demoodite.dakhlokharj.databinding.ViewDialogDatabaseAliasBinding
 import ir.demoodite.dakhlokharj.ui.base.BaseFragment
-import ir.demoodite.dakhlokharj.ui.components.mainactivity.MainActivity
+import ir.demoodite.dakhlokharj.ui.components.activity.MainActivity
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
