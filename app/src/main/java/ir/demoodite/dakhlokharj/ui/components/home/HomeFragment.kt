@@ -75,7 +75,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         /*
         * Purchase list order selection menu item has to be set to null on fragment's stop.
         * Because fragment's options menu gets destroyed when stopping the fragment.
-        * */
+        */
         purchaseListOrderMenuItem = null
     }
 

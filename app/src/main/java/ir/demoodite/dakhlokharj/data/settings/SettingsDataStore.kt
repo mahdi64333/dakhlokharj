@@ -19,7 +19,7 @@ class SettingsDataStore(private val context: Context) : PreferenceDataStore() {
     /*
     * The putString and getString methods have to be overridden in order to use PreferenceDataStore
     * within a PreferenceScreen.
-    * */
+    */
     override fun putString(key: String?, value: String?) {
         runBlocking {
             value?.let {

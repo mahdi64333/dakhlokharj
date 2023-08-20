@@ -186,7 +186,7 @@ class ResidentsFragment :
         /*
         * Changing residents recyclerView list
         * to a list without the item that's going to be deleted
-        * */
+        */
         val residentsListAdapter = binding.rvResidents.adapter!!.asResidentsListAdapter()
         val residents = residentsListAdapter.currentList.toMutableList()
         val resident = residents[residentAdapterPosition]
@@ -294,7 +294,7 @@ class ResidentsFragment :
                             // Moving back the first item to it's original place
                             binding.rvResidents[0].clearAnimation()
                         }
-                        
+
                         showcaseStatus.recordShowcaseEnd(ShowcaseStatus.Screen.RESIDENTS)
                     }.build()
 

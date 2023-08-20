@@ -136,7 +136,7 @@ abstract class DataRepository : RoomDatabase() {
 
             /**
              * An instance of the main database for importing data.
-             * */
+             */
             private val mainDatabase = getDatabase(context)
 
 
@@ -145,7 +145,7 @@ abstract class DataRepository : RoomDatabase() {
              *
              * @param dbFile File of the database to import
              * @return Whether importing was successful or not
-             * */
+             */
             suspend fun importDb(dbFile: File): Boolean {
                 return try {
                     val tempDatabase = tempDatabaseBuilder.createFromFile(dbFile).build()
@@ -153,7 +153,7 @@ abstract class DataRepository : RoomDatabase() {
                     /*
                     * Simply coping a file is not possible to import a database
                     * so data must be inserted manually.
-                    * */
+                    */
                     mainDatabase.clearAllTables()
                     mainDatabase.residentDao.insert(tempDatabase.residentDao.getAll().first())
                     mainDatabase.purchaseDao.insert(tempDatabase.purchaseDao.getAll().first())
