@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters
+package ir.demoodite.dakhlokharj.ui.components.filterPurchases.filters
 
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -10,8 +10,9 @@ import ir.demoodite.dakhlokharj.utils.UiUtil
 @AndroidEntryPoint
 class FilterProductNameFragment :
     BasePurchaseFilteringFragment<FragmentFilterProductNameBinding>(
-        FilterBy.PRODUCT_NAME, FragmentFilterProductNameBinding::inflate
+        PurchaseFilters.PRODUCT_NAME, FragmentFilterProductNameBinding::inflate
     ) {
+    // Setting values for abstract views to get used inside the parent class
     override val filteredPurchasesRecyclerView: RecyclerView
         get() = binding.rvPurchasesFiltered
     override val tvNoData: TextView
@@ -21,14 +22,24 @@ class FilterProductNameFragment :
 
     override fun setupFilterInput() {
         binding.textInputLayoutFilter.setEndIconOnClickListener {
-            val productName = binding.textInputEditTextFilter.text.toString().trim()
-
-            if (productName.isEmpty()) {
-                binding.textInputLayoutFilter.error = getString(R.string.its_empty)
-                UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilter)
-            } else {
+            validateInputsAndGetProductNameOrNull()?.let { productName ->
                 viewModel.filterByProductName(productName)
             }
         }
+    }
+
+    private fun validateInputsAndGetProductNameOrNull(): String? {
+        var errorFlag = false
+        val productName = binding.textInputEditTextFilter.text.toString().trim()
+
+        // Product name validation
+        if (productName.isEmpty()) {
+            binding.textInputLayoutFilter.error = getString(R.string.its_empty)
+            UiUtil.removeErrorOnTextChange(binding.textInputEditTextFilter)
+            errorFlag = true
+        }
+
+        return if (errorFlag) null
+        else productName
     }
 }

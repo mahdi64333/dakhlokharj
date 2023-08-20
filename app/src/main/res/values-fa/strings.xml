@@ -125,6 +125,7 @@
     <string name="max">حداکثر</string>
     <string name="no_data_to_show">داده‌ای برای نمایش یافت نشد</string>
     <string name="min_price_is_larger_than_max">حداقل قیمت نباید بزرگ‌تر از حداکثر باشد</string>
+    <string name="start_time_is_larger_than_end">آغاز زمان نباید بزرگ‌تر از پایان باشد</string>
     <string name="date_input_hint">--------</string>
     <string name="database_archive">آرشیو پایگاه داده</string>
     <string name="new_archive">آرشیو جدید</string>
@@ -174,4 +175,5 @@
     </string>
     <string name="deleted">حذف شده</string>
     <string name="purchases_order">ترتیب خرید‌ها</string>
+    <string name="filter_purchases">فیلتر کردن خرید‌ها</string>
 </resources>

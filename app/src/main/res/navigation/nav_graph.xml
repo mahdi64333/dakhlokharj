@@ -42,8 +42,8 @@
     </fragment>
     <fragment
         android:id="@+id/filterPurchasesFragment"
-        android:name="ir.demoodite.dakhlokharj.ui.components.filterpurchases.FilterPurchasesFragment"
-        android:label="@string/filter"
+        android:name="ir.demoodite.dakhlokharj.ui.components.filterPurchases.FilterPurchasesFragment"
+        android:label="@string/filter_purchases"
         tools:layout="@layout/fragment_filter_purchases" />
     <fragment
         android:id="@+id/databaseManagerFragment"

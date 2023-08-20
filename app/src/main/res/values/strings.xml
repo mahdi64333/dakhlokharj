@@ -137,6 +137,7 @@
     <string name="max">max</string>
     <string name="no_data_to_show">No data to show</string>
     <string name="min_price_is_larger_than_max">Minimum shouldn\'t be larger than maximum</string>
+    <string name="start_time_is_larger_than_end">Start shouldn\'t be larger than end</string>
     <string name="date_input_hint">yyyymmdd</string>
     <string name="date_input_mask" translatable="false">####/##/##</string>
     <string name="database_archive">Database archive</string>
@@ -187,4 +188,5 @@
     </string>
     <string name="deleted">deleted</string>
     <string name="purchases_order">Purchases order</string>
+    <string name="filter_purchases">Filter purchases</string>
 </resources>

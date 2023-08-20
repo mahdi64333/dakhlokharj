@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.ui.components.filterpurchases.filters
+package ir.demoodite.dakhlokharj.ui.components.filterPurchases.filters
 
 import android.os.Bundle
 import android.widget.ArrayAdapter
@@ -9,6 +9,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
+import ir.demoodite.dakhlokharj.data.room.models.Resident
 import ir.demoodite.dakhlokharj.databinding.FragmentFilterBuyerBinding
 import ir.demoodite.dakhlokharj.utils.UiUtil
 import kotlinx.coroutines.flow.collectLatest
@@ -17,9 +18,10 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class FilterConsumerFragment :
     BasePurchaseFilteringFragment<FragmentFilterBuyerBinding>(
-        FilterBy.CONSUMER,
+        PurchaseFilters.CONSUMER,
         FragmentFilterBuyerBinding::inflate
     ) {
+    // Setting values for abstract views to get used inside the parent class
     override val filteredPurchasesRecyclerView: RecyclerView
         get() = binding.rvPurchasesFiltered
     override val tvNoData: TextView
@@ -30,21 +32,22 @@ class FilterConsumerFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        startDataCollection()
+        startFlowCollection()
     }
 
-    private fun startDataCollection() {
+    private fun startFlowCollection() {
+        // Residents collection
         lifecycleScope.launch {
-            viewModel.residentsStateFlow.collectLatest {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    updateBuyerAutocompleteTextViewAdapter()
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.residentsStateFlow.collectLatest { residents ->
+                    updateConsumerAutocompleteTextViewAdapter(residents)
                 }
             }
         }
     }
 
-    private fun updateBuyerAutocompleteTextViewAdapter() {
-        val activeResidentNames = viewModel.residents.map {
+    private fun updateConsumerAutocompleteTextViewAdapter(residents: List<Resident>) {
+        val activeResidentNames = residents.map {
             it.name
         }
         val arrayAdapter = ArrayAdapter(
@@ -58,22 +61,29 @@ class FilterConsumerFragment :
             binding.autoCompleteTextViewFilter.showDropDown()
         }
         binding.textInputLayoutFilter.setEndIconOnClickListener {
-            val buyerName = binding.autoCompleteTextViewFilter.text.toString()
-
-            if (buyerName.isEmpty()) {
-                binding.textInputLayoutFilter.error = getString(R.string.its_empty)
-                UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewFilter)
-                return@setEndIconOnClickListener
+            validateInputsAndGetConsumerIdOrNull()?.let { consumerId ->
+                viewModel.filterByConsumer(consumerId)
             }
-            if (viewModel.residents.find { it.name == buyerName } == null) {
-                binding.textInputLayoutFilter.error = getString(R.string.no_residents_found)
-                UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewFilter)
-                return@setEndIconOnClickListener
-            }
-
-            viewModel.filterByConsumer(
-                (viewModel.residents.find { it.name == buyerName })?.id ?: -1
-            )
         }
+    }
+
+    private fun validateInputsAndGetConsumerIdOrNull(): Long? {
+        var errorFlag = false
+        val consumerName = binding.autoCompleteTextViewFilter.text.toString()
+        val consumerResident = viewModel.residents.find { it.name == consumerName }
+
+        // Consumer name validation
+        if (consumerName.isEmpty()) {
+            binding.textInputLayoutFilter.error = getString(R.string.its_empty)
+            UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewFilter)
+            errorFlag = true
+        } else if (consumerResident == null) {
+            binding.textInputLayoutFilter.error = getString(R.string.no_residents_found)
+            UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewFilter)
+            errorFlag = true
+        }
+
+        return if (errorFlag) null
+        else consumerResident!!.id
     }
 }

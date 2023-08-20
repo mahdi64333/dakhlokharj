@@ -31,6 +31,6 @@ import ir.demoodite.dakhlokharj.data.room.DataRepository.Companion.RESIDENT_ID
     ],
 )
 data class Consumer(
-    @ColumnInfo(name = CONSUMERS_PRODUCT_ID) val productId: Long,
+    @ColumnInfo(name = CONSUMERS_PRODUCT_ID) var productId: Long,
     @ColumnInfo(name = CONSUMERS_RESIDENT_ID, index = true) val consumerId: Long,
 )
