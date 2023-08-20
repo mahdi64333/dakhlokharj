@@ -12,11 +12,14 @@ import ir.demoodite.dakhlokharj.data.room.models.ResidentSummery
 import ir.demoodite.dakhlokharj.databinding.ItemSummeryBinding
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import java.text.DecimalFormat
+import java.text.NumberFormat
 
 class ResidentSummariesListAdapter(
-    private val decimalFormat: DecimalFormat,
 ) :
     ListAdapter<ResidentSummery, ResidentSummariesListAdapter.ViewHolder>(diffCallBack) {
+    private val decimalFormat =
+        NumberFormat.getInstance(LocaleHelper.currentLocale) as DecimalFormat
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
