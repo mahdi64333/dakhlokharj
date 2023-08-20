@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.ui.components.languageselection
+package ir.demoodite.dakhlokharj.ui.components.languageSelection
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +10,9 @@ import javax.inject.Inject
 class LanguageSelectionViewModel @Inject constructor(
     private val settingsDataStore: SettingsDataStore,
 ) : ViewModel() {
+    /**
+     * Sets language of the application.
+     */
     suspend fun selectLanguage(appLanguage: AppLanguage) {
         settingsDataStore.setLanguage(appLanguage.name)
     }

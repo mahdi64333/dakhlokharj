@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.ui.components.languageselection
+package ir.demoodite.dakhlokharj.ui.components.languageSelection
 
 import android.os.Bundle
 import android.view.View
@@ -29,11 +29,16 @@ class LanguageSelectionFragment :
         }
     }
 
+    /**
+     * Sets language of the application and returns to home fragment.
+     */
     private fun selectLanguage(appLanguage: AppLanguage) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.selectLanguage(appLanguage)
-                findNavController().navigateUp()
+                val action =
+                    LanguageSelectionFragmentDirections.actionLanguageSelectionFragmentToHomeFragment()
+                findNavController().navigate(action)
             }
         }
     }

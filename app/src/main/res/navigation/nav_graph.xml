@@ -58,7 +58,7 @@
     </fragment>
     <fragment
         android:id="@+id/languageSelectionFragment"
-        android:name="ir.demoodite.dakhlokharj.ui.components.languageselection.LanguageSelectionFragment"
+        android:name="ir.demoodite.dakhlokharj.ui.components.languageSelection.LanguageSelectionFragment"
         android:label="fragment_language_selection"
         tools:layout="@layout/fragment_language_selection">
         <action
