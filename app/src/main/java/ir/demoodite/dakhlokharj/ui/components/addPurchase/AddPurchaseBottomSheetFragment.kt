@@ -214,12 +214,14 @@ class AddPurchaseBottomSheetFragment :
         val buyerName = binding.autoCompleteTextViewProductBuyer.text.toString().trim()
         val buyer = activeResidents.find { it.name == buyerName }
 
+        // Product name validation
         if (productName.isEmpty()) {
             binding.textInputLayoutProductName.error = getString(R.string.its_empty)
             UiUtil.removeErrorOnTextChange(binding.textInputEditTextProductName)
             errorFlag = true
         }
 
+        // Product price validation
         if (priceText.isEmpty()) {
             binding.textInputLayoutProductPrice.error = getString(R.string.its_empty)
             UiUtil.removeErrorOnTextChange(binding.textInputEditTextProductPrice)
@@ -230,6 +232,7 @@ class AddPurchaseBottomSheetFragment :
             errorFlag = true
         }
 
+        // Product buyer name validation
         if (buyerName.isEmpty()) {
             binding.textInputLayoutProductBuyer.error = getString(R.string.its_empty)
             UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewProductBuyer)
@@ -245,6 +248,7 @@ class AddPurchaseBottomSheetFragment :
             errorFlag = true
         }
 
+        // Product consumers validation
         if (selectedResidents.isEmpty()) {
             binding.textInputLayoutConsumerName.error = getString(R.string.no_consumer_selected)
             UiUtil.removeErrorOnTextChange(binding.autoCompleteTextViewConsumerName)
@@ -255,7 +259,10 @@ class AddPurchaseBottomSheetFragment :
             null
         } else {
             Purchase(
-                0, productName, price, buyer!!.id, PersianDate().time
+                product = productName,
+                price = price,
+                buyerId = buyer!!.id,
+                time = PersianDate().time
             )
         }
     }
