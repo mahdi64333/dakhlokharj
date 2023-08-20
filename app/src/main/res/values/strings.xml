@@ -186,4 +186,5 @@
         Swipe to delete resident
     </string>
     <string name="deleted">deleted</string>
+    <string name="purchases_order">Purchases order</string>
 </resources>

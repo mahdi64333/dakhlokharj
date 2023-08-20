@@ -11,7 +11,7 @@
 
     <ListPreference
         android:key="order_by"
-        android:title="@string/order_by"
+        android:title="@string/purchases_order"
         app:allowDividerBelow="true"
         app:iconSpaceReserved="false"
         app:useSimpleSummaryProvider="true" />

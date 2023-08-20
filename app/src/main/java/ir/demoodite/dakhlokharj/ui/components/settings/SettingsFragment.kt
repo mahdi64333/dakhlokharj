@@ -19,6 +19,8 @@ class SettingsFragment() : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = viewModel.settingsDataStore
         setPreferencesFromResource(R.xml.settings, rootKey)
+
+        // Setting up the language preference from AppLanguage enum
         findPreference<ListPreference>(SettingsDataStore.LANGUAGE_KEY)?.let {
             it.entries = AppLanguage.values().map { appLanguage ->
                 getString(appLanguage.stringRes)
@@ -27,6 +29,8 @@ class SettingsFragment() : PreferenceFragmentCompat() {
                 appLanguage.name
             }.toTypedArray()
         }
+
+        // Setting up the language preference from AppLanguage enum
         findPreference<ListPreference>(SettingsDataStore.ORDER_BY_KEY)?.let {
             it.entries = PurchasesOrderBy.values().map { orderBy ->
                 getString(orderBy.stringRes)
@@ -35,6 +39,8 @@ class SettingsFragment() : PreferenceFragmentCompat() {
                 orderBy.name
             }.toTypedArray()
         }
+
+        // Setting up the database manager preference to launch DatabaseManager fragment destination
         findPreference<Preference>("database_manager")?.let {
             it.setOnPreferenceClickListener {
                 val action =
