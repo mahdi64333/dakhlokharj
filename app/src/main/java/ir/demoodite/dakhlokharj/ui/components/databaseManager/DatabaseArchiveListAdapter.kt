@@ -1,4 +1,4 @@
-package ir.demoodite.dakhlokharj.ui.components.databasemanager
+package ir.demoodite.dakhlokharj.ui.components.databaseManager
 
 import android.text.InputFilter
 import android.view.LayoutInflater
@@ -16,6 +16,16 @@ import ir.demoodite.dakhlokharj.utils.UiUtil
 import saman.zamani.persiandate.PersianDate
 import java.io.File
 
+/**
+ * A [ListAdapter] for database archives.
+ *
+ * @param activeArchiveAlias Alias of the active archive
+ * @param shareOnClickListener A callback that gets called when pressing share button of an archive
+ * @param saveOnClickListener A callback that gets called when pressing save button of an archive
+ * @param deleteOnClickListener A callback that gets called when pressing delete button of an archive
+ * @param activeArchiveOnClickListener A callback that gets called when a new archive gets activated
+ * @param newFilenameCallback A callback that gets called alias of a archive changes
+ */
 class DatabaseArchiveListAdapter(
     var activeArchiveAlias: String,
     private val shareOnClickListener: (DatabaseArchive) -> Unit,
@@ -26,10 +36,26 @@ class DatabaseArchiveListAdapter(
 ) : ListAdapter<DatabaseArchiveListAdapter.DatabaseArchive, DatabaseArchiveListAdapter.ViewHolder>(
     diffCallback
 ) {
-    private var activeArchiveViewHolder: ViewHolder? = null
+    /**
+     * Adapter position of the archive item that's being edited.
+     */
     private var editingArchivePosition = RecyclerView.NO_POSITION
-    private var editingViewHolder: ViewHolder? = null
+
+    /**
+     * [EditText] input text of the archive item that's being edited. It can be used after
+     * the [ViewHolder] gets recycled and comes back.
+     */
     private var editingAlias: String? = null
+
+    /**
+     * The [ViewHolder] of the archive Item that's being edited.
+     */
+    private var editingViewHolder: ViewHolder? = null
+
+    /**
+     * The [ViewHolder] of the active archive item.
+     */
+    private var activeArchiveViewHolder: ViewHolder? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -40,12 +66,13 @@ class DatabaseArchiveListAdapter(
     override fun onViewRecycled(holder: ViewHolder) {
         super.onViewRecycled(holder)
 
+        // Changing the active ViewHolder to a ordinary one
         if (holder == activeArchiveViewHolder) {
-            activeArchiveAlias = holder.editingAlias
             holder.deactivate()
             activeArchiveViewHolder = null
         }
 
+        // Saving editing ViewHolder state and changing it to a ordinary ViewHolder
         if (holder == editingViewHolder) {
             editingAlias = holder.editingAlias
             holder.stopEditing()
@@ -59,7 +86,6 @@ class DatabaseArchiveListAdapter(
             lastModified = getItem(position).file.lastModified(),
             isActive = getItem(position).alias == activeArchiveAlias,
             isEditing = holder.adapterPosition == editingArchivePosition,
-            editingText = editingAlias,
             shareOnClickListener = {
                 stopEditing()
                 shareOnClickListener(getItem(position))
@@ -93,9 +119,22 @@ class DatabaseArchiveListAdapter(
         }
         if (holder.adapterPosition == editingArchivePosition) {
             editingViewHolder = holder
+            editingAlias?.let { holder.setEditTextAlias(it) }
         }
     }
 
+    /**
+     * Whether ListAdapter is in editing state or not.
+     *
+     * @return True if one of residents are being edited.
+     */
+    fun isEditing(): Boolean {
+        return editingArchivePosition != RecyclerView.NO_POSITION
+    }
+
+    /**
+     * Stops editing of ListAdapter.
+     */
     fun stopEditing() {
         editingViewHolder?.stopEditing()
         editingAlias = null
@@ -121,8 +160,9 @@ class DatabaseArchiveListAdapter(
         RecyclerView.ViewHolder(binding.root) {
         private val context get() = binding.root.context
         private val dpUnit = UiUtil.dpToPixel(context, 1)
-        var alias: String = ""
+        private var alias: String = ""
             set(value) {
+                // Setting the ViewHolder text and using application name if the alias is empty
                 field = value.ifEmpty { context.getString(R.string.app_name) }
                 binding.textInputEditTextArchiveName.setText(alias)
             }
@@ -140,7 +180,6 @@ class DatabaseArchiveListAdapter(
             lastModified: Long,
             isActive: Boolean,
             isEditing: Boolean,
-            editingText: String?,
             shareOnClickListener: () -> Unit,
             saveOnClickListener: () -> Unit,
             deleteOnClickListener: () -> Unit,
@@ -156,7 +195,7 @@ class DatabaseArchiveListAdapter(
                 deactivate()
             }
             if (isEditing) {
-                startEditing(editingText)
+                startEditing()
             } else {
                 stopEditing()
             }
@@ -176,7 +215,6 @@ class DatabaseArchiveListAdapter(
                     deleteOnClickListener()
                 }
                 btnActiveArchive.setOnClickListener {
-                    activate()
                     activateArchiveOnClickListener()
                 }
                 textInputEditTextArchiveName.setOnLongClickListener {
@@ -189,20 +227,6 @@ class DatabaseArchiveListAdapter(
                 }
                 textInputEditTextArchiveName.error = null
             }
-        }
-
-        private fun validateAndGetFilename(): String? {
-            var errorFlag = false
-
-            val filename = binding.textInputEditTextArchiveName.text.toString().trim()
-
-            if (filename.isEmpty()) {
-                binding.textInputLayoutArchiveName.error = context.getString(R.string.its_empty)
-                UiUtil.removeErrorOnTextChange(binding.textInputEditTextArchiveName, false)
-                errorFlag = true
-            }
-
-            return if (errorFlag) null else filename
         }
 
         private fun activate() {
@@ -218,12 +242,12 @@ class DatabaseArchiveListAdapter(
             binding.btnActiveArchive.drawable.setTint(colorSemitransparentGray)
         }
 
-        private fun startEditing(editingText: String? = null) {
+        private fun startEditing() {
             binding.textInputLayoutArchiveName.apply {
                 boxStrokeWidth = dpUnit
                 endIconMode = TextInputLayout.END_ICON_CUSTOM
                 setEndIconOnClickListener {
-                    validateAndGetFilename()?.let {
+                    validateAndGetFilenameOrNull()?.let {
                         stopEditing()
                         if (it != alias) {
                             renameCallback(it)
@@ -232,11 +256,28 @@ class DatabaseArchiveListAdapter(
                 }
             }
             binding.textInputEditTextArchiveName.apply {
-                setText(editingText ?: alias)
                 isFocusable = true
                 isFocusableInTouchMode = true
                 isCursorVisible = true
             }
+        }
+
+        private fun validateAndGetFilenameOrNull(): String? {
+            var errorFlag = false
+
+            val filename = binding.textInputEditTextArchiveName.text.toString().trim()
+
+            if (filename.isEmpty()) {
+                binding.textInputLayoutArchiveName.error = context.getString(R.string.its_empty)
+                UiUtil.removeErrorOnTextChange(binding.textInputEditTextArchiveName, false)
+                errorFlag = true
+            }
+
+            return if (errorFlag) null else filename
+        }
+
+        fun setEditTextAlias(alias: String) {
+            binding.textInputEditTextArchiveName.setText(alias)
         }
 
         fun stopEditing() {

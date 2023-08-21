@@ -20,8 +20,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.settings.SettingsDataStore
 import ir.demoodite.dakhlokharj.databinding.ActivityMainBinding
-import ir.demoodite.dakhlokharj.ui.components.databasemanager.DatabaseManagerFragment
-import ir.demoodite.dakhlokharj.ui.components.databasemanager.DatabaseManagerFragmentArgs
+import ir.demoodite.dakhlokharj.ui.components.databaseManager.DatabaseManagerFragment
+import ir.demoodite.dakhlokharj.ui.components.databaseManager.DatabaseManagerFragmentArgs
 import ir.demoodite.dakhlokharj.ui.components.home.HomeFragment
 import ir.demoodite.dakhlokharj.ui.showcase.ShowcaseStatus
 import ir.demoodite.dakhlokharj.utils.LocaleHelper

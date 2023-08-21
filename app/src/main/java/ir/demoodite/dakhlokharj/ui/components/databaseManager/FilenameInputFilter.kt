@@ -1,11 +1,13 @@
-package ir.demoodite.dakhlokharj.ui.components.databasemanager
+package ir.demoodite.dakhlokharj.ui.components.databaseManager
 
 import android.text.InputFilter
 import android.text.Spanned
 
+/**
+ * An [InputFilter] implementation for filename input.
+ */
 class FilenameInputFilter : InputFilter {
     private val reservedChars = "|\\?*<\":>+[]/'."
-
 
     override fun filter(
         source: CharSequence?,

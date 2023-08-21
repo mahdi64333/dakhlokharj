@@ -47,7 +47,7 @@
         tools:layout="@layout/fragment_filter_purchases" />
     <fragment
         android:id="@+id/databaseManagerFragment"
-        android:name="ir.demoodite.dakhlokharj.ui.components.databasemanager.DatabaseManagerFragment"
+        android:name="ir.demoodite.dakhlokharj.ui.components.databaseManager.DatabaseManagerFragment"
         android:label="@string/database_archive"
         tools:layout="@layout/fragment_database_manager">
         <argument
