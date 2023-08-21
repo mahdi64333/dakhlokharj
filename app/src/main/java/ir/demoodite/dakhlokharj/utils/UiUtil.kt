@@ -25,7 +25,7 @@ object UiUtil {
     private const val DIALOG_BUTTONS_MARGIN = 22
 
     /**
-     * Removes error of TextInputLayout.
+     * Removes error of [TextInputLayout] after any change to the [EditText] content.
      *
      * @param input the TextInputEditText
      * @param preserveErrorTextSpace preserve error label space after removing the error label
@@ -38,6 +38,11 @@ object UiUtil {
         }
     }
 
+    /**
+     * Hides the soft keyboard focused on the view.
+     *
+     * @param view The view that is in focus
+     */
     fun hideKeyboard(view: View) {
         val inputMethodManager =
             view.context.getSystemService(Context.INPUT_METHOD_SERVICE)
@@ -45,6 +50,11 @@ object UiUtil {
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
+    /**
+     * Shows the soft keyboard for the given view.
+     *
+     * @param view The target of showing soft keyboard
+     */
     fun showKeyboard(view: View) {
         val inputMethodManager =
             view.context.getSystemService(Context.INPUT_METHOD_SERVICE)
@@ -58,10 +68,17 @@ object UiUtil {
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
     }
 
+    /**
+     * Sets the [SweetAlertDialog] class dark or light style based on whether phone is on
+     * night mode or not.
+     */
     fun setSweetAlertDialogNightMode(resources: Resources) {
         SweetAlertDialog.DARK_STYLE = isNightModeOn(resources)
     }
 
+    /**
+     * Fixes [SweetAlertDialog]'s button paddings and horizontal margins.
+     */
     fun fixSweetAlertDialogButton(button: Button) {
         val margin = dpToPixel(button.context, DIALOG_BUTTONS_MARGIN)
         button.setPadding(0)
@@ -70,10 +87,16 @@ object UiUtil {
         }
     }
 
+    /**
+     * Converts dp unit to pixel
+     */
     fun dpToPixel(context: Context, dp: Int): Int {
         return (dp * context.resources.displayMetrics.density).toInt()
     }
 
+    /**
+     * Shows a [SweetAlertDialog] with a of all resident names as consumers of a purchase.
+     */
     fun createAndShowConsumersSweetDialog(
         context: Context,
         consumers: List<Resident>,

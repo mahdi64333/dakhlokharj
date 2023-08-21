@@ -9,7 +9,6 @@ import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.data.room.models.DetailedPurchase
 import ir.demoodite.dakhlokharj.databinding.ItemPurchaseBinding
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
-import saman.zamani.persiandate.PersianDate
 import java.text.DecimalFormat
 import java.text.NumberFormat
 
@@ -50,8 +49,8 @@ class PurchasesListAdapter(
         ) {
             binding.tvPurchaseName.text = detailedPurchase.purchaseProduct
             binding.tvPurchaseBuyer.text = detailedPurchase.buyerName
-            val purchaseDate = PersianDate(detailedPurchase.purchaseTime)
-            binding.tvPurchaseDatetime.text = LocaleHelper.formatLocalizedDate(purchaseDate)
+            binding.tvPurchaseDatetime.text =
+                LocaleHelper.formatLocalizedDate(detailedPurchase.purchaseTime)
             binding.tvPurchasePrice.text = binding.root.context.getString(
                 R.string.price_template,
                 LocaleHelper.localizePrice(decimalFormat, detailedPurchase.purchasePrice)

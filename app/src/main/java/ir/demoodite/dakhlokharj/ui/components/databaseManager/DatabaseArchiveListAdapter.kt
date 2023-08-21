@@ -13,7 +13,6 @@ import ir.demoodite.dakhlokharj.R
 import ir.demoodite.dakhlokharj.databinding.ItemArchivedDatabaseBinding
 import ir.demoodite.dakhlokharj.utils.LocaleHelper
 import ir.demoodite.dakhlokharj.utils.UiUtil
-import saman.zamani.persiandate.PersianDate
 import java.io.File
 
 /**
@@ -201,9 +200,7 @@ class DatabaseArchiveListAdapter(
             }
             binding.apply {
                 tvLastModified.text = context.getString(
-                    R.string.last_modified_template, LocaleHelper.formatLocalizedDate(
-                        PersianDate(lastModified)
-                    )
+                    R.string.last_modified_template, LocaleHelper.formatLocalizedDate(lastModified)
                 )
                 btnShareArchive.setOnClickListener {
                     shareOnClickListener()
