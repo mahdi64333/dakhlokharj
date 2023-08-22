@@ -108,11 +108,13 @@ class MainActivity : AppCompatActivity() {
                                 )
                             }
                         }
+
                         FeedbackType.SNACKBAR -> {
                             Snackbar.make(
                                 binding.root, messageResId, Snackbar.LENGTH_LONG
                             ).show()
                         }
+
                         FeedbackType.START_LOADING -> loadingAlertDialog.show()
                         FeedbackType.STOP_LOADING -> loadingAlertDialog.dismiss()
                     }
@@ -168,6 +170,11 @@ class MainActivity : AppCompatActivity() {
      * Shows the [MainActivity] and [HomeFragment]'s showcases if they have not been shown.
      */
     private fun showShowcaseIfNotShown() {
+        // Don't show the showcase if language have not been selected
+        if (LocaleHelper.applicationLanguageCode?.isEmpty() != false) {
+            return
+        }
+
         val showcaseStatus = ShowcaseStatus(this)
 
         if (navController.currentDestination?.id == R.id.homeFragment && !showcaseStatus.isShowcaseShown(
