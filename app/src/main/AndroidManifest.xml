@@ -28,12 +28,9 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <data
-                    android:host="*"
-                    android:scheme="file" />
-                <data
-                    android:host="*"
-                    android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
                 <data android:mimeType="application/octet-stream" />
                 <data android:mimeType="application/x-sqlite3" />
                 <data android:mimeType="application/vnd.sqlite3" />
