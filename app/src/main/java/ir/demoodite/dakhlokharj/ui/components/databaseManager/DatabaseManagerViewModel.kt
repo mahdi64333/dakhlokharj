@@ -25,7 +25,7 @@ class DatabaseManagerViewModel @Inject constructor(
     private val settingsDataStore: SettingsDataStore,
     @Named(AppModule.FILES_DIR_PROVIDER) private val filesDir: File,
     @Named(AppModule.CACHE_DIR_PROVIDER) private val cacheDir: File,
-    private val databaseImporter: DataRepository.Companion.DatabaseImporter,
+    private val databaseImporter: DataRepository.DatabaseImporter,
 ) : ViewModel() {
     // Base File objects
     private val archiveDir = File(filesDir, "archive").also {

@@ -27,7 +27,7 @@ object AppModule {
     @Provides
     fun provideDatabaseImporter(
         @ApplicationContext app: Context,
-    ): DataRepository.Companion.DatabaseImporter = DataRepository.Companion.DatabaseImporter(app)
+    ): DataRepository.DatabaseImporter = DataRepository.DatabaseImporter(app)
 
     @Singleton
     @Provides
